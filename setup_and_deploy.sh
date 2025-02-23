@@ -1,18 +1,55 @@
+#!/bin/bash
+
+# Клонування репозиторію
+git clone https://github.com/navigator2601/Kondiki.git
+cd Kondiki
+
+# Створення та активація віртуального середовища
+python3 -m venv venv
+source venv/bin/activate
+
+# Оновлення pip
+pip install --upgrade pip
+
+# Створення файлу runtime.txt
+echo "python-3.9.12" > runtime.txt
+
+# Створення файлу requirements.txt
+cat <<EOT > requirements.txt
+Flask==2.0.2
+gunicorn==20.1.0
+python-telegram-bot==13.7
+asyncpg==0.30.0
+EOT
+
+# Створення файлу Procfile
+echo "web: python bot_menu.py" > Procfile
+
+# Створення файлу bot_menu.py
+cat <<EOT > bot_menu.py
 import asyncio
 import asyncpg
-import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
+import logging
+
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # 📌 Дані для підключення до PostgreSQL
 DB_URL = "postgresql://neondb_owner:npg_dhwrDX6O1keB@ep-round-star-a9r38wl3-pooler.gwc.azure.neon.tech/neondb"
 
 # 📌 Функція підключення до БД та отримання даних
 async def fetch_data(query):
-    conn = await asyncpg.connect(DB_URL)
-    rows = await conn.fetch(query)
-    await conn.close()
-    return rows
+    try:
+        conn = await asyncpg.connect(DB_URL)
+        rows = await conn.fetch(query)
+        await conn.close()
+        return rows
+    except Exception as e:
+        logger.error(f"Помилка підключення до БД: ${e}")
+        return []
 
 # 📌 Головне меню
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -27,28 +64,20 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [[InlineKeyboardButton("📋 Марки кондиціонерів", callback_data='brands')],
                 [InlineKeyboardButton("❄️ Типи фреонів", callback_data='freon')]]
-#                [InlineKeyboardButton("🔙 Назад", callback_data='back')]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("ℹ️ Інформація:", reply_markup=reply_markup)
 
 # 📌 Отримання списку марок кондиціонерів
 async def get_brands(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    brands = await fetch_data("SELECT id, name FROM cond_brand")  # Запит до таблиці
-    keyboard = [[InlineKeyboardButton(f"✅ {b['name']}", callback_data=f"brand_{b['id']}")] for b in brands]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.callback_query.message.reply_text("📋 **Марки кондиціонерів:**", reply_markup=reply_markup)
-
-# 📌 Отримання списку моделей для конкретної марки кондиціонера
-async def get_models(update: Update, context: ContextTypes.DEFAULT_TYPE, brand_id: int) -> None:
-    models = await fetch_data(f"SELECT indoor_unit_model, outdoor_unit_model FROM cond_models WHERE abbr = '{brand_id}'")
-    model_list = "\n".join([f"🏠 Внутрішній блок: {m['indoor_unit_model']}\n🌳 Зовнішній блок: {m['outdoor_unit_model']}" for m in models]) if models else "❌ Дані відсутні."
-    await update.callback_query.message.reply_text(f"📋 **Моделі кондиціонерів:**\n{model_list}", parse_mode="Markdown")
+    brands = await fetch_data("SELECT name FROM cond_brand")  # Запит до таблиці
+    brands_list = "\n".join([f"✅ {b['name']}" for b in brands]) if brands else "❌ Дані відсутні."
+    await update.callback_query.message.reply_text(f"📋 **Марки кондиціонерів:**\n{brands_list}", parse_mode="Markdown")
 
 # 📌 Отримання типів фреонів
 async def get_freon(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     freons = await fetch_data("SELECT name, chemical_name FROM freons")
-    freon_list = "\n".join([f"❄️ {f['name']} – {f['chemical_name']}" for f in freons]) if freons else "❌ Дані відсутні."
+    freon_list = "\n".join([f"❄️ {f['name']} – {f['chemical_name']}"] for f in freons) if freons else "❌ Дані відсутні."
     await update.callback_query.message.reply_text(f"❄️ **Типи фреонів:**\n{freon_list}", parse_mode="Markdown")
 
 # 📌 Обробка натискання кнопок
@@ -60,9 +89,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await get_brands(update, context)
     elif query.data == 'freon':
         await get_freon(update, context)
-    elif query.data.startswith('brand_'):
-        brand_id = query.data.split('_')[1]
-        await get_models(update, context, brand_id)
     elif query.data == 'back':
         await start(update, context)
 
@@ -83,18 +109,38 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 # 📌 Головна функція
 def main():
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    if not token:
-        token = "8177185933:AAGvnm0JmuTxucr8VqU0nzGd4WrNkn5VHpU"  # Ваш токен
-
-    app = Application.builder().token(token).build()
+    app = Application.builder().token("8177185933:AAGvnm0JmuTxucr8VqU0nzGd4WrNkn5VHpU").build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_callback))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
 
-    print("✅ Бот запущено...")
+    logger.info("✅ Бот запущено...")
     app.run_polling()
 
 if __name__ == '__main__':
     main()
+EOT
+
+# Встановлення залежностей
+pip install -r requirements.txt
+
+# Запуск бота локально для перевірки
+python bot_menu.py
+
+# Увійдіть у свій обліковий запис Heroku
+heroku login
+
+# Додайте віддалений сховище Heroku, якщо ще не додано
+heroku git:remote -a kondiki
+
+# Додайте змінні середовища для токену Telegram бота
+heroku config:set TELEGRAM_BOT_TOKEN=8177185933:AAGvnm0JmuTxucr8VqU0nzGd4WrNkn5VHpU
+
+# Запуште код до Heroku
+git add runtime.txt requirements.txt Procfile bot_menu.py
+git commit -m "Initial commit with stable Python version"
+git push heroku main
+
+# Перевірте журнали Heroku для отримання додаткової інформації про можливі помилки
+heroku logs -a kondiki --tail
