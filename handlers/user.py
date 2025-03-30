@@ -1,5 +1,5 @@
 from aiogram import types
-from aiogram.dispatcher import Dispatcher
+from aiogram import Router
 from openai_utils import generate_response
 from services import save_user
 from utils import format_response

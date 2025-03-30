@@ -10,7 +10,10 @@ from handlers.user import register_handlers_user
 # Ініціалізація бота та диспетчера
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
-dp = Dispatcher(storage=storage)
+dp = Dispatcher()  # Це заміна старого Dispatcher
+
+# Додаємо обробники
+dp.include_router(user.router)
 
 # Ініціалізація роутера
 router = dp.router
