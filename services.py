@@ -1,9 +1,14 @@
-from database import get_db_connection
+from database import SessionLocal, UserActionLog
 
 def save_user(username):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO users (username) VALUES (%s)", (username,))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    session = SessionLocal()
+    try:
+        # Створюємо новий запис користувача
+        new_user_action = UserActionLog(username=username, action="joined")
+        session.add(new_user_action)
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise
+    finally:
+        session.close()

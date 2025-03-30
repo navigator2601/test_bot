@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 from config import DATABASE_URL
 from datetime import datetime
 
@@ -17,24 +17,9 @@ class UserActionLog(Base):
     action = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
-def log_user_action(session: Session, update):
+def log_user_action(session, update):
     username = update.message.from_user.username
     action = update.message.text
     log_entry = UserActionLog(username=username, action=action)
     session.add(log_entry)
     session.commit()
-
-# Приклад моделі
-def create_user_table():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username VARCHAR(100) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    conn.commit()
-    cursor.close()
-    conn.close()
