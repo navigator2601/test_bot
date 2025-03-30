@@ -1,16 +1,8 @@
-import openai
-from config import Config
+from transformers import pipeline
 
-openai.api_key = Config.OPENAI_API_KEY
+# Ініціалізація моделі LLaMA через Hugging Face
+generator = pipeline('text-generation', model='meta-llama/Meta-Llama-3-8B')
 
-def get_ai_response(prompt: str) -> str:
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.7,
-        max_tokens=150,
-    )
-    return response.choices[0].message["content"].strip()
+def generate_response(prompt):
+    response = generator(prompt, max_length=150, num_return_sequences=1)
+    return response[0]['generated_text']

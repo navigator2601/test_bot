@@ -1,13 +1,15 @@
 from aiogram import types
-from aiogram import Dispatcher
-from aiogram.filters import Command
-from sqlalchemy.orm import Session
-from database import SessionLocal, log_user_action
+from aiogram.dispatcher import Dispatcher
+from openai_utils import generate_response
+from services import save_user
+from utils import format_response
 
-async def user_command(message: types.Message):
-    db: Session = SessionLocal()
-    log_user_action(db, message.from_user.id, "user_command")
-    await message.reply("This is a user command response.")
+async def handle_user_message(message: types.Message):
+    user_query = message.text
+    response = generate_response(user_query)
+    formatted_response = format_response(response)
+    await message.reply(formatted_response)
+    save_user(message.from_user.username)
 
 def register_handlers_user(dp: Dispatcher):
-    dp.message.register(user_command, Command(commands=["user"]))
+    dp.register_message_handler(handle_user_message, content_types=types.ContentType.TEXT)
