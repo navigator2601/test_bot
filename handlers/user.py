@@ -1,6 +1,6 @@
 from aiogram import Router
 from aiogram.types import Message
-from openai_gpt import generate_gpt_response
+from gemini import generate_gemini_response
 from services import save_user
 from utils import format_response
 
@@ -9,7 +9,7 @@ router = Router()
 @router.message()
 async def handle_user_message(message: Message):
     user_query = message.text
-    response = generate_gpt_response(user_query)
+    response = generate_gemini_response(user_query)
     if response.startswith("Error:"):
         await message.reply(response)
     else:

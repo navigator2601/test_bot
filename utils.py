@@ -1,2 +1,3 @@
 def format_response(response):
-    return f"Response: {response}"
+    # Функція для форматування відповіді
+    return response
