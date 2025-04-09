@@ -1,32 +1,33 @@
-import logging
-import asyncio
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message
-from aiogram.filters import Command
-from aiogram.fsm.storage.memory import MemoryStorage
-from config import API_TOKEN
-from handlers.user import register_handlers_user
+import os
+from google.cloud import aiplatform
+from dotenv import load_dotenv
 
-logging.basicConfig(level=logging.INFO)
+# Завантаження змінних з файлу .env
+load_dotenv()
 
-# Перевірка токену
-if not API_TOKEN:
-    raise ValueError("No API token provided. Please check your .env file.")
+# Зчитування змінних середовища
+PROJECT_ID = os.getenv("GOOGLE_PROJECT_ID")
+REGION = os.getenv("GOOGLE_LOCATION")
+SERVICE_ACCOUNT_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-# Ініціалізація бота та диспетчера
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(storage=MemoryStorage())
+# Перевірка, чи всі необхідні змінні задані
+if not PROJECT_ID or not REGION or not SERVICE_ACCOUNT_PATH:
+    raise ValueError("Перевірте файл .env. Деякі змінні не задані: GOOGLE_PROJECT_ID, GOOGLE_LOCATION або GOOGLE_APPLICATION_CREDENTIALS.")
 
-# Реєстрація хендлерів
-register_handlers_user(dp)
+# Встановлення облікових даних
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = SERVICE_ACCOUNT_PATH
 
-# Реєстрація стартового хендлера
-@dp.message(Command(commands=["start"]))
-async def start_handler(message: Message):
-    await message.answer("Hello! I am your bot.")
+# Ініціалізація aiplatform
+aiplatform.init(
+    project=PROJECT_ID,
+    location=REGION
+)
 
-async def main():
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    asyncio.run(main())
+# Завантаження моделі та тестовий виклик
+try:
+    llm = aiplatform.TextGenerationModel.from_pretrained("text-bison")
+    prompt = "Привіт! Як справи?"
+    response = llm.predict(prompt=prompt)
+    print("Відповідь моделі:", response.text)
+except Exception as e:
+    print(f"Виникла помилка: {e}")

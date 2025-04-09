@@ -1,51 +1,27 @@
-import json
+# Підключення до ШІ Gemini
 import requests
-from config import GEMINI_SERVICE_ACCOUNT
+import logging
 
-def generate_gemini_response(user_query):
-    service_account_info = json.loads(GEMINI_SERVICE_ACCOUNT)
-    
-    # Формування JWT для аутентифікації
-    import jwt
-    import time
+class GeminiAI:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.base_url = "https://api.gemini.com/v1/"
 
-    iat = time.time()
-    exp = iat + 3600
-    payload = {
-        'iss': service_account_info['client_email'],
-        'sub': service_account_info['client_email'],
-        'aud': service_account_info['token_uri'],
-        'iat': iat,
-        'exp': exp
-    }
-    private_key = service_account_info['private_key']
-    assertion = jwt.encode(payload, private_key, algorithm='RS256')
-    
-    # Отримання токену доступу
-    token_response = requests.post(service_account_info['token_uri'], data={
-        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
-        "assertion": assertion
-    })
-    
-    if token_response.status_code != 200:
-        return f"Error: Unable to retrieve access token. Status code: {token_response.status_code}, Response: {token_response.text}"
-    
-    access_token = token_response.json().get('access_token')
-    
-    if not access_token:
-        return "Error: Access token is missing in the response."
+    def generate_response(self, prompt):
+        logging.info(f"Sending request to Gemini AI with prompt: {prompt}")
+        response = requests.post(
+            f"{self.base_url}generate",
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            json={"prompt": prompt, "additional_param": "value"}  # Додайте додаткові параметри, якщо необхідно
+        )
+        logging.info(f"Received response from Gemini AI: {response.status_code}, {response.text}")
+        if response.status_code == 200:
+            return response.json().get("response")
+        else:
+            raise Exception(f"Error: {response.status_code}, {response.text}")
 
-    # Виконання запиту до Google Gemini
-    gemini_endpoint = 'https://gemini.googleapis.com/v1/your_endpoint'  # Замість 'your_endpoint' вставте ваш кінцевий пункт Gemini
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json'
-    }
-    response = requests.post(gemini_endpoint, headers=headers, json={
-        "query": user_query
-    })
-    
-    if response.status_code == 200:
-        return response.json().get('result')
-    else:
-        return f"Error: {response.status_code} {response.text}"
+# Приклад використання
+if __name__ == "__main__":
+    api_key = "your-gemini-api-key"
+    gemini_ai = GeminiAI(api_key)
+    print(gemini_ai.generate_response("Hello, Gemini!"))
