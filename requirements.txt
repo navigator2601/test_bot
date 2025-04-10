@@ -1,4 +1,0 @@
-aiogram
-python-dotenv
-requests
-google-cloud-aiplatform
