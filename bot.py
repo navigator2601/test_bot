@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 import os
-from commands import register_handlers
+from handlers.user import register_handlers  # Виправлений імпорт
 
 # Завантаження змінних з файлу .env
 load_dotenv()
@@ -10,6 +10,7 @@ load_dotenv()
 # Зчитування токена бота з .env
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
+# Перевірка наявності токена
 if not TELEGRAM_BOT_TOKEN:
     raise ValueError("Не задано TELEGRAM_BOT_TOKEN у файлі .env")
 
@@ -28,5 +29,6 @@ async def main():
     finally:
         await bot.session.close()
 
+# Запуск бота
 if __name__ == "__main__":
     asyncio.run(main())
