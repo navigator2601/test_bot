@@ -1,5 +1,17 @@
-# Ігнорування файлів
+# Ignore environment variables
 .env
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Ignore virtual environments
 myenv/
 venv/
 
+# Ignore additional operating system files (optional)
+.DS_Store
+Thumbs.db
