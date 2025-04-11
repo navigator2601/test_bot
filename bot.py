@@ -1,34 +1,39 @@
 import asyncio
+import logging
 from aiogram import Bot, Dispatcher
-from dotenv import load_dotenv
-import os
-from handlers.user import register_handlers  # Виправлений імпорт
+from aiogram.types import BotCommand
+from config import BOT_TOKEN
+from handlers import register_handlers
+from database import init_db
 
-# Завантаження змінних з файлу .env
-load_dotenv()
+# Налаштування логування
+logging.basicConfig(level=logging.INFO)
 
-# Зчитування токена бота з .env
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-
-# Перевірка наявності токена
-if not TELEGRAM_BOT_TOKEN:
-    raise ValueError("Не задано TELEGRAM_BOT_TOKEN у файлі .env")
-
-# Ініціалізація бота та диспетчера
-bot = Bot(token=TELEGRAM_BOT_TOKEN)
+# Створюємо екземпляр бота
+bot = Bot(token=BOT_TOKEN)  # Не передаємо parse_mode сюди
 dp = Dispatcher()
 
-# Реєстрація обробників команд
-register_handlers(dp)
+async def set_bot_commands():
+    """Функція для встановлення команд бота."""
+    commands = [
+        BotCommand(command="/start", description="Запустити бота"),
+    ]
+    await bot.set_my_commands(commands)
 
-# Основна функція для запуску бота
 async def main():
-    try:
-        print("Бот запущено...")
-        await dp.start_polling(bot)
-    finally:
-        await bot.session.close()
+    # Ініціалізація бази даних
+    await init_db()
 
-# Запуск бота
+    # Встановлюємо команди бота
+    await set_bot_commands()
+
+    # Реєстрація обробників
+    register_handlers(dp)
+
+    # Запуск бота
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot)
+
 if __name__ == "__main__":
+    logging.info("Запуск бота...")
     asyncio.run(main())

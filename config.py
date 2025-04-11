@@ -1,15 +1,11 @@
-import os
 from dotenv import load_dotenv
+import os
 
-# Завантаження змінних середовища з файлу .env
+# Завантажуємо змінні середовища з .env файлу
 load_dotenv()
 
-# Читання значень
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Токен бота
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Перевірка обов'язкових змінних
-if not TELEGRAM_TOKEN:
-    raise ValueError("TELEGRAM_TOKEN не заданий у файлі .env")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL не заданий у файлі .env")
+# Дані для підключення до бази даних
+DB_URL = os.getenv("DB_URL")

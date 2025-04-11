@@ -19,7 +19,7 @@
 │── middlewares.py      # Middleware (наприклад, логування)
 │── services.py         # Бізнес-логіка
 │── utils.py            # Допоміжні функції
-│── gemini.py           # Підключення до ШІ Gemini
+│── gemini.py           # Підключення до ШІ Gemini у планах
 ```
 
 ## Інструкції з встановлення
