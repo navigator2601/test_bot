@@ -14,7 +14,9 @@ bot = Bot(token=BOT_TOKEN)  # Не передаємо parse_mode сюди
 dp = Dispatcher()
 
 async def set_bot_commands():
-    """Функція для встановлення команд бота."""
+    """
+    Функція для встановлення команд бота.
+    """
     commands = [
         BotCommand(command="/start", description="Запустити бота"),
     ]

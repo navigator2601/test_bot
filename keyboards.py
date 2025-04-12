@@ -1,7 +1,9 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def main_menu() -> ReplyKeyboardMarkup:
-    """Головне меню 2×2 з кнопками та піктограмами"""
+    """
+    Головне меню 2×2 з кнопками.
+    """
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="📚 Каталог"), KeyboardButton(text="🛠️ Технічна інформація")],
@@ -10,18 +12,17 @@ def main_menu() -> ReplyKeyboardMarkup:
         resize_keyboard=True  # Зменшує розмір клавіатури для зручності
     )
 
-def catalog_menu() -> ReplyKeyboardMarkup:
-    """Компактне підменю для кнопки Каталог (2×2)"""
+def catalog_menu(brands: list[tuple[str, int]]) -> ReplyKeyboardMarkup:
+    """
+    Динамічне меню для брендів.
+    :param brands: Список брендів та кількість моделей у форматі [(brand_name, model_count), ...].
+    """
+    keyboard = [
+        [KeyboardButton(text=f"{brand_name} ({model_count})")] for brand_name, model_count in brands
+    ]
+    # Додаємо кнопку "Назад" в кінці
+    keyboard.append([KeyboardButton(text="⬅️ Назад")])
     return ReplyKeyboardMarkup(
-        keyboard=[
-            [
-                KeyboardButton(
-                    text="📜 Вибір зі списку",
-                    web_app=WebAppInfo(url="https://navigator2601.github.io/test_bot/webapp/")  # URL вашого веб-додатка
-                ),
-                KeyboardButton(text="🔍 Пошук по бренду")
-            ],
-            [KeyboardButton(text="📂 Пошук по типу"), KeyboardButton(text="⬅️ Назад")]  # Оновлений формат
-        ],
+        keyboard=keyboard,
         resize_keyboard=True
     )

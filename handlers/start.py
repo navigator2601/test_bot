@@ -18,7 +18,9 @@ def get_greeting():
 
 @router.message(F.text == "/start")
 async def start_command(message: types.Message):
-    """Обробник для команди /start"""
+    """
+    Обробник для команди /start
+    """
     greeting = get_greeting()
     first_name = message.from_user.first_name  # Отримуємо ім'я користувача
     await message.answer(
