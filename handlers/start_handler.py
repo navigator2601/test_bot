@@ -1,27 +1,9 @@
-import logging
 from aiogram import Router, types
-from aiogram.filters import Command
-from keyboards.reply_keyboard import get_reply_keyboard
+from aiogram.filters import Command  # Використання нового способу фільтрації команд
 from datetime import datetime
 
 # Ініціалізація роутера
 router = Router()
-logger = logging.getLogger(__name__)
-
-@router.message(Command(commands=["start"]))
-async def start_command_handler(message: types.Message):
-    user_name = message.from_user.first_name
-    greeting = get_greeting()
-
-    # Логування дії користувача
-    logger.info(f"Користувач {message.from_user.id} ({user_name}) виконав команду /start")
-
-    # Відправляємо клавіатуру разом із повідомленням
-    await message.answer(
-        f"{greeting}, {user_name}!\n"
-        "Оберіть потрібний розділ нижче 👇",
-        reply_markup=get_reply_keyboard()
-    )
 
 # Функція визначення привітання відповідно до часу доби
 def get_greeting() -> str:
@@ -34,6 +16,15 @@ def get_greeting() -> str:
         return "Доброго вечора"
     else:
         return "Доброї ночі"
+
+# Обробник команди /start
+@router.message(Command(commands=["start"]))  # Використовуємо новий спосіб фільтрації
+async def start_command_handler(message: types.Message):
+    user_name = message.from_user.first_name
+    greeting = get_greeting()
+    await message.answer(f"{greeting}, {user_name}!")
+    await message.answer("Для супроводу у пошуку клікніть потрібну кнопку нижче 👇\n"
+                         "Для швидкого пошуку просто введіть будь-яку інформацію")
 
 # Функція реєстрації роутера
 def register_start_handler(dp):
