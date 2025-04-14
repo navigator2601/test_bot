@@ -1,3 +1,4 @@
+# Обробник текстових повідомлень
 from aiogram import Router, types
 
 # Ініціалізація роутера

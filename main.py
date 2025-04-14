@@ -5,7 +5,7 @@ from config import BOT_TOKEN
 from handlers.start_handler import register_start_handler
 from handlers.text_handler import register_text_handler
 
-# Налаштування логування
+# Налаштування логування  
 logging.basicConfig(level=logging.INFO)
 
 # Ініціалізація бота

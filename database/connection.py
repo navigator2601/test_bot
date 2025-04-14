@@ -1,3 +1,4 @@
+# Обробник підключення до бази даних
 import asyncpg
 from config import DB_URL
 

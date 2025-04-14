@@ -1,3 +1,4 @@
+# Обробник команди /start
 from aiogram import Router, types
 from aiogram.filters import Command  # Використання нового способу фільтрації команд
 from datetime import datetime
