@@ -29,3 +29,215 @@
 2025-04-15 14:35:09,075 - aiogram.event - INFO - Update id=165462292 is handled. Duration 214 ms by bot id=7859388529
 2025-04-15 14:37:34,998 - aiogram.event - INFO - Update id=165462293 is handled. Duration 102 ms by bot id=7859388529
 2025-04-15 14:38:12,298 - aiogram.event - INFO - Update id=165462294 is handled. Duration 122 ms by bot id=7859388529
+2025-04-15 14:49:20,582 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 14:49:20,583 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:49:20,583 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 14:49:20,835 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 14:49:23,271 - __main__ - INFO - Бот запускається...
+2025-04-15 14:49:23,272 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 14:49:23,556 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 14:49:23,556 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 14:49:23,556 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 14:49:23,626 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:49:36,449 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 14:49:40,141 - aiogram.event - INFO - Update id=165462295 is handled. Duration 3692 ms by bot id=7859388529
+2025-04-15 14:49:49,088 - aiogram.event - INFO - Update id=165462296 is handled. Duration 253 ms by bot id=7859388529
+2025-04-15 14:50:54,889 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 14:50:58,391 - aiogram.event - INFO - Update id=165462297 is handled. Duration 3502 ms by bot id=7859388529
+2025-04-15 14:51:06,805 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 14:51:10,474 - aiogram.event - INFO - Update id=165462298 is handled. Duration 3669 ms by bot id=7859388529
+2025-04-15 14:51:12,296 - aiogram.event - INFO - Update id=165462299 is handled. Duration 98 ms by bot id=7859388529
+2025-04-15 14:51:14,758 - aiogram.event - INFO - Update id=165462300 is handled. Duration 171 ms by bot id=7859388529
+2025-04-15 14:55:45,504 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 14:55:45,505 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:55:45,506 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 14:55:45,757 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 14:55:48,274 - __main__ - INFO - Бот запускається...
+2025-04-15 14:55:48,275 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 14:55:48,570 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 14:55:48,570 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 14:55:48,570 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 14:55:48,673 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:55:53,709 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 14:55:57,344 - aiogram.event - INFO - Update id=165462301 is handled. Duration 3635 ms by bot id=7859388529
+2025-04-15 14:56:00,461 - aiogram.event - INFO - Update id=165462302 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 14:56:05,068 - aiogram.event - INFO - Update id=165462303 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 15:08:01,578 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 15:08:01,579 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 15:08:01,579 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 15:08:01,831 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 15:10:21,660 - __main__ - INFO - Бот запускається...
+2025-04-15 15:10:21,661 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 15:10:22,041 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 15:10:22,041 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 15:10:22,041 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 15:10:22,129 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 15:10:27,291 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 15:10:28,647 - aiogram.event - INFO - Update id=165462304 is not handled. Duration 1356 ms by bot id=7859388529
+2025-04-15 15:10:28,648 - aiogram.event - ERROR - Cause exception while process update id=165462304 by bot id=7859388529
+ValidationError: 1 validation error for ReplyKeyboardMarkup
+keyboard
+  Field required [type=missing, input_value={'resize_keyboard': True}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+Traceback (most recent call last):
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/handlers/start_handler.py", line 49, in start_command_handler
+    reply_markup=create_main_menu_keyboard()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/keyboards/reply_keyboard.py", line 17, in create_main_menu_keyboard
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for ReplyKeyboardMarkup
+keyboard
+  Field required [type=missing, input_value={'resize_keyboard': True}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+2025-04-15 15:11:39,471 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 15:11:39,471 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 15:11:39,472 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 15:11:39,723 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 15:11:42,229 - __main__ - INFO - Бот запускається...
+2025-04-15 15:11:42,229 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 15:11:42,554 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 15:11:42,554 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 15:11:42,554 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 15:11:42,624 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 15:11:45,204 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 15:11:46,658 - aiogram.event - INFO - Update id=165462305 is handled. Duration 1454 ms by bot id=7859388529
+2025-04-15 15:14:33,200 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 15:14:33,201 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 15:14:33,201 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 15:14:33,453 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 15:14:35,928 - __main__ - INFO - Бот запускається...
+2025-04-15 15:14:35,929 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 15:14:36,293 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 15:14:36,293 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 15:14:36,294 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 15:14:36,362 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 15:14:39,460 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 15:14:41,008 - aiogram.event - INFO - Update id=165462306 is handled. Duration 1548 ms by bot id=7859388529
+2025-04-15 15:18:54,611 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 15:18:54,612 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 15:18:54,612 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 15:18:54,864 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 15:18:57,381 - __main__ - INFO - Бот запускається...
+2025-04-15 15:18:57,382 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 15:18:57,691 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 15:18:57,692 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 15:18:57,692 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 15:18:57,769 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 15:19:00,491 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 15:19:03,401 - aiogram.event - INFO - Update id=165462307 is handled. Duration 2910 ms by bot id=7859388529
+2025-04-15 15:20:11,027 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
+2025-04-15 15:20:11,027 - aiogram.dispatcher - WARNING - Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 7859388529)
+2025-04-15 15:20:22,440 - aiogram.dispatcher - INFO - Connection established (tryings = 1, bot id = 7859388529)
+2025-04-15 16:33:23,069 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
+2025-04-15 16:33:23,069 - aiogram.dispatcher - WARNING - Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 7859388529)
+2025-04-15 16:33:24,365 - aiogram.dispatcher - INFO - Connection established (tryings = 1, bot id = 7859388529)
+2025-04-15 16:33:24,367 - aiogram.event - INFO - Update id=165462308 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:33:24,367 - aiogram.event - INFO - Update id=165462309 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:33:24,368 - aiogram.event - INFO - Update id=165462310 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:33:24,369 - aiogram.event - INFO - Update id=165462311 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:45:22,583 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 16:45:25,346 - aiogram.event - INFO - Update id=165462312 is handled. Duration 2762 ms by bot id=7859388529
+2025-04-15 16:45:43,714 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 16:45:46,211 - aiogram.event - INFO - Update id=165462313 is handled. Duration 2497 ms by bot id=7859388529
+2025-04-15 16:45:51,832 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 16:45:51,832 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 16:45:51,833 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 16:45:52,084 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 16:45:54,563 - __main__ - INFO - Бот запускається...
+2025-04-15 16:45:54,564 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 16:45:54,874 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 16:45:54,875 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 16:45:54,875 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 16:45:54,968 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 16:45:58,612 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 16:46:01,536 - aiogram.event - INFO - Update id=165462314 is handled. Duration 2924 ms by bot id=7859388529
+2025-04-15 16:46:21,115 - aiogram.event - INFO - Update id=165462315 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:46:25,697 - aiogram.event - INFO - Update id=165462316 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:46:26,378 - aiogram.event - INFO - Update id=165462317 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:46:27,304 - aiogram.event - INFO - Update id=165462318 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:48:41,950 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 16:48:41,951 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 16:48:41,951 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 16:48:42,203 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 16:48:44,675 - __main__ - INFO - Бот запускається...
+2025-04-15 16:48:44,676 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 16:48:44,961 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 16:48:44,962 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 16:48:44,962 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 16:48:45,046 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 16:48:50,125 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 16:48:52,906 - aiogram.event - INFO - Update id=165462319 is handled. Duration 2782 ms by bot id=7859388529
+2025-04-15 16:48:57,188 - aiogram.event - INFO - Update id=165462320 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:49:03,001 - aiogram.event - INFO - Update id=165462321 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:49:05,408 - aiogram.event - INFO - Update id=165462322 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:58:06,898 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 16:58:06,899 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 16:58:06,899 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 16:58:07,150 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 16:58:09,711 - __main__ - INFO - Бот запускається...
+2025-04-15 16:58:09,712 - __main__ - INFO - Встановлюємо головне меню команд...
+2025-04-15 16:58:10,085 - handlers.menu_handler - INFO - Головне меню команд встановлено.
+2025-04-15 16:58:10,085 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 16:58:10,085 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 16:58:10,175 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 16:58:19,735 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 16:58:22,464 - aiogram.event - INFO - Update id=165462323 is handled. Duration 2729 ms by bot id=7859388529
+2025-04-15 16:58:33,135 - aiogram.event - INFO - Update id=165462324 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:58:35,007 - aiogram.event - INFO - Update id=165462325 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:58:35,600 - aiogram.event - INFO - Update id=165462326 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:58:36,386 - aiogram.event - INFO - Update id=165462327 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:58:37,028 - aiogram.event - INFO - Update id=165462328 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:58:37,657 - aiogram.event - INFO - Update id=165462329 is handled. Duration 0 ms by bot id=7859388529
+2025-04-15 16:58:38,319 - aiogram.event - INFO - Update id=165462330 is handled. Duration 0 ms by bot id=7859388529

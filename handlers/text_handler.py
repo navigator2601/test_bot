@@ -7,7 +7,7 @@ router = Router()
 # Обробник текстових повідомлень
 @router.message()
 async def handle_text_messages(message: types.Message):
-    await message.reply("ШІ інтелект на етапі розробки, скористайтеся меню або командами бота!")
+    pass  # Повідомлення видалено. Обробник нічого не відповідає.
 
 # Функція реєстрації роутера
 def register_text_handler(dp):
