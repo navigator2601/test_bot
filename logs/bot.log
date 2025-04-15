@@ -1,0 +1,31 @@
+2025-04-15 14:28:12,329 - __main__ - INFO - Бот запускається...
+2025-04-15 14:28:12,330 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 14:28:12,330 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 14:28:12,606 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:28:23,316 - aiogram.event - INFO - Update id=165462285 is handled. Duration 3563 ms by bot id=7859388529
+2025-04-15 14:28:35,181 - aiogram.event - INFO - Update id=165462286 is handled. Duration 109 ms by bot id=7859388529
+2025-04-15 14:30:48,147 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 14:30:48,148 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:30:48,148 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 14:30:48,400 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 14:30:50,829 - __main__ - INFO - Бот запускається...
+2025-04-15 14:30:50,830 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 14:30:50,830 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 14:30:51,125 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:31:10,667 - aiogram.event - INFO - Update id=165462287 is handled. Duration 3663 ms by bot id=7859388529
+2025-04-15 14:31:33,749 - aiogram.event - INFO - Update id=165462288 is handled. Duration 117 ms by bot id=7859388529
+2025-04-15 14:31:40,493 - aiogram.event - INFO - Update id=165462289 is handled. Duration 197 ms by bot id=7859388529
+2025-04-15 14:34:30,206 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-04-15 14:34:30,208 - aiogram.dispatcher - INFO - Polling stopped for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:34:30,208 - aiogram.dispatcher - INFO - Polling stopped
+2025-04-15 14:34:30,460 - __main__ - INFO - Бот завершив роботу.
+2025-04-15 14:34:32,917 - __main__ - INFO - Бот запускається...
+2025-04-15 14:34:32,917 - __main__ - INFO - Обробники команд зареєстровані.
+2025-04-15 14:34:32,918 - aiogram.dispatcher - INFO - Start polling
+2025-04-15 14:34:33,202 - aiogram.dispatcher - INFO - Run polling for bot @kondiki_test_bot id=7859388529 - 'kondiki_test'
+2025-04-15 14:34:42,021 - handlers.start_handler - INFO - Користувач Віталій Дзюба (@Molfar2207) (ID: 525974549) виконав команду /start.
+2025-04-15 14:34:45,593 - aiogram.event - INFO - Update id=165462290 is handled. Duration 3573 ms by bot id=7859388529
+2025-04-15 14:34:59,642 - aiogram.event - INFO - Update id=165462291 is handled. Duration 104 ms by bot id=7859388529
+2025-04-15 14:35:09,075 - aiogram.event - INFO - Update id=165462292 is handled. Duration 214 ms by bot id=7859388529
+2025-04-15 14:37:34,998 - aiogram.event - INFO - Update id=165462293 is handled. Duration 102 ms by bot id=7859388529
+2025-04-15 14:38:12,298 - aiogram.event - INFO - Update id=165462294 is handled. Duration 122 ms by bot id=7859388529
