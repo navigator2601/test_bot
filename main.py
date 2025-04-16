@@ -1,42 +1,35 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 from config import BOT_TOKEN
-from handlers.start_handler import register_start_handler  # Імпортуємо обробник для команди /start
-from handlers.text_handler import register_text_handler
-from handlers.menu_handler import set_main_menu, register_menu_handlers  # Імпортуємо обробники меню
-from utils.logger import get_logger
+from handlers.menu_handler import set_main_menu
+from handlers.start_handler import router
+from utils.logger import setup_logger
 
-# Отримуємо логер
-logger = get_logger(__name__)
+# Налаштування логування
+logger = setup_logger("__main__")
 
-# Ініціалізація бота
+# Ініціалізація бота та диспетчера
 bot = Bot(token=BOT_TOKEN)
-
-# Ініціалізація диспетчера
 dp = Dispatcher()
 
-# Головна функція запуску бота
 async def main():
     logger.info("Бот запускається...")
 
-    # Встановлення головного меню
+    # Встановлення головного меню команд
     logger.info("Встановлюємо головне меню команд...")
     await set_main_menu(bot)
 
     # Реєстрація обробників
-    register_start_handler(dp)
-    register_text_handler(dp)
-    register_menu_handlers(dp)
-
+    logger.info("Реєструємо обробники...")
+    dp.include_router(router)
     logger.info("Обробники команд зареєстровані.")
 
-    # Запуск опитування
-    try:
-        await dp.start_polling(bot)
-    except Exception as e:
-        logger.error(f"Виникла помилка під час запуску бота: {e}")
-    finally:
-        logger.info("Бот завершив роботу.")
+    # Запуск polling
+    logger.info("Запускаємо polling...")
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Бот зупинено.")
