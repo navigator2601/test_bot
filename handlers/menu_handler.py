@@ -1,3 +1,4 @@
+# Додано стартове меню команд
 from aiogram import Bot
 from utils.logger import setup_logger
 
