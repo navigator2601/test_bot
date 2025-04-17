@@ -22,7 +22,7 @@ async def set_main_menu(bot: Bot):
     # Встановлення команд у меню бота
     try:
         await bot.set_my_commands([
-            BotCommand(command, description) for command, description in commands
+            BotCommand(command=command, description=description) for command, description in commands
         ])
         logger.info("Головне меню команд успішно встановлено.")
     except Exception as e:
