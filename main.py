@@ -1,8 +1,10 @@
 import asyncio
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command  # Імпортуємо Command
 from config import BOT_TOKEN
 from handlers.menu_handler import set_main_menu
 from handlers.start_handler import router
+from keyboards.reply_keyboard import create_main_menu_keyboard  # Імпортуємо клавіатуру
 from utils.logger import setup_logger
 from flask import Flask
 import os
@@ -42,6 +44,8 @@ async def main():
     # Реєстрація обробників
     logger.info("Реєструємо обробники...")
     dp.include_router(router)
+
+    # Логування реєстрації обробників
     logger.info("Обробники команд зареєстровані.")
 
     # Запуск polling

@@ -3,6 +3,7 @@ from aiogram.filters import Command
 from utils.logger import setup_logger
 from utils.weather import get_weather
 from utils.last_login import log_user_login  # Імпортуємо функцію для логування
+from keyboards.reply_keyboard import create_main_menu_keyboard, router as keyboard_router  # Імпортуємо клавіатуру та її роутер
 from datetime import datetime
 import random
 import asyncio  # Для використання асинхронних затримок
@@ -12,6 +13,9 @@ logger = setup_logger("handlers.start_handler")
 
 # Створення Роутера
 router = Router()
+
+# Додаємо роутер клавіатури до основного
+router.include_router(keyboard_router)
 
 def get_season():
     """
@@ -147,10 +151,10 @@ async def start_command(message: types.Message):
 
     # Відправка індикатора набору тексту
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    await asyncio.sleep(1)  # Затримка для більш реалістичного ефекту
+    await asyncio.sleep(1)
     await message.bot.send_message(chat_id=message.chat.id, text=greeting_message)
 
     # Відправка індикатора набору тексту перед другим повідомленням
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    await asyncio.sleep(1)  # Затримка для більш реалістичного ефекту
-    await message.bot.send_message(chat_id=message.chat.id, text=extra_message)
+    await asyncio.sleep(1)
+    await message.bot.send_message(chat_id=message.chat.id, text=extra_message, reply_markup=create_main_menu_keyboard())
