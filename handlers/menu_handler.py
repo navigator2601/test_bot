@@ -1,5 +1,6 @@
 # Додано стартове меню команд
 from aiogram import Bot
+from aiogram.types import BotCommand  # Імпорт BotCommand
 from utils.logger import setup_logger
 
 # Налаштування логування
