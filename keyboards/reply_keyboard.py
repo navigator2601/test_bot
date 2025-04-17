@@ -21,7 +21,7 @@ def create_main_menu_keyboard() -> ReplyKeyboardMarkup:
         "🆘 Допомога",               # Опис функціоналу
         "⚠️ Коди помилок",           # Інформація про коди помилок
         "🛠️ Технічна інформація",    # Інформація про монтаж
-        "➡️ Додаткові функції"        # Перехід до калькуляторів та інших функцій
+        "📐️ Додаткові функції"        # Перехід до калькуляторів та інших функцій
     ]
 
     # Формування клавіатури: 2 кнопки в рядку
@@ -80,7 +80,7 @@ async def show_additional_functions(message: Message):
     Обробник для кнопки "➡️ Додаткові функції".
     """
     await message.answer(
-        "Оберіть одну з додаткових функцій:",
+        "Ви в розділі додаткових функцій, оберіть що вас цікавить.",
         reply_markup=create_additional_functions_keyboard()
     )
 
@@ -90,7 +90,7 @@ async def back_to_main_menu(message: Message):
     Обробник для кнопки "🔙 Назад до головного меню".
     """
     await message.answer(
-        "Повертаємося до головного меню:",
+        "Ви повернулися в головне меню:",
         reply_markup=create_main_menu_keyboard()
     )
 
@@ -101,4 +101,4 @@ async def log_button_click(message: Message):
     """
     user = message.from_user
     logger.info(f"Користувач {user.full_name} (@{user.username}) (ID: {user.id}) натиснув кнопку '{message.text}'.")
-    await message.answer(f"Ви натиснули кнопку: {message.text}")
+    await message.answer(f"Ви перейшли до розділу: {message.text}")
