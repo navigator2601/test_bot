@@ -1,21 +1,35 @@
-from aiogram import Router, types
-from aiogram.filters import Command
-from utils.logger import setup_logger
-from utils.weather import get_weather
-from utils.last_login import log_user_login  # Імпортуємо функцію для логування
-from keyboards.reply_keyboard import create_main_menu_keyboard, router as keyboard_router  # Імпортуємо клавіатуру та її роутер
+from aiogram import Router, F
+from aiogram.types import Message
+from keyboards.reply_keyboard import create_main_menu_keyboard  # Імпортуємо клавіатуру
+from utils.last_login import log_user_login
+from utils.logger import logger  # Імпортуємо основний логер
 from datetime import datetime
 import random
-import asyncio  # Для використання асинхронних затримок
+import asyncio
+import requests
+from config import WEATHER_API_KEY  # Імпортуємо ключ API для погоди
 
-# Налаштування логування
-logger = setup_logger("handlers.start_handler")
-
-# Створення Роутера
+# Ініціалізація маршрутизатора
 router = Router()
 
-# Додаємо роутер клавіатури до основного
-router.include_router(keyboard_router)
+
+def get_weather():
+    """
+    Отримує дані про погоду для міста Полтава через API OpenWeatherMap.
+    """
+    city = "Poltava"
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric&lang=uk"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            logger.error(f"Не вдалося отримати погоду. Код помилки: {response.status_code}")
+            return None
+    except Exception as e:
+        logger.error(f"Помилка під час запиту до API погоди: {e}")
+        return None
+
 
 def get_season():
     """
@@ -30,6 +44,7 @@ def get_season():
         return "summer"  # Літо
     elif month in [9, 10, 11]:
         return "autumn"  # Осінь
+
 
 def generate_greeting(first_name, weather_data):
     """
@@ -118,6 +133,7 @@ def generate_greeting(first_name, weather_data):
 
     return f"{greeting}\n{seasonal_message}\n{weather_phrases}\nРадий вас бачити, {first_name}!"
 
+
 def generate_extra_message():
     """
     Генерує додаткове повідомлення.
@@ -131,30 +147,37 @@ def generate_extra_message():
     ]
     return random.choice(extra_messages)
 
-@router.message(Command(commands=["start"]))
-async def start_command(message: types.Message):
-    """
-    Обробник команди /start
-    """
-    user = message.from_user
-    logger.info(f"Користувач {user.full_name} (@{user.username}) (ID: {user.id}) виконав команду /start.")
 
-    # Логування останнього входу користувача
-    log_user_login(user_id=user.id, username=user.username, full_name=user.full_name)
+@router.message(F.text == "/start")
+async def start_command(message: Message):
+    full_name = f"{message.from_user.first_name} {message.from_user.last_name}".strip()
+    username = message.from_user.username
+
+    # Логування входу користувача в last_login.log
+    log_user_login(
+        user_id=message.from_user.id,
+        username=username,
+        full_name=full_name
+    )
+
+    # Логування дій користувача в bot.log
+    logger.info(
+        f"Користувач {full_name} (@{username}) (ID: {message.from_user.id}) виконав команду /start."
+    )
 
     # Отримання даних про погоду
     weather_data = get_weather()
 
     # Генерація привітання
-    greeting_message = generate_greeting(user.first_name, weather_data)
+    greeting_message = generate_greeting(message.from_user.first_name, weather_data)
     extra_message = generate_extra_message()
 
     # Відправка індикатора набору тексту
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    await asyncio.sleep(1)
-    await message.bot.send_message(chat_id=message.chat.id, text=greeting_message)
+    await asyncio.sleep(1)  # Затримка для більш реалістичного ефекту
+    await message.bot.send_message(chat_id=message.chat.id, text=greeting_message, reply_markup=create_main_menu_keyboard())
 
     # Відправка індикатора набору тексту перед другим повідомленням
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    await asyncio.sleep(1)
+    await asyncio.sleep(1)  # Затримка для більш реалістичного ефекту
     await message.bot.send_message(chat_id=message.chat.id, text=extra_message, reply_markup=create_main_menu_keyboard())

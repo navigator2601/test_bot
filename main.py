@@ -1,62 +1,32 @@
+import logging
 import asyncio
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command  # Імпортуємо Command
+from aiogram import Bot, Dispatcher
+from handlers.start_handler import router as start_router
+from handlers.reply_keyboard_handler import router as reply_keyboard_router
+from handlers.menu_handler import set_main_menu  # Імпортуємо функцію налаштування меню
 from config import BOT_TOKEN
-from handlers.menu_handler import set_main_menu
-from handlers.start_handler import router
-from keyboards.reply_keyboard import create_main_menu_keyboard  # Імпортуємо клавіатуру
-from utils.logger import setup_logger
-from flask import Flask
-import os
-import threading
 
 # Налаштування логування
-logger = setup_logger("__main__")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Ініціалізація бота та диспетчера
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Ініціалізація Flask для роботи на Cloud Run
-app = Flask(__name__)
-
-@app.route("/", methods=["GET"])
-def health_check():
-    """
-    Перевірка стану сервісу для Cloud Run.
-    """
-    return "Bot is running!", 200
-
-def start_web_server():
-    """
-    Запускає Flask сервер у окремому потоці.
-    """
-    port = int(os.environ.get("PORT", 8080))  # Cloud Run використовує порт 8080 за замовчуванням
-    app.run(host="0.0.0.0", port=port)
+# Реєстрація обробників
+dp.include_router(start_router)
+dp.include_router(reply_keyboard_router)
 
 async def main():
     logger.info("Бот запускається...")
-
-    # Встановлення головного меню команд
-    logger.info("Встановлюємо головне меню команд...")
+    # Викликаємо функцію встановлення головного меню
     await set_main_menu(bot)
-
-    # Реєстрація обробників
-    logger.info("Реєструємо обробники...")
-    dp.include_router(router)
-
-    # Логування реєстрації обробників
-    logger.info("Обробники команд зареєстровані.")
-
-    # Запуск polling
+    logger.info("Головне меню команд встановлено.")
+    logger.info("Реєструємо маршрути...")
+    logger.info("Маршрути зареєстровані.")
     logger.info("Запускаємо polling...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    try:
-        # Запуск Flask сервера у окремому потоці
-        threading.Thread(target=start_web_server, daemon=True).start()
-
-        asyncio.run(main())
-    except (KeyboardInterrupt, SystemExit):
-        logger.info("Бот зупинено.")
+    asyncio.run(main())

@@ -1,27 +1,23 @@
 import logging
-from logging.handlers import RotatingFileHandler
 import os
+from logging.handlers import RotatingFileHandler
 
-def setup_logger(name, log_file="logs/bot.log", level=logging.INFO):
-    """
-    Налаштування логування із заданим форматом, що записує логи у файл з ротацією.
-    """
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+# Шлях до лог-файлу
+LOG_FILE = "logs/bot.log"
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+# Перевірка існування папки logs, якщо немає — створюємо
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
-    # Ротація логів: 5MB і 3 резервні копії
-    handler = RotatingFileHandler(log_file, maxBytes=5 * 1024 * 1024, backupCount=3, encoding="utf-8")
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-    handler.setFormatter(formatter)
+# Створюємо обробник для ротації файлів логів (максимум 5 файлів по 1 МБ)
+file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1_000_000, backupCount=5, encoding='utf-8')
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 
-    # Додавання хендлера для запису у файл
-    logger.addHandler(handler)
+# Налаштування логера
+logger = logging.getLogger("bot_logger")
+logger.setLevel(logging.INFO)
+logger.addHandler(file_handler)
 
-    # Вивід логів у консоль
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    return logger
+# Логування у консоль
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(console_handler)

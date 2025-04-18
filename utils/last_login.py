@@ -1,23 +1,31 @@
+import logging
 import os
-from datetime import datetime
+from logging.handlers import RotatingFileHandler
 
-# Шлях до файлу для збереження логів
-LOGS_DIR = os.path.join(os.path.dirname(__file__), "../logs")
-LOG_FILE_PATH = os.path.join(LOGS_DIR, "last_login.log")
+# Шлях до лог-файлу для входів користувачів
+LOG_FILE = "logs/last_login.log"
 
-# Переконаємося, що папка logs існує
-os.makedirs(LOGS_DIR, exist_ok=True)
+# Перевірка існування папки logs, якщо немає — створюємо
+os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
-def log_user_login(user_id: int, username: str, full_name: str):
-    """
-    Записує інформацію про вхід користувача у файл.
+# Створюємо обробник для логів у файл
+file_handler = RotatingFileHandler(LOG_FILE, maxBytes=500_000, backupCount=3, encoding='utf-8')
+file_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
 
-    :param user_id: Унікальний ID користувача.
-    :param username: Ім'я користувача в Telegram.
-    :param full_name: Повне ім'я користувача.
-    """
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = f"[{timestamp}] User ID: {user_id}, Username: @{username}, Full Name: {full_name}\n"
+# Створюємо обробник для виводу в консоль
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
 
-    with open(LOG_FILE_PATH, "a", encoding="utf-8") as log_file:
-        log_file.write(log_entry)
+# Налаштування логера
+login_logger = logging.getLogger("last_login_logger")
+login_logger.setLevel(logging.INFO)
+login_logger.addHandler(file_handler)
+login_logger.addHandler(console_handler)
+
+# Функція для логування входу користувачів
+def log_user_login(user_id: int, username: str = None, full_name: str = None, action: str = None):
+    username_display = f"@{username}" if username else "Unknown"
+    full_name_display = full_name if full_name else "Unknown"
+    action_display = f", Action: {action}" if action else ""
+    user_info = f"User ID: {user_id}, Username: {username_display}, Full Name: {full_name_display}{action_display}"
+    login_logger.info(user_info)
