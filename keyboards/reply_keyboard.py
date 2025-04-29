@@ -1,3 +1,5 @@
+# keyboards/reply_keyboard.py
+# Клавіатури для головного меню
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def create_main_menu_keyboard() -> ReplyKeyboardMarkup:
@@ -36,6 +38,7 @@ def create_additional_functions_keyboard() -> ReplyKeyboardMarkup:
     buttons = [
         KeyboardButton(text="🧮 Калькулятор потужності"),
         KeyboardButton(text="📊 Графіки енерговитрат"),
+        KeyboardButton(text="📥 Отримати дані з чату"),  # Додана кнопка
         KeyboardButton(text="🔙 Назад до головного меню")
     ]
 

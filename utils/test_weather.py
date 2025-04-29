@@ -1,4 +1,5 @@
-import requests
+# utils/test_weather.py
+# Тест отримання погодніх умовimport requests
 
 WEATHER_API_KEY = "3fefe17fca92172c1badf79d01b0d448"  # Вставте свій API-ключ сюди
 WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather"

@@ -1,4 +1,5 @@
-import requests
+# utils/weather.py
+# Оновлюе погоду у м. Полтаваimport requests
 from config import WEATHER_API_KEY
 
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"

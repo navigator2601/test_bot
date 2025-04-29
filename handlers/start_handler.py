@@ -1,3 +1,5 @@
+# handlers/start_handler.py
+# Обробник команди запуску
 from aiogram import Router, F
 from aiogram.types import Message
 from keyboards.reply_keyboard import create_main_menu_keyboard  # Імпортуємо клавіатуру
@@ -80,7 +82,7 @@ def generate_greeting(first_name, weather_data):
     else:
         time_phrases = [
             "Доброї ночі! Нехай ваш сон буде міцним.",
-            "Тихої ночі! До завтра.",
+            "Тихої ночі! Як пройшов вечір.",
             "Вітаю в нічний час! Якщо щось термінове - пишіть.",
             "Солодких снів! Відпочивайте.",
             "На добраніч! До нових зустрічей."

@@ -1,3 +1,5 @@
+# utils/last_login.py
+# Логування останнього входу користувачів
 import logging
 import os
 from logging.handlers import RotatingFileHandler

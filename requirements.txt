@@ -4,3 +4,4 @@ asyncpg
 aiofiles
 requests
 flask
+Telethon>=1.40.0
