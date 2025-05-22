@@ -1,25 +1,29 @@
 # utils/logger.py
-# Модуль для логування
 import logging
 import os
-from logging.handlers import RotatingFileHandler
 
-# Шлях до лог-файлу
-LOG_FILE = "logs/bot.log"
+# Створення директорії logs, якщо вона не існує
+LOGS_DIR = 'logs'
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
 
-# Перевірка існування папки logs, якщо немає — створюємо
-os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+# Налаштування базового логера
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)  # Встановлюємо мінімальний рівень логування на DEBUG
 
-# Створюємо обробник для ротації файлів логів (максимум 5 файлів по 1 МБ)
-file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1_000_000, backupCount=5, encoding='utf-8')
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+# Форматер для логів
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
 
-# Налаштування логера
-logger = logging.getLogger("bot_logger")
-logger.setLevel(logging.INFO)
+# Обробник для запису логів у файл
+file_handler = logging.FileHandler(os.path.join(LOGS_DIR, 'bot.log'), encoding='utf-8')
+file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
-# Логування у консоль
+# Обробник для виведення логів у консоль (за бажанням)
 console_handler = logging.StreamHandler()
-console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
+
+# Додатковий логер для конкретних модулів (за потреби)
+def get_logger(name):
+    return logging.getLogger(name)

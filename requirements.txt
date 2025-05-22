@@ -1,7 +1,11 @@
-aiogram>=3.19.0
+aiogram
 python-dotenv
-asyncpg
-aiofiles
-requests
-flask
 Telethon>=1.40.0
+asyncpg
+psycopg2-binary>=2.9.9 
+
+# Додаткові бібліотеки, які можуть знадобитися пізніше:
+# asyncpg
+# aiofiles
+# requests
+# flask
