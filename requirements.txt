@@ -1,11 +1,11 @@
 aiogram
+telethon
 python-dotenv
-Telethon>=1.40.0
-asyncpg
-psycopg2-binary>=2.9.9 
+SQLAlchemy
+asyncpg # Для роботи з PostgreSQL
+psycopg2-binary # Альтернатива, або якщо виникнуть проблеми з asyncpg
 
 # Додаткові бібліотеки, які можуть знадобитися пізніше:
-# asyncpg
 # aiofiles
 # requests
 # flask

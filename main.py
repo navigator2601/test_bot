@@ -1,93 +1,106 @@
 # main.py
 import asyncio
-import os
-from aiogram import Bot, Dispatcher, types 
-from aiogram.enums import ParseMode
-from aiogram.client.default import DefaultBotProperties
-from dotenv import load_dotenv
+import logging # Хоча ми використовуємо utils.logger, цей імпорт корисний для загального розуміння
+from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage # Для станів FSM
+from aiogram.types import BotCommand, BotCommandScopeDefault # Для встановлення команд
+from aiogram.exceptions import TelegramAPIError # Для обробки помилок Telegram
+from aiogram.filters import Command # Для обробки команд
+from aiogram.types import Message # Для типу повідомлення
+from aiogram.enums import ParseMode # Для форматування тексту
 
-from utils.logger import logger
-# Важливо: імпортуємо функції для роботи з базою даних, включаючи create_db_pool та close_db_pool
-from database.users_db import create_db_pool, close_db_pool, get_user_data 
+# Імпорт конфігурації (для BOT_TOKEN)
+from config import BOT_TOKEN
 
-from handlers import start_handler
-from handlers import admin_handler # ІМПОРТУЄМО АДМІН-ОБРОБНИК
-from handlers.reply_keyboard_handler import router as reply_keyboard_router
-from handlers.menu_handler import set_main_menu
-# <<<< ІМПОРТУЄМО ФУНКЦІЇ TELETHON КЛІЄНТА, ВКЛЮЧАЮЧИ get_telethon_client_instance
-from telethon_client import get_telethon_client_instance, disconnect_telethon_client 
+# Імпорт нашого налаштованого логера
+from utils.logger import logger # <--- Використовуємо наш логер
 
-load_dotenv() # Завантажуємо змінні оточення з .env файлу
+# --- Опис бота ---
+BOT_DESCRIPTION = (
+    "Вітаю, Монтажнику! Ти — частина легендарного загону “Аврора Мультимаркет” — "
+    "всеукраїнської мережі магазинів, де народжуються герої кондиціонерного фронту.\n\n"
+    "Я — твій цифровий напарник у Конди-Ленді, бот, створений спеціально для монтажників, "
+    "які не бояться ані спеки, ані завдань під стелею.\n\n"
+    "У моєму арсеналі — усе, що потрібно для монтажу без зайвих клопотів.\n"
+    "Користуйся меню або кнопками — і вперед, назустріч новим установкам та кліматичним пригодам!\n"
+    "Натискай /start і вперед до монтажних пригод. 💪"
+)
+# --- Кінець опису бота ---
 
-main_logger = logger.getChild(__name__) # Логер для головного файлу
+
+async def set_default_commands(bot: Bot):
+    """
+    Встановлює головне меню команд для бота для ВСІХ приватних чатів.
+    """
+    commands = [
+        BotCommand(command="start", description="Запустити бота"),
+        # Додайте інші команди, якщо вони будуть у меню
+        # BotCommand(command="help", description="Допомога"),
+        # BotCommand(command="info", description="Інформація"),
+    ]
+    await bot.set_my_commands(commands, scope=BotCommandScopeDefault())
+    logger.info("Головне меню команд встановлено.")
+
+@logger.catch # Додаємо декоратор для логування винятків (від loguru, але можемо реалізувати свою обробку)
+async def handle_start(message: Message):
+    """
+    Обробник команди /start.
+    Привітає користувача та надішле опис бота.
+    """
+    user_id = message.from_user.id
+    username = message.from_user.username
+    first_name = message.from_user.first_name
+
+    logger.info(f"Отримано команду /start від користувача: ID={user_id}, Username={username}, Name={first_name}.")
+
+    await message.answer(
+        text=BOT_DESCRIPTION,
+        parse_mode=ParseMode.MARKDOWN_V2 # Вказуємо, що використовуємо Markdown V2
+    )
+    logger.info(f"Надіслано привітання та опис боту користувачу {user_id}.")
 
 async def main():
-    main_logger.info("==================== Запуск бота ====================")
+    """
+    Головна функція, яка ініціалізує та запускає бота.
+    """
+    logger.info("Починаю ініціалізацію бота...")
 
-    # Ініціалізуємо пул з'єднань з базою даних
-    db_initialized = await create_db_pool() 
-    if not db_initialized:
-        main_logger.critical("Не вдалося ініціалізувати пул з'єднань з базою даних. Завершення роботи.")
-        return
+    # Ініціалізація сховища FSM (для управління станами користувачів)
+    storage = MemoryStorage()
 
-    bot_token = os.environ.get("BOT_TOKEN")
-    if not bot_token:
-        main_logger.critical("BOT_TOKEN не встановлено в .env файлі!")
-        raise ValueError("BOT_TOKEN environment variable is not set")
+    # Створення об'єкта бота
+    bot = Bot(token=BOT_TOKEN)
+    logger.info("Об'єкт Bot створено.")
 
-    # <<<< ДУЖЕ ВАЖЛИВО: ІНІЦІАЛІЗУЄМО TELETHON КЛІЄНТ НА СТАРТІ БОТА
-    main_logger.info("Спроба ініціалізації Telethon клієнта...")
+    # Створення об'єкта диспетчера
+    dp = Dispatcher(storage=storage)
+    logger.info("Об'єкт Dispatcher створено.")
+
+    # Реєстрація обробників
+    dp.message.register(handle_start, Command("start")) # Реєструємо обробник для команди /start
+    logger.info("Обробник команди /start зареєстровано.")
+
+    # Встановлення команд для бота в меню Telegram
+    await set_default_commands(bot)
+
+    logger.info("Бот запущено. Починаю polling...")
+
     try:
-        # Цей виклик спробує завантажити існуючу сесію або запустити процес авторизації
-        # якщо клієнт ще не авторизований.
-        await get_telethon_client_instance() 
-        main_logger.info("Telethon клієнт ініціалізовано або завантажено сесію.")
+        # Запускаємо polling (обробку вхідних оновлень)
+        await dp.start_polling(bot)
     except Exception as e:
-        main_logger.error(f"Помилка при початковій ініціалізації Telethon клієнта: {e}", exc_info=True)
-        # На цьому етапі ви можете вирішити, чи потрібно зупинити бота, якщо Telethon не може запуститися.
-        # Наприклад, якщо функціонал бота сильно залежить від Telethon, ви можете додати:
-        # return 
-    
-    dp = Dispatcher() # Створюємо об'єкт диспетчера Aiogram
-    # Створюємо об'єкт бота, вказуючи токен та режим парсингу HTML для повідомлень
-    bot = Bot(token=bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML)) 
-
-    main_logger.info("Реєстрація обробників...")
-    # ВКЛЮЧАЄМО ВСІ РОУТЕРИ (обробники) ДО ДИСПЕТЧЕРА
-    # Порядок включення роутерів може бути важливим для обробки команд
-    dp.include_routers(
-        start_handler.router,
-        reply_keyboard_router,
-        admin_handler.router, # ЦЕЙ РЯДОК ДУЖЕ ВАЖЛИВИЙ ДЛЯ АДМІН-ФУНКЦІОНАЛУ, він реєструє всі обробники з admin_handler.py
-        # Додайте інші маршрутизатори, якщо вони у вас є (наприклад, file_handler.router, text_handler.router, etc.)
-    )
-    main_logger.info("Обробники зареєстровано.")
-
-    main_logger.info("Встановлення команд головного меню...")
-    await set_main_menu(bot) # Встановлюємо команди меню бота, які відображаються у Telegram
-    main_logger.info("Головне меню команд встановлено.")
-
-    main_logger.info("Бот запущено в режимі Long Polling.")
-    # Запускаємо бота в режимі Long Polling, який постійно слухає нові оновлення
-    try:
-        await dp.start_polling(bot) 
-    except Exception as e:
-        main_logger.critical(f"Непередбачена помилка в головному циклі: {e}", exc_info=True)
+        logger.critical(f"Критична помилка під час роботи бота: {e}", exc_info=True)
     finally:
-        main_logger.info("Завершення роботи бота...")
-        # Закриваємо пул з'єднань з БД при завершенні роботи бота, щоб уникнути витоків ресурсів
-        await close_db_pool() 
-        # <<<< ДУЖЕ ВАЖЛИВО: Викликаємо disconnect_telethon_client() тут
-        await disconnect_telethon_client() 
-        await bot.session.close() # Закриваємо сесію aiogram бота
-        main_logger.info("==================== Бот зупинено ====================")
+        # Закриваємо сесію бота при зупинці
+        await bot.session.close()
+        logger.info("Бот зупинено, сесію закрито.")
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main()) # Запускаємо асинхронну функцію main()
+        asyncio.run(main())
     except KeyboardInterrupt:
-        main_logger.info("Бот зупинено вручну (KeyboardInterrupt).")
+        logger.info("Бот зупинено вручну (Ctrl+C).")
+    except ValueError as e:
+        logger.critical(f"Помилка конфігурації: {e}")
     except Exception as e:
-        main_logger.critical(f"Непередбачена помилка при запуску бота: {e}", exc_info=True)
-    # Зверніть увагу: `finally` у `main()` функції виконається,
-    # навіть якщо виникне KeyboardInterrupt у `asyncio.run`.
+        logger.critical(f"Непередбачена критична помилка запуску бота: {e}", exc_info=True)

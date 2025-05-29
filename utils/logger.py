@@ -1,29 +1,22 @@
 # utils/logger.py
 import logging
-import os
 
-# Створення директорії logs, якщо вона не існує
-LOGS_DIR = 'logs'
-if not os.path.exists(LOGS_DIR):
-    os.makedirs(LOGS_DIR)
+# Налаштування формату повідомлень у логах
+LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
 
-# Налаштування базового логера
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)  # Встановлюємо мінімальний рівень логування на DEBUG
+# Основний логер для всього проєкту
+logger = logging.getLogger('bot_logger')
+logger.setLevel(logging.INFO) # Всі повідомлення рівня INFO і вище будуть оброблятися
 
-# Форматер для логів
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
-
-# Обробник для запису логів у файл
-file_handler = logging.FileHandler(os.path.join(LOGS_DIR, 'bot.log'), encoding='utf-8')
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-
-# Обробник для виведення логів у консоль (за бажанням)
+# Обробник для виводу логів у консоль
 console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+console_handler.setLevel(logging.DEBUG) # В консоль виводимо DEBUG і вище (для більш детальної інформації)
+console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
 
-# Додатковий логер для конкретних модулів (за потреби)
-def get_logger(name):
-    return logging.getLogger(name)
+# Додаємо обробники до логера, якщо їх ще немає
+if not logger.handlers:
+    logger.addHandler(console_handler)
+
+# Приклад використання в інших модулях:
+# from utils.logger import logger
+# logger.info("Це інформаційне повідомлення з іншого модуля.")
