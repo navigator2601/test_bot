@@ -25,10 +25,6 @@
 │   ├── __init__.py
 │   ├── inline_keyboard.py
 │   └── reply_keyboard.py
-├── kondiki_reader.session
-├── logs
-│   ├── bot.log
-│   └── last_login.log
 ├── main.py
 ├── middlewares
 ├── README.md
@@ -37,7 +33,6 @@
 │   ├── admin_states.py
 │   └── __init__.py
 ├── telethon_client.py
-├── telethon_session.session
 └── utils
     ├── auth_check.py
     ├── __init__.py

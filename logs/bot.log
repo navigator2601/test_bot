@@ -1,13 +1,110 @@
-2025-05-29 15:28:01,271 - bot_logger - INFO - main.py:36 - Основні команди бота встановлено.
-2025-05-29 15:28:01,326 - bot_logger - INFO - main.py:47 - Адміністраторські команди встановлено для ID: 525974549.
-2025-05-29 15:28:01,326 - bot_logger - INFO - main.py:69 - Бот запущено. Починаю polling...
-2025-05-29 15:34:13,160 - bot_logger - INFO - main.py:75 - Бот зупинено, сесії закрито.
-2025-05-29 15:34:15,428 - bot_logger - INFO - main.py:36 - Основні команди бота встановлено.
-2025-05-29 15:34:15,496 - bot_logger - INFO - main.py:47 - Адміністраторські команди встановлено для ID: 525974549.
-2025-05-29 15:34:15,496 - bot_logger - INFO - main.py:69 - Бот запущено. Починаю polling...
-2025-05-29 15:37:41,604 - bot_logger - INFO - main.py:75 - Бот зупинено, сесії закрито.
-2025-05-29 15:37:43,928 - bot_logger - INFO - main.py:44 - Адміністраторські команди встановлено для ID: 525974549.
-2025-05-29 15:37:43,928 - bot_logger - INFO - main.py:66 - Бот запущено. Починаю polling...
-2025-05-29 15:42:31,058 - bot_logger - INFO - main.py:72 - Бот зупинено, сесії закрито.
-2025-05-29 15:42:33,660 - bot_logger - INFO - main.py:65 - Бот запущено. Починаю polling...
-2025-05-29 15:44:42,386 - bot_logger - INFO - main.py:71 - Бот зупинено, сесії закрито.
+2025-05-30 00:02:59,573 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-05-30 00:03:01,728 - asyncio - DEBUG - Using selector: EpollSelector
+2025-05-30 00:03:01,728 - __main__ - INFO - Бот запускається...
+2025-05-30 00:03:01,898 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-05-30 00:03:01,898 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-05-30 00:03:02,222 - utils.set_bot_commands - INFO - Меню команд успішно встановлено.
+2025-05-30 00:03:02,222 - __main__ - INFO - Бот почав опитування (polling)...
+2025-05-30 00:03:09,090 - handlers.start_handler - INFO - Користувач Віталій (ID: 525974549) виконав команду /start.
+2025-05-30 00:03:09,091 - aiogram.event - ERROR - Cause exception while process update id=88510044 by bot id=8157903938
+AttributeError: 'Bot' object has no attribute 'get'
+Traceback (most recent call last):
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/handlers/start_handler.py", line 29, in command_start_handler
+    db_pool = message.bot.get("db_pool")
+              ^^^^^^^^^^^^^^^
+AttributeError: 'Bot' object has no attribute 'get'
+2025-05-30 00:04:52,578 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-05-30 00:04:54,756 - asyncio - DEBUG - Using selector: EpollSelector
+2025-05-30 00:04:54,756 - __main__ - INFO - Бот запускається...
+2025-05-30 00:04:54,953 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-05-30 00:04:54,954 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-05-30 00:04:55,217 - utils.set_bot_commands - INFO - Меню команд успішно встановлено.
+2025-05-30 00:04:55,217 - __main__ - INFO - Бот почав опитування (polling)...
+2025-05-30 00:04:58,762 - handlers.start_handler - INFO - Користувач Віталій (ID: 525974549) виконав команду /start.
+2025-05-30 00:04:58,768 - database.users_db - INFO - Оновлено last_activity для користувача 525974549.
+2025-05-30 00:04:58,768 - handlers.start_handler - INFO - Оновлено last_activity для існуючого користувача 525974549.
+2025-05-30 00:05:21,079 - handlers.start_handler - INFO - Користувач Віталій (ID: 525974549) виконав команду /start.
+2025-05-30 00:05:21,081 - database.users_db - INFO - Оновлено last_activity для користувача 525974549.
+2025-05-30 00:05:21,081 - handlers.start_handler - INFO - Оновлено last_activity для існуючого користувача 525974549.
+2025-05-30 00:06:11,247 - handlers.start_handler - INFO - Користувач Віталій (ID: 525974549) виконав команду /start.
+2025-05-30 00:06:11,249 - database.users_db - INFO - Оновлено last_activity для користувача 525974549.
+2025-05-30 00:06:11,250 - handlers.start_handler - INFO - Оновлено last_activity для існуючого користувача 525974549.
+2025-05-30 00:08:52,528 - aiogram.dispatcher - ERROR - Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
+2025-05-30 00:08:52,528 - aiogram.dispatcher - WARNING - Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8157903938)
+2025-05-30 00:24:36,980 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-05-30 00:24:39,415 - asyncio - DEBUG - Using selector: EpollSelector
+2025-05-30 00:24:39,445 - __main__ - INFO - Бот почав опитування (polling)...
+2025-05-30 00:24:39,445 - __main__ - INFO - Бот запускається...
+2025-05-30 00:24:39,659 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-05-30 00:24:39,660 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-05-30 00:24:39,663 - database.telethon_sessions_db - INFO - Сесію Telethon 'refridex_main' не знайдено в БД.
+2025-05-30 00:24:39,664 - telethon_client - INFO - Сесія 'refridex_main' не знайдена в БД. Буде створена нова.
+2025-05-30 00:24:39,664 - __main__ - CRITICAL - Не вдалося запустити Telethon клієнт. Функціонал Telethon буде недоступний. Помилка: 'DBSession' object has no attribute 'set_dc_id'
+Traceback (most recent call last):
+  File "/home/kondiki/bot_test/main.py", line 44, in on_startup
+    telethon_client = await telethon_manager.start_client()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/bot_test/telethon_client.py", line 76, in start_client
+    await self.session.load()
+  File "/home/kondiki/bot_test/telethon_client.py", line 42, in load
+    self.set_dc_id(1) # За замовчуванням DC 1 (для нової сесії)
+    ^^^^^^^^^^^^^^
+AttributeError: 'DBSession' object has no attribute 'set_dc_id'. Did you mean: '_dc_id'?
+2025-05-30 00:24:39,949 - utils.set_bot_commands - INFO - Меню команд успішно встановлено.
+2025-05-30 00:24:39,949 - __main__ - INFO - Бот готовий до роботи.
+2025-05-30 01:04:46,931 - asyncio - DEBUG - Using selector: EpollSelector
+2025-05-30 01:04:46,956 - __main__ - INFO - Бот почав опитування (polling)...
+2025-05-30 01:04:46,957 - __main__ - INFO - Бот запускається...
+2025-05-30 01:04:47,175 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-05-30 01:04:47,176 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-05-30 01:04:47,178 - database.telethon_sessions_db - INFO - Сесію Telethon 'refridex_main' завантажено з БД.
+2025-05-30 01:04:47,284 - database.telethon_sessions_db - INFO - Сесію Telethon 'refridex_main' збережено/оновлено в БД.
+2025-05-30 01:07:43,212 - aiogram.dispatcher - WARNING - Received SIGINT signal
