@@ -7,24 +7,36 @@
 ## 📂 Структура проєкту
 
 ```
+.
 ├── config.py
 ├── database
 │   ├── db_pool_manager.py
 │   ├── __init__.py
 │   ├── telethon_sessions_db.py
 │   └── users_db.py
+├── filters
+│   └── admin_filter.py
 ├── handlers
 │   ├── admin_handler.py
+│   ├── echo_handler.py
 │   ├── __init__.py
 │   ├── menu_handler.py
 │   ├── reply_keyboard_handler.py
 │   └── start_handler.py
+├── images
+│   ├── baner.png
+│   └── logo.jpg
 ├── __init__.py
 ├── keyboards
 │   ├── admin_keyboard.py
 │   ├── __init__.py
 │   ├── inline_keyboard.py
 │   └── reply_keyboard.py
+├── logs
+│   ├── bot.log
+│   ├── bot.log.2025-05-29
+│   ├── last_login.log
+│   └── last_login.log.2025-05-29
 ├── main.py
 ├── middlewares
 ├── README.md
@@ -32,11 +44,15 @@
 ├── states
 │   ├── admin_states.py
 │   └── __init__.py
-├── telethon_client.py
+├── telethon
+│   ├── auth_telethon.py
+│   └── telethon_client.py
 └── utils
     ├── auth_check.py
     ├── __init__.py
-    └── logger.py
+    ├── logger.py
+    └── set_bot_commands.py
+
 ```
 
 Коментарі до структури
