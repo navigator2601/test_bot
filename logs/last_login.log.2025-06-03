@@ -1,0 +1,1302 @@
+2025-06-03 17:37:25,725 - root - WARNING - Telethon client not found. Telethon related functions will be disabled.
+2025-06-03 17:37:25,749 - __main__ - INFO - DEBUG_LOG: Aiogram version detected in main.py: 3.20.0.post0
+2025-06-03 17:37:25,749 - __main__ - INFO - DEBUG_LOG: Type of dp: <class 'aiogram.dispatcher.dispatcher.Dispatcher'>
+2025-06-03 17:37:25,749 - __main__ - INFO - DEBUG_LOG: Does dp have 'middleware' attribute? False
+2025-06-03 17:37:25,750 - __main__ - INFO - DEBUG_LOG: All attributes of dp: ['__class__', '__delattr__', '__delitem__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_feed_webhook_update', '_handle_update_tasks', '_listen_update', '_listen_updates', '_parent_router', '_polling', '_process_update', '_process_with_semaphore', '_propagate_event', '_running_lock', '_signal_stop_polling', '_stop_signal', '_stopped_signal', 'business_connection', 'business_message', 'callback_query', 'chain_head', 'chain_tail', 'channel_post', 'chat_boost', 'chat_join_request', 'chat_member', 'chosen_inline_result', 'deleted_business_messages', 'edited_business_message', 'edited_channel_post', 'edited_message', 'emit_shutdown', 'emit_startup', 'error', 'errors', 'feed_raw_update', 'feed_update', 'feed_webhook_update', 'fsm', 'get', 'include_router', 'include_routers', 'inline_query', 'message', 'message_reaction', 'message_reaction_count', 'my_chat_member', 'name', 'observers', 'parent_router', 'poll', 'poll_answer', 'pre_checkout_query', 'propagate_event', 'purchased_paid_media', 'removed_chat_boost', 'resolve_used_update_types', 'run_polling', 'shipping_query', 'shutdown', 'silent_call_request', 'start_polling', 'startup', 'stop_polling', 'storage', 'sub_routers', 'update', 'workflow_data']
+2025-06-03 17:37:25,750 - __main__ - INFO - Main: Створення пулу підключень до бази даних.
+2025-06-03 17:37:25,943 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-06-03 17:37:25,943 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-06-03 17:37:25,943 - __main__ - INFO - TelethonClientManager ініціалізовано.
+2025-06-03 17:37:25,944 - __main__ - CRITICAL - Критична помишка запуску бота: 'Dispatcher' object has no attribute 'middleware'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/main.py", line 189, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/main.py", line 152, in main
+    dp.middleware.register(DbSessionMiddleware(db_pool=db_pool))
+    ^^^^^^^^^^^^^
+AttributeError: 'Dispatcher' object has no attribute 'middleware'
+2025-06-03 18:21:08,397 - __main__ - INFO - DEBUG_LOG: Aiogram version detected: 3.20.0.post0
+2025-06-03 18:21:08,398 - __main__ - INFO - Main: Початок запуску бота.
+2025-06-03 18:21:08,421 - __main__ - INFO - DEBUG_LOG: Type of dp: <class 'aiogram.dispatcher.dispatcher.Dispatcher'>
+2025-06-03 18:21:08,421 - __main__ - INFO - DEBUG_LOG: Does dp have 'middleware' attribute? False
+2025-06-03 18:21:08,422 - __main__ - INFO - DEBUG_LOG: dp.update has 'outer_middleware' attribute (expected for Aiogram 3.x).
+2025-06-03 18:21:08,422 - __main__ - INFO - Main: Створення пулу підключень до бази даних.
+2025-06-03 18:21:08,422 - database.db_pool_manager - CRITICAL - Не вдалося створити пул з'єднань до БД: name 'DATABASE_URL' is not defined
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/database/db_pool_manager.py", line 15, in create_db_pool
+    _db_pool = await asyncpg.create_pool(DATABASE_URL)
+                                         ^^^^^^^^^^^^
+NameError: name 'DATABASE_URL' is not defined
+2025-06-03 18:21:08,424 - __main__ - CRITICAL - Критична помишка запуску бота: name 'DATABASE_URL' is not defined
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/main.py", line 174, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/main.py", line 112, in main
+    await create_db_pool()
+  File "/home/kondiki/Refridex/database/db_pool_manager.py", line 15, in create_db_pool
+    _db_pool = await asyncpg.create_pool(DATABASE_URL)
+                                         ^^^^^^^^^^^^
+NameError: name 'DATABASE_URL' is not defined
+2025-06-03 18:23:05,900 - __main__ - INFO - DEBUG_LOG: Aiogram version detected: 3.20.0.post0
+2025-06-03 18:23:05,900 - __main__ - INFO - Main: Початок запуску бота.
+2025-06-03 18:23:05,922 - __main__ - INFO - DEBUG_LOG: Type of dp: <class 'aiogram.dispatcher.dispatcher.Dispatcher'>
+2025-06-03 18:23:05,923 - __main__ - INFO - DEBUG_LOG: Does dp have 'middleware' attribute? False
+2025-06-03 18:23:05,923 - __main__ - INFO - DEBUG_LOG: dp.update has 'outer_middleware' attribute (expected for Aiogram 3.x).
+2025-06-03 18:23:05,923 - __main__ - INFO - Main: Створення пулу підключень до бази даних.
+2025-06-03 18:23:06,140 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-06-03 18:23:06,141 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-06-03 18:23:06,141 - telegram_client_module.telethon_client - ERROR - TelethonClientManager: Помилка ініціалізації основного клієнта для +380997751324: asyncio.run() cannot be called from a running event loop
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/telegram_client_module/telethon_client.py", line 37, in __init__
+    client = asyncio.run(self._async_create_client_wrapper(self.telegram_phone))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 190, in run
+    raise RuntimeError(
+RuntimeError: asyncio.run() cannot be called from a running event loop
+2025-06-03 18:23:06,143 - __main__ - INFO - TelethonClientManager ініціалізовано.
+2025-06-03 18:23:06,143 - middlewares.db_middleware - INFO - DbSessionMiddleware ініціалізовано.
+2025-06-03 18:23:06,143 - __main__ - INFO - DbSessionMiddleware зареєстровано глобально через dp.update.outer_middleware.
+2025-06-03 18:23:06,144 - __main__ - WARNING - TelethonClientMiddleware не зареєстровано: Telethon клієнт вимкнено або TelethonClientManager не ініціалізовано.
+2025-06-03 18:23:06,144 - __main__ - INFO - Main: Перед запуском dp.start_polling.
+2025-06-03 18:23:06,144 - __main__ - INFO - Bot is starting...
+2025-06-03 18:23:06,634 - __main__ - INFO - Database pool available in startup.
+2025-06-03 18:23:06,720 - aiogram.event - ERROR - Cause exception while process update id=88510744 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:23:06,723 - aiogram.event - ERROR - Cause exception while process update id=88510745 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:23:06,725 - aiogram.event - ERROR - Cause exception while process update id=88510746 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:23:06,727 - aiogram.event - ERROR - Cause exception while process update id=88510747 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:23:06,728 - aiogram.event - ERROR - Cause exception while process update id=88510748 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:23:06,730 - aiogram.event - ERROR - Cause exception while process update id=88510749 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:23:06,732 - aiogram.event - ERROR - Cause exception while process update id=88510750 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:23:43,968 - aiogram.event - ERROR - Cause exception while process update id=88510751 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:23:51,669 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-06-03 18:23:51,670 - __main__ - INFO - Bot is shutting down...
+2025-06-03 18:23:51,856 - database.db_pool_manager - INFO - Пул з'єднань до бази даних закрито.
+2025-06-03 18:23:51,856 - __main__ - INFO - Database pool closed.
+2025-06-03 18:23:52,108 - __main__ - INFO - Bot session closed.
+2025-06-03 18:23:52,108 - __main__ - INFO - Bot stopped.
+2025-06-03 18:23:52,108 - __main__ - INFO - Main: dp.start_polling завершив роботу (бот зупинився).
+2025-06-03 18:30:26,110 - __main__ - INFO - DEBUG_LOG: Aiogram version detected: 3.20.0.post0
+2025-06-03 18:30:26,111 - __main__ - INFO - Конфігурацію завантажено успішно.
+2025-06-03 18:30:26,111 - __main__ - INFO - Main: Початок запуску бота.
+2025-06-03 18:30:26,111 - __main__ - CRITICAL - Критична помилка! Бот зупинено: name 'DefaultBotProperties' is not defined
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/main.py", line 154, in <module>
+    asyncio.run(main())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/main.py", line 105, in main
+    default_props = DefaultBotProperties(parse_mode=ParseMode.HTML)
+                    ^^^^^^^^^^^^^^^^^^^^
+NameError: name 'DefaultBotProperties' is not defined
+2025-06-03 18:30:26,140 - __main__ - ERROR - Не вдалося відправити повідомлення про критичну помилку: There is no current event loop in thread 'MainThread'.
+2025-06-03 18:31:42,870 - __main__ - INFO - DEBUG_LOG: Aiogram version detected: 3.20.0.post0
+2025-06-03 18:31:42,870 - __main__ - INFO - Конфігурацію завантажено успішно.
+2025-06-03 18:31:42,871 - __main__ - INFO - Main: Початок запуску бота.
+2025-06-03 18:31:42,894 - __main__ - INFO - DEBUG_LOG: Type of dp: <class 'aiogram.dispatcher.dispatcher.Dispatcher'>
+2025-06-03 18:31:42,895 - __main__ - INFO - DEBUG_LOG: Does dp have 'middleware' attribute? False
+2025-06-03 18:31:42,895 - __main__ - INFO - DEBUG_LOG: dp.update has 'outer_middleware' attribute (expected for Aiogram 3.x).
+2025-06-03 18:31:42,895 - __main__ - INFO - Main: Створення пулу підключень до бази даних.
+2025-06-03 18:31:43,118 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-06-03 18:31:43,118 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-06-03 18:31:43,118 - middlewares.db_middleware - INFO - DbSessionMiddleware ініціалізовано.
+2025-06-03 18:31:43,119 - __main__ - INFO - DbSessionMiddleware зареєстровано глобально через dp.update.outer_middleware.
+2025-06-03 18:31:43,119 - __main__ - WARNING - TelethonClientMiddleware не зареєстровано: Telethon клієнт вимкнено.
+2025-06-03 18:31:43,119 - __main__ - INFO - Main: Перед запуском dp.start_polling.
+2025-06-03 18:31:43,119 - __main__ - INFO - Bot is starting...
+2025-06-03 18:31:43,427 - __main__ - INFO - Ініціалізація таблиць бази даних.
+2025-06-03 18:31:43,428 - database.db_pool_manager - INFO - Таблиця 'users' перевірена/створена.
+2025-06-03 18:31:43,429 - database.db_pool_manager - INFO - Таблиця 'telethon_sessions' перевірена/створена.
+2025-06-03 18:31:43,429 - __main__ - INFO - Таблиці бази даних ініціалізовано.
+2025-06-03 18:31:43,429 - __main__ - INFO - Database pool available in startup.
+2025-06-03 18:31:43,429 - __main__ - INFO - TelethonClientManager ініціалізовано.
+2025-06-03 18:31:43,429 - __main__ - WARNING - Telethon клієнти вимкнено через конфігурацію.
+2025-06-03 18:31:43,429 - __main__ - INFO - on_startup завершено.
+2025-06-03 18:31:49,282 - aiogram.event - ERROR - Cause exception while process update id=88510752 by bot id=8157903938
+AttributeError: 'Update' object has no attribute 'from_user'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 22, in __call__
+    logger.debug(f"DbSessionMiddleware: Обробка події {event.__class__.__name__} для користувача {event.from_user.id}")
+                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/pydantic/main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Update' object has no attribute 'from_user'
+2025-06-03 18:35:36,079 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-06-03 18:35:36,079 - __main__ - INFO - Bot is shutting down...
+2025-06-03 18:35:36,240 - database.db_pool_manager - INFO - Пул з'єднань до бази даних закрито.
+2025-06-03 18:35:36,240 - __main__ - INFO - Пул з'єднань до БД закрито.
+2025-06-03 18:35:36,241 - telegram_client_module.telethon_client - INFO - Зупинка усіх Telethon клієнтів...
+2025-06-03 18:35:36,241 - __main__ - INFO - Telethon клієнти зупинено.
+2025-06-03 18:35:36,241 - __main__ - INFO - on_shutdown завершено.
+2025-06-03 18:35:36,494 - __main__ - INFO - Main: dp.start_polling завершено.
+2025-06-03 18:35:38,341 - __main__ - INFO - DEBUG_LOG: Aiogram version detected: 3.20.0.post0
+2025-06-03 18:35:38,341 - __main__ - INFO - Конфігурацію завантажено успішно.
+2025-06-03 18:35:38,341 - __main__ - INFO - Main: Початок запуску бота.
+2025-06-03 18:35:38,365 - __main__ - INFO - DEBUG_LOG: Type of dp: <class 'aiogram.dispatcher.dispatcher.Dispatcher'>
+2025-06-03 18:35:38,366 - __main__ - INFO - DEBUG_LOG: Does dp have 'middleware' attribute? False
+2025-06-03 18:35:38,366 - __main__ - INFO - DEBUG_LOG: dp.update has 'outer_middleware' attribute (expected for Aiogram 3.x).
+2025-06-03 18:35:38,366 - __main__ - INFO - Main: Створення пулу підключень до бази даних.
+2025-06-03 18:35:38,618 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-06-03 18:35:38,618 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-06-03 18:35:38,618 - middlewares.db_middleware - INFO - DbSessionMiddleware ініціалізовано.
+2025-06-03 18:35:38,618 - __main__ - INFO - DbSessionMiddleware зареєстровано глобально через dp.update.outer_middleware.
+2025-06-03 18:35:38,618 - __main__ - WARNING - TelethonClientMiddleware не зареєстровано: Telethon клієнт вимкнено.
+2025-06-03 18:35:38,619 - __main__ - INFO - Main: Перед запуском dp.start_polling.
+2025-06-03 18:35:38,619 - __main__ - INFO - Bot is starting...
+2025-06-03 18:35:39,846 - __main__ - INFO - Ініціалізація таблиць бази даних.
+2025-06-03 18:35:39,847 - database.db_pool_manager - INFO - Таблиця 'users' перевірена/створена.
+2025-06-03 18:35:39,848 - database.db_pool_manager - INFO - Таблиця 'telethon_sessions' перевірена/створена.
+2025-06-03 18:35:39,848 - __main__ - INFO - Таблиці бази даних ініціалізовано.
+2025-06-03 18:35:39,848 - __main__ - INFO - Database pool available in startup.
+2025-06-03 18:35:39,849 - __main__ - INFO - TelethonClientManager ініціалізовано.
+2025-06-03 18:35:39,849 - __main__ - WARNING - Telethon клієнти вимкнено через конфігурацію.
+2025-06-03 18:35:39,849 - __main__ - INFO - on_startup завершено.
+2025-06-03 18:49:03,025 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-06-03 18:49:03,026 - __main__ - INFO - Bot is shutting down...
+2025-06-03 18:49:03,249 - database.db_pool_manager - INFO - Пул з'єднань до бази даних закрито.
+2025-06-03 18:49:03,249 - __main__ - INFO - Пул з'єднань до БД закрито.
+2025-06-03 18:49:03,249 - telegram_client_module.telethon_client - INFO - Зупинка усіх Telethon клієнтів...
+2025-06-03 18:49:03,250 - __main__ - INFO - Telethon клієнти зупинено.
+2025-06-03 18:49:03,250 - __main__ - INFO - on_shutdown завершено.
+2025-06-03 18:49:03,502 - __main__ - INFO - Main: dp.start_polling завершено.
+2025-06-03 19:13:50,815 - __main__ - INFO - DEBUG_LOG: Aiogram version detected: 3.20.0.post0
+2025-06-03 19:13:50,815 - __main__ - INFO - Конфігурацію завантажено успішно.
+2025-06-03 19:13:50,816 - __main__ - INFO - Main: Початок запуску бота.
+2025-06-03 19:13:50,838 - __main__ - INFO - DEBUG_LOG: Type of dp: <class 'aiogram.dispatcher.dispatcher.Dispatcher'>
+2025-06-03 19:13:50,839 - __main__ - INFO - DEBUG_LOG: Does dp have 'middleware' attribute? False
+2025-06-03 19:13:50,839 - __main__ - INFO - DEBUG_LOG: dp.update has 'outer_middleware' attribute (expected for Aiogram 3.x).
+2025-06-03 19:13:50,839 - __main__ - INFO - Main: Створення пулу підключень до бази даних.
+2025-06-03 19:13:51,037 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-06-03 19:13:51,037 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-06-03 19:13:51,038 - middlewares.db_middleware - INFO - DbSessionMiddleware ініціалізовано.
+2025-06-03 19:13:51,038 - __main__ - INFO - DbSessionMiddleware зареєстровано глобально через dp.update.outer_middleware.
+2025-06-03 19:13:51,038 - __main__ - WARNING - TelethonClientMiddleware не зареєстровано: Telethon клієнт вимкнено.
+2025-06-03 19:13:51,038 - __main__ - INFO - Main: Перед запуском dp.start_polling.
+2025-06-03 19:13:51,038 - __main__ - INFO - Bot is starting...
+2025-06-03 19:13:51,520 - __main__ - INFO - Ініціалізація таблиць бази даних.
+2025-06-03 19:13:51,522 - database.db_pool_manager - INFO - Таблиця 'users' перевірена/створена.
+2025-06-03 19:13:51,523 - database.db_pool_manager - INFO - Таблиця 'telethon_sessions' перевірена/створена.
+2025-06-03 19:13:51,525 - __main__ - INFO - Таблиці бази даних ініціалізовано.
+2025-06-03 19:13:51,525 - __main__ - INFO - Database pool available in startup.
+2025-06-03 19:13:51,526 - __main__ - INFO - TelethonClientManager ініціалізовано.
+2025-06-03 19:13:51,526 - __main__ - WARNING - Telethon клієнти вимкнено через конфігурацію.
+2025-06-03 19:13:51,526 - __main__ - INFO - on_startup завершено.
+2025-06-03 19:13:54,062 - aiogram.event - ERROR - Cause exception while process update id=88510756 by bot id=8157903938
+TypeError: command_start_handler() missing 1 required positional argument: 'telethon_manager'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 63, in __call__
+    return await handler(event, data) # Пропускаємо мідлвару далі без роботи з БД користувача
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+                 ^^^^^^^^^
+TypeError: command_start_handler() missing 1 required positional argument: 'telethon_manager'
+2025-06-03 19:19:15,603 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-06-03 19:19:15,604 - __main__ - INFO - Bot is shutting down...
+2025-06-03 19:19:15,845 - database.db_pool_manager - INFO - Пул з'єднань до бази даних закрито.
+2025-06-03 19:19:15,846 - __main__ - INFO - Пул з'єднань до БД закрито.
+2025-06-03 19:19:15,846 - telegram_client_module.telethon_client - INFO - Зупинка усіх Telethon клієнтів...
+2025-06-03 19:19:15,846 - __main__ - INFO - Telethon клієнти зупинено.
+2025-06-03 19:19:15,847 - __main__ - INFO - on_shutdown завершено.
+2025-06-03 19:19:16,098 - __main__ - INFO - Main: dp.start_polling завершено.
+2025-06-03 19:21:07,134 - __main__ - INFO - DEBUG_LOG: Aiogram version detected: 3.20.0.post0
+2025-06-03 19:21:07,134 - __main__ - INFO - Конфігурацію завантажено успішно.
+2025-06-03 19:21:07,135 - __main__ - INFO - Main: Початок запуску бота.
+2025-06-03 19:21:07,157 - __main__ - INFO - DEBUG_LOG: Type of dp: <class 'aiogram.dispatcher.dispatcher.Dispatcher'>
+2025-06-03 19:21:07,158 - __main__ - INFO - DEBUG_LOG: Does dp have 'middleware' attribute? False
+2025-06-03 19:21:07,158 - __main__ - INFO - DEBUG_LOG: dp.update has 'outer_middleware' attribute (expected for Aiogram 3.x).
+2025-06-03 19:21:07,158 - __main__ - INFO - Main: Створення пулу підключень до бази даних.
+2025-06-03 19:21:07,357 - database.db_pool_manager - INFO - Пул з'єднань до бази даних створено успішно.
+2025-06-03 19:21:07,357 - __main__ - INFO - Підключення до бази даних встановлено.
+2025-06-03 19:21:07,357 - middlewares.db_middleware - INFO - DbSessionMiddleware ініціалізовано.
+2025-06-03 19:21:07,357 - __main__ - INFO - DbSessionMiddleware зареєстровано глобально через dp.update.outer_middleware.
+2025-06-03 19:21:07,357 - __main__ - WARNING - TelethonClientMiddleware не зареєстровано: Telethon клієнт вимкнено.
+2025-06-03 19:21:07,358 - __main__ - INFO - Main: Перед запуском dp.start_polling.
+2025-06-03 19:21:07,358 - __main__ - INFO - Bot is starting...
+2025-06-03 19:21:07,546 - __main__ - INFO - Ініціалізація таблиць бази даних.
+2025-06-03 19:21:07,548 - database.db_pool_manager - INFO - Таблиця 'users' перевірена/створена.
+2025-06-03 19:21:07,549 - database.db_pool_manager - INFO - Таблиця 'telethon_sessions' перевірена/створена.
+2025-06-03 19:21:07,550 - __main__ - INFO - Таблиці бази даних ініціалізовано.
+2025-06-03 19:21:07,551 - __main__ - INFO - Database pool available in startup.
+2025-06-03 19:21:07,551 - __main__ - INFO - TelethonClientManager ініціалізовано.
+2025-06-03 19:21:07,551 - __main__ - WARNING - Telethon клієнти вимкнено через конфігурацію.
+2025-06-03 19:21:07,551 - __main__ - INFO - on_startup завершено.
+2025-06-03 19:21:09,111 - aiogram.event - ERROR - Cause exception while process update id=88510757 by bot id=8157903938
+TypeError: command_start_handler() missing 2 required positional arguments: 'db_pool' and 'telethon_manager'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 63, in __call__
+    return await handler(event, data) # Пропускаємо мідлвару далі без роботи з БД користувача
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 276, in _listen_update
+    return await self.propagate_event(update_type=update_type, event=event, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 174, in _propagate_event
+    response = await router.propagate_event(update_type=update_type, event=event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 146, in propagate_event
+    return await observer.wrap_outer_middleware(_wrapped, event=event, data=kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 141, in _wrapped
+    return await self._propagate_event(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 166, in _propagate_event
+    response = await observer.trigger(event, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/telegram.py", line 121, in trigger
+    return await wrapped_inner(event, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+                 ^^^^^^^^^
+TypeError: command_start_handler() missing 2 required positional arguments: 'db_pool' and 'telethon_manager'
+2025-06-03 19:27:20,514 - aiogram.dispatcher - WARNING - Received SIGINT signal
+2025-06-03 19:27:20,515 - __main__ - INFO - Bot is shutting down...
+2025-06-03 19:27:21,329 - database.db_pool_manager - INFO - Пул з'єднань до бази даних закрито.
+2025-06-03 19:27:21,329 - __main__ - INFO - Пул з'єднань до БД закрито.
+2025-06-03 19:27:21,329 - telegram_client_module.telethon_client - INFO - Зупинка усіх Telethon клієнтів...
+2025-06-03 19:27:21,330 - __main__ - INFO - Telethon клієнти зупинено.
+2025-06-03 19:27:21,330 - __main__ - INFO - on_shutdown завершено.
+[Refridex OS • LOGCORE • 2025-06-03 21:29:57.314] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:30:58.686] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:30:58.687] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 21:30:58.687] 🔹 Стан: __main__ • Це дуже мінімальний запуск.
+[Refridex OS • LOGCORE • 2025-06-03 21:30:58.687] 🔹 Стан: __main__ • Якщо ви бачите ці повідомлення, Python виконує код.
+[Refridex OS • LOGCORE • 2025-06-03 21:30:58.687] 🔹 Стан: __main__ • Завершення виконання.
+[Refridex OS • LOGCORE • 2025-06-03 21:30:58.687] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.240] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.240] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.241] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.241] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.263] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.264] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.264] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.264] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.265] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.265] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.265] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.467] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.467] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.467] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.468] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.469] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.469] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:40:47.469] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • УВАГА • 2025-06-03 21:44:34.369] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 21:44:34.370] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:44:34.371] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:44:34.378] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:44:34.379] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:44:34.379] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 21:44:34.630] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:44:34.631] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 21:44:34.633] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.224] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.224] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.225] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.225] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.248] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.249] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.249] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.249] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.250] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.250] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.250] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.453] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.453] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.453] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.454] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.454] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.455] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:11.455] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • УВАГА • 2025-06-03 21:45:38.021] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 21:45:38.022] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:38.023] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:38.029] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:38.029] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:38.029] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:38.280] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:38.281] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:38.282] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.020] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.021] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.022] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.022] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.050] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.051] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.052] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.052] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.052] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.053] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.053] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.285] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.286] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.286] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.287] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.287] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.288] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:45:40.288] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • УВАГА • 2025-06-03 21:49:29.408] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 21:49:29.409] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:29.409] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:29.420] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:29.421] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:29.421] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:29.672] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:29.672] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:29.674] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.469] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.470] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.471] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.471] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.496] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.497] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.497] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.498] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • УВАГА • 2025-06-03 21:49:31.498] ⚠️ Попередження: __main__ • TelethonClientMiddleware не реєструється (вимкнено через конфігурацію).
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.498] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.498] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.498] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.498] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.733] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.734] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.734] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.735] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.736] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.736] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.736] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.737] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • УВАГА • 2025-06-03 21:49:31.737] ⚠️ Попередження: __main__ • Telethon клієнти вимкнено через конфігурацію. Пропускаю їх запуск.
+[Refridex OS • LOGCORE • 2025-06-03 21:49:31.737] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • ПОМИЛКА • 2025-06-03 21:51:11.722] ❌ Помилка: aiogram.event • Cause exception while process update id=88510759 by bot id=8157903938
+TypeError: TelegramEventObserver.trigger() got an unexpected keyword argument 'db_pool'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 72, in __call__
+    return await handler(event, **data) # Пропускаємо мідлвару далі без роботи з БД користувача
+                 ^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TelegramEventObserver.trigger() got an unexpected keyword argument 'db_pool'
+[Refridex OS • УВАГА • 2025-06-03 21:53:47.956] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 21:53:47.957] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:47.958] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:47.964] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:47.964] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:47.964] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:48.215] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:48.216] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:48.218] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.947] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.948] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.948] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.949] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.973] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.974] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.974] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.975] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • УВАГА • 2025-06-03 21:53:49.975] ⚠️ Попередження: __main__ • TelethonClientMiddleware не реєструється (вимкнено через конфігурацію).
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.975] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.975] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.975] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:49.976] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.272] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.272] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.272] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.273] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.273] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.274] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.274] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.274] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • УВАГА • 2025-06-03 21:53:50.274] ⚠️ Попередження: __main__ • Telethon клієнти вимкнено через конфігурацію. Пропускаю їх запуск.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:50.275] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:54.591] 🔹 Стан: handlers.start_handler • Користувач Віталій (ID: 525974549) виконав команду /start.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:54.604] 🔹 Стан: database.users_db • Оновлено last_activity для користувача 525974549.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:54.605] 🔹 Стан: handlers.start_handler • Оновлено last_activity для існуючого користувача 525974549.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:55.340] 🔹 Стан: handlers.start_handler • Відправлено привітальне повідомлення користувачу 525974549.
+[Refridex OS • LOGCORE • 2025-06-03 21:53:55.341] 🔹 Стан: handlers.menu_handler • Відображаю головне меню для користувача 525974549
+[Refridex OS • LOGCORE • 2025-06-03 21:53:55.530] 🔹 Стан: handlers.start_handler • Відображено головне меню для користувача 525974549.
+[Refridex OS • УВАГА • 2025-06-03 23:11:29.183] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 23:11:29.184] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:29.185] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:29.186] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:29.186] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:29.186] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:29.437] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:29.438] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:29.440] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.235] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.235] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.236] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.236] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.261] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.262] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.262] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.262] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.262] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.263] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.263] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.263] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.263] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.263] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.263] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.479] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.480] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.480] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.481] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.481] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.482] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.482] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.482] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.483] 🔹 Стан: __main__ • Спроба запуску Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.483] 🔹 Стан: telegram_client_module.telethon_client • Запуск усіх Telethon клієнтів...
+[Refridex OS • ПОМИЛКА • 2025-06-03 23:11:31.483] ❌ Помилка: telegram_client_module.telethon_client • Помилка при отриманні сесії з БД для +380997751324: стовпця "session_string" не існує
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/telegram_client_module/telethon_client.py", line 56, in _get_session_from_db
+    session_str_row = await conn.fetchrow(
+                      ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 748, in fetchrow
+    data = await self._execute(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1864, in _execute
+    result, _ = await self.__execute(
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1961, in __execute
+    result, stmt = await self._do_execute(
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 2004, in _do_execute
+    stmt = await self._get_statement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 432, in _get_statement
+    statement = await self._protocol.prepare(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 165, in prepare
+asyncpg.exceptions.UndefinedColumnError: стовпця "session_string" не існує
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.488] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager: Клієнт об'єкт для +380997751324 створено.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.488] 🔹 Стан: telegram_client_module.telethon_client • Створено задачу для запуску та авторизації клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.488] 🔹 Стан: __main__ • Telethon клієнти запущені успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.488] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 23:11:31.489] 🔹 Стан: telegram_client_module.telethon_client • Розпочинається авторизація для клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:11:34.822] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 підключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:12:10.143] 🔹 Стан: telegram_client_module.telethon_client • Код авторизації надіслано на +380997751324. Перевірте Telegram.
+[Refridex OS • ПОМИЛКА • 2025-06-03 23:12:10.144] ❌ Помилка: telegram_client_module.telethon_client • Помилка при збереженні сесії Telethon для +380997751324 в БД: стовпець "phone_number" зв'язку "telethon_sessions" не існує
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/telegram_client_module/telethon_client.py", line 135, in _save_session_to_db
+    await conn.execute(
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 352, in execute
+    _, status, _ = await self._execute(
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1864, in _execute
+    result, _ = await self.__execute(
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1961, in __execute
+    result, stmt = await self._do_execute(
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 2004, in _do_execute
+    stmt = await self._get_statement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 432, in _get_statement
+    statement = await self._protocol.prepare(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 165, in prepare
+asyncpg.exceptions.UndefinedColumnError: стовпець "phone_number" зв'язку "telethon_sessions" не існує
+[Refridex OS • LOGCORE • 2025-06-03 23:12:10.145] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 успішно авторизовано та збережено сесію.
+[Refridex OS • УВАГА • 2025-06-03 23:19:34.950] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.951] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.952] 🔹 Стан: __main__ • Спроба відключити Telethon клієнтів.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.952] 🔹 Стан: telegram_client_module.telethon_client • Зупинка усіх Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.953] 🔹 Стан: telegram_client_module.telethon_client • Telethon клієнт +380997751324 відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.954] 🔹 Стан: telegram_client_module.telethon_client • Задача для клієнта +380997751324 скасована.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.954] 🔹 Стан: __main__ • Telethon клієнти відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.954] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.955] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.955] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:34.955] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:35.206] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:35.206] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:19:35.208] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.385] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.386] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.386] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.386] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.407] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.408] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.408] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.408] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.408] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.408] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.408] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.409] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.409] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.409] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.409] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.606] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.607] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.607] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.608] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.622] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.625] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.625] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.625] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.625] 🔹 Стан: __main__ • Спроба запуску Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.625] 🔹 Стан: telegram_client_module.telethon_client • Запуск усіх Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.627] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager: Клієнт об'єкт для +380997751324 створено.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.627] 🔹 Стан: telegram_client_module.telethon_client • Створено задачу для запуску та авторизації клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.627] 🔹 Стан: __main__ • Telethon клієнти запущені успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.627] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 23:20:50.627] 🔹 Стан: telegram_client_module.telethon_client • Розпочинається авторизація для клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:20:52.391] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 підключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:21:07.330] 🔹 Стан: telegram_client_module.telethon_client • Код авторизації надіслано на +380997751324. Перевірте Telegram.
+[Refridex OS • ПОМИЛКА • 2025-06-03 23:21:07.332] ❌ Помилка: telegram_client_module.telethon_client • Помилка при збереженні сесії Telethon для +380997751324 в БД: стовпець "last_updated" зв'язку "telethon_sessions" не існує
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/telegram_client_module/telethon_client.py", line 135, in _save_session_to_db
+    await conn.execute(
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 352, in execute
+    _, status, _ = await self._execute(
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1864, in _execute
+    result, _ = await self.__execute(
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1961, in __execute
+    result, stmt = await self._do_execute(
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 2004, in _do_execute
+    stmt = await self._get_statement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 432, in _get_statement
+    statement = await self._protocol.prepare(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 165, in prepare
+asyncpg.exceptions.UndefinedColumnError: стовпець "last_updated" зв'язку "telethon_sessions" не існує
+[Refridex OS • LOGCORE • 2025-06-03 23:21:07.335] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 успішно авторизовано та збережено сесію.
+[Refridex OS • УВАГА • 2025-06-03 23:27:53.784] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.786] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.786] 🔹 Стан: __main__ • Спроба відключити Telethon клієнтів.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.787] 🔹 Стан: telegram_client_module.telethon_client • Зупинка усіх Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.789] 🔹 Стан: telegram_client_module.telethon_client • Telethon клієнт +380997751324 відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.790] 🔹 Стан: telegram_client_module.telethon_client • Задача для клієнта +380997751324 скасована.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.790] 🔹 Стан: __main__ • Telethon клієнти відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.791] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.791] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.792] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:53.792] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:54.043] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:54.044] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:54.045] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.880] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.881] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.881] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.881] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.905] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.906] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.907] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.907] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.907] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.907] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.907] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.907] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.907] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.908] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:55.908] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.163] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.163] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.163] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.164] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.165] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.165] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.166] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.166] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.166] 🔹 Стан: __main__ • Спроба запуску Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.166] 🔹 Стан: telegram_client_module.telethon_client • Запуск усіх Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.168] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager: Клієнт об'єкт для +380997751324 створено.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.168] 🔹 Стан: telegram_client_module.telethon_client • Створено задачу для запуску та авторизації клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.168] 🔹 Стан: __main__ • Telethon клієнти запущені успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.168] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 23:27:56.168] 🔹 Стан: telegram_client_module.telethon_client • Розпочинається авторизація для клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:27:58.016] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 підключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:28:09.361] 🔹 Стан: telegram_client_module.telethon_client • Код авторизації надіслано на +380997751324. Перевірте Telegram.
+[Refridex OS • ПОМИЛКА • 2025-06-03 23:28:09.362] ❌ Помилка: telegram_client_module.telethon_client • Помилка при збереженні сесії Telethon для +380997751324 в БД: стовпець "last_updated" зв'язку "telethon_sessions" не існує
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/telegram_client_module/telethon_client.py", line 135, in _save_session_to_db
+    await conn.execute(
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 352, in execute
+    _, status, _ = await self._execute(
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1864, in _execute
+    result, _ = await self.__execute(
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1961, in __execute
+    result, stmt = await self._do_execute(
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 2004, in _do_execute
+    stmt = await self._get_statement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 432, in _get_statement
+    statement = await self._protocol.prepare(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 165, in prepare
+asyncpg.exceptions.UndefinedColumnError: стовпець "last_updated" зв'язку "telethon_sessions" не існує
+[Refridex OS • LOGCORE • 2025-06-03 23:28:09.365] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 успішно авторизовано та збережено сесію.
+[Refridex OS • УВАГА • 2025-06-03 23:33:23.416] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.417] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.417] 🔹 Стан: __main__ • Спроба відключити Telethon клієнтів.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.418] 🔹 Стан: telegram_client_module.telethon_client • Зупинка усіх Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.421] 🔹 Стан: telegram_client_module.telethon_client • Telethon клієнт +380997751324 відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.421] 🔹 Стан: telegram_client_module.telethon_client • Задача для клієнта +380997751324 скасована.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.421] 🔹 Стан: __main__ • Telethon клієнти відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.422] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.422] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.423] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.423] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.674] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.674] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:23.676] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.486] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.487] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.487] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.488] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.511] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.512] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.512] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.513] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.513] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.513] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.513] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.513] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.513] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.514] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.514] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.740] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.741] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.741] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.741] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.742] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.742] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.742] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.743] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.743] 🔹 Стан: __main__ • Спроба запуску Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.743] 🔹 Стан: telegram_client_module.telethon_client • Запуск усіх Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.745] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager: Клієнт об'єкт для +380997751324 створено.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.745] 🔹 Стан: telegram_client_module.telethon_client • Створено задачу для запуску та авторизації клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.745] 🔹 Стан: __main__ • Telethon клієнти запущені успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.745] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:25.745] 🔹 Стан: telegram_client_module.telethon_client • Розпочинається авторизація для клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:33:27.673] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 підключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:33:40.574] 🔹 Стан: telegram_client_module.telethon_client • Код авторизації надіслано на +380997751324. Перевірте Telegram.
+[Refridex OS • ПОМИЛКА • 2025-06-03 23:33:40.578] ❌ Помилка: telegram_client_module.telethon_client • Помилка при збереженні сесії Telethon для +380997751324 в БД: null значення в стовпці "session_string" відношення "telethon_sessions" порушує not-null обмеження
+DETAIL:  Помилковий рядок містить (+380997751324, null, null, null, 2025-06-03 23:33:40.575624).
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/telegram_client_module/telethon_client.py", line 135, in _save_session_to_db
+    await conn.execute(
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 352, in execute
+    _, status, _ = await self._execute(
+                   ^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1864, in _execute
+    result, _ = await self.__execute(
+                ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 1961, in __execute
+    result, stmt = await self._do_execute(
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/asyncpg/connection.py", line 2024, in _do_execute
+    result = await executor(stmt, None)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 206, in bind_execute
+asyncpg.exceptions.NotNullViolationError: null значення в стовпці "session_string" відношення "telethon_sessions" порушує not-null обмеження
+DETAIL:  Помилковий рядок містить (+380997751324, null, null, null, 2025-06-03 23:33:40.575624).
+[Refridex OS • LOGCORE • 2025-06-03 23:33:40.582] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 успішно авторизовано та збережено сесію.
+[Refridex OS • УВАГА • 2025-06-03 23:42:15.723] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.724] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.725] 🔹 Стан: __main__ • Спроба відключити Telethon клієнтів.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.725] 🔹 Стан: telegram_client_module.telethon_client • Зупинка усіх Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.728] 🔹 Стан: telegram_client_module.telethon_client • Telethon клієнт +380997751324 відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.729] 🔹 Стан: telegram_client_module.telethon_client • Задача для клієнта +380997751324 скасована.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.729] 🔹 Стан: __main__ • Telethon клієнти відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.729] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.730] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.731] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.731] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.982] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.983] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:15.985] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.745] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.746] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.746] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.746] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.770] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.771] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.772] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.772] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.772] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.772] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.772] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.772] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.773] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.773] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.773] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.986] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.987] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.987] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.988] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.988] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.989] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.989] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • КРИТИЧНО • 2025-06-03 23:42:17.989] 💥 КРИТИЧНА ПОМИЛКА: __main__ • Критична помилка під час polling: TelethonClientManager.__init__() got an unexpected keyword argument 'db_pool'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/main.py", line 159, in main
+    await dp.start_polling(bot)
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 565, in start_polling
+    await self.emit_startup(bot=bots[-1], **workflow_data)
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/router.py", line 260, in emit_startup
+    await self.startup.trigger(*args, **kwargs)
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/event.py", line 42, in trigger
+    await handler.call(*args, **kwargs)
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/event/handler.py", line 43, in call
+    return await wrapped()
+           ^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/main.py", line 68, in on_bot_startup
+    telethon_manager = TelethonClientManager(db_pool=db_pool_instance)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TelethonClientManager.__init__() got an unexpected keyword argument 'db_pool'
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.990] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:42:17.992] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.362] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.362] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.363] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.363] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.384] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.385] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.385] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.385] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.385] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.386] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.386] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.386] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.386] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.386] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.387] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.588] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.589] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.589] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.590] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.590] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.591] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.591] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.591] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.591] 🔹 Стан: telegram_client_module.telethon_client • Спроба запуску Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.593] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager: Клієнт об'єкт для +380997751324 створено.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.593] 🔹 Стан: telegram_client_module.telethon_client • Створено задачу для запуску та авторизації клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.593] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.593] 🔹 Стан: __main__ • Telethon клієнти налаштовано та, якщо потрібно, запущені (через initialize()).
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.593] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:26.593] 🔹 Стан: telegram_client_module.telethon_client • Розпочинається авторизація для клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:46:28.841] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 підключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:28.939] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 не авторизовано. Запускаємо авторизацію...
+[Refridex OS • LOGCORE • 2025-06-03 23:46:46.450] 🔹 Стан: telegram_client_module.telethon_client • Код авторизації надіслано на +380997751324. Перевірте Telegram.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:46.455] 🔹 Стан: telegram_client_module.telethon_client • Сесія Telethon для +380997751324 успішно збережена в БД.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:46.455] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 успішно авторизовано та збережено сесію.
+[Refridex OS • LOGCORE • 2025-06-03 23:46:46.555] 🔹 Стан: telegram_client_module.telethon_client • Увійшов як: Віталій (@Molfar2207); ID: 525974549
+[Refridex OS • УВАГА • 2025-06-03 23:47:42.334] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.335] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.335] 🔹 Стан: __main__ • Спроба відключити Telethon клієнтів.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.336] 🔹 Стан: telegram_client_module.telethon_client • Завершення роботи TelethonClientManager. Відключення клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.337] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.337] 🔹 Стан: __main__ • Telethon клієнти відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.337] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.344] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.345] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.346] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.597] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.597] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:42.600] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:52.987] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:52.988] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:47:52.988] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:52.988] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.012] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.013] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.013] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.013] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.013] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.013] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.014] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.014] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.014] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.014] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.014] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.255] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.256] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.256] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.257] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.257] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.258] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.258] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.258] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.258] 🔹 Стан: telegram_client_module.telethon_client • Спроба запуску Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.260] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager: Клієнт об'єкт для +380997751324 створено.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.261] 🔹 Стан: telegram_client_module.telethon_client • Створено задачу для запуску та авторизації клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.261] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.261] 🔹 Стан: __main__ • Telethon клієнти налаштовано та, якщо потрібно, запущені (через initialize()).
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.261] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.261] 🔹 Стан: telegram_client_module.telethon_client • Розпочинається авторизація для клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.736] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 підключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.739] 🔹 Стан: telegram_client_module.telethon_client • Сесія Telethon для +380997751324 успішно збережена в БД.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.739] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 успішно авторизовано та збережено сесію.
+[Refridex OS • LOGCORE • 2025-06-03 23:47:53.799] 🔹 Стан: telegram_client_module.telethon_client • Увійшов як: Віталій (@Molfar2207); ID: 525974549
+[Refridex OS • УВАГА • 2025-06-03 23:48:14.830] ⚠️ Попередження: middlewares.telethon_middleware • TelethonClientMiddleware: 'telethon_manager_instance' не знайдено в dispatcher.workflow_data.
+[Refridex OS • ПОМИЛКА • 2025-06-03 23:48:14.831] ❌ Помилка: aiogram.event • Cause exception while process update id=88510765 by bot id=8157903938
+TypeError: TelegramEventObserver.trigger() got an unexpected keyword argument 'db_pool'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 68, in __call__
+    return await handler(event, data) # ВИПРАВЛЕНО
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/telethon_middleware.py", line 84, in __call__
+    return await handler(event, **data)
+                 ^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TelegramEventObserver.trigger() got an unexpected keyword argument 'db_pool'
+[Refridex OS • УВАГА • 2025-06-03 23:51:00.335] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.337] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.337] 🔹 Стан: __main__ • Спроба відключити Telethon клієнтів.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.338] 🔹 Стан: telegram_client_module.telethon_client • Завершення роботи TelethonClientManager. Відключення клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.339] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.340] 🔹 Стан: __main__ • Telethon клієнти відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.340] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.345] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.345] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.346] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.596] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.597] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:00.599] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.502] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.503] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.504] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.504] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.530] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.531] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.531] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.532] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.532] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.532] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.532] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.532] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.532] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.532] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.533] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.764] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.764] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.764] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.765] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.765] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.766] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.766] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.766] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.766] 🔹 Стан: telegram_client_module.telethon_client • Спроба запуску Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.769] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager: Клієнт об'єкт для +380997751324 створено.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.769] 🔹 Стан: telegram_client_module.telethon_client • Створено задачу для запуску та авторизації клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.769] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.769] 🔹 Стан: __main__ • Telethon клієнти налаштовано та, якщо потрібно, запущені (через initialize()).
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.769] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:02.770] 🔹 Стан: telegram_client_module.telethon_client • Розпочинається авторизація для клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:51:03.356] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 підключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:03.358] 🔹 Стан: telegram_client_module.telethon_client • Сесія Telethon для +380997751324 успішно збережена в БД.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:03.358] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 успішно авторизовано та збережено сесію.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:03.416] 🔹 Стан: telegram_client_module.telethon_client • Увійшов як: Віталій (@Molfar2207); ID: 525974549
+[Refridex OS • УВАГА • 2025-06-03 23:51:06.091] ⚠️ Попередження: middlewares.telethon_middleware • TelethonClientMiddleware: 'telethon_manager_instance' не знайдено в dispatcher.workflow_data.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:06.092] 🔹 Стан: handlers.start_handler • Користувач Віталій (ID: 525974549) виконав команду /start.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:06.094] 🔹 Стан: database.users_db • Оновлено last_activity для користувача 525974549.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:06.095] 🔹 Стан: handlers.start_handler • Оновлено last_activity для існуючого користувача 525974549.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:06.249] 🔹 Стан: handlers.start_handler • Відправлено привітальне повідомлення користувачу 525974549.
+[Refridex OS • LOGCORE • 2025-06-03 23:51:06.249] 🔹 Стан: handlers.menu_handler • Відображаю головне меню для користувача 525974549
+[Refridex OS • LOGCORE • 2025-06-03 23:51:06.322] 🔹 Стан: handlers.start_handler • Відображено головне меню для користувача 525974549.
+[Refridex OS • УВАГА • 2025-06-03 23:59:48.784] ⚠️ Попередження: aiogram.dispatcher • Received SIGINT signal
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.785] 🔹 Стан: __main__ • Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.786] 🔹 Стан: __main__ • Спроба відключити Telethon клієнтів.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.786] 🔹 Стан: telegram_client_module.telethon_client • Завершення роботи TelethonClientManager. Відключення клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.788] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.788] 🔹 Стан: __main__ • Telethon клієнти відключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.788] 🔹 Стан: __main__ • Спроба закрити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.789] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.789] 🔹 Стан: __main__ • Пул підключень до бази даних закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:48.790] 🔹 Стан: __main__ • Закриття сесії бота.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:49.041] 🔹 Стан: __main__ • Сесію бота закрито.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:49.041] 🔹 Стан: __main__ • dp.start_polling завершив роботу.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:49.043] 🔹 Стан: __main__ • Система: процес завершено. Вихід з потоку.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.793] 🔹 Стан: utils.logger • Логування налаштовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.794] 🔹 Стан: __main__ • Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.794] 🔹 Стан: __main__ • Початок виконання головної асинхронної функції 'main'.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.794] 🔹 Стан: __main__ • Ініціалізація об'єкта Bot.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.817] 🔹 Стан: __main__ • Ініціалізація об'єкта Dispatcher.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.819] 🔹 Стан: __main__ • Реєстрація DbSessionMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.819] 🔹 Стан: middlewares.db_middleware • DbSessionMiddleware ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.819] 🔹 Стан: __main__ • DbSessionMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.819] 🔹 Стан: __main__ • Реєстрація TelethonClientMiddleware.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.819] 🔹 Стан: middlewares.telethon_middleware • TelethonClientMiddleware ініціалізовано (без прямого передавання менеджера).
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.819] 🔹 Стан: __main__ • TelethonClientMiddleware зареєстровано глобально.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.820] 🔹 Стан: __main__ • Реєстрація роутера 'start_handler'.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.820] 🔹 Стан: __main__ • Перед викликом dp.start_polling. Бот чекає на оновлення...
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.820] 🔹 Стан: __main__ • Початок запуску бота. Зареєстровані startup-хуки виконуються.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:50.820] 🔹 Стан: __main__ • Спроба створити пул підключень до бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.053] 🔹 Стан: database.db_pool_manager • Пул з'єднань до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.054] 🔹 Стан: __main__ • Пул підключень до бази даних створено успішно.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.054] 🔹 Стан: __main__ • Ініціалізація таблиць бази даних.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.055] 🔹 Стан: database.db_pool_manager • Таблиця 'users' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.055] 🔹 Стан: database.db_pool_manager • Таблиця 'telethon_sessions' перевірена/створена.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.057] 🔹 Стан: __main__ • Таблиці бази даних ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.057] 🔹 Стан: __main__ • Ініціалізація TelethonClientManager.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.057] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.057] 🔹 Стан: telegram_client_module.telethon_client • Спроба запуску Telethon клієнтів...
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.060] 🔹 Стан: telegram_client_module.telethon_client • TelethonClientManager: Клієнт об'єкт для +380997751324 створено.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.061] 🔹 Стан: telegram_client_module.telethon_client • Створено задачу для запуску та авторизації клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.062] 🔹 Стан: __main__ • TelethonClientManager ініціалізовано.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.062] 🔹 Стан: __main__ • Telethon клієнти налаштовано та, якщо потрібно, запущені (через initialize()).
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.062] 🔹 Стан: __main__ • Завершення on_startup.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.062] 🔹 Стан: telegram_client_module.telethon_client • Розпочинається авторизація для клієнта: +380997751324
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.536] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 підключено.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.538] 🔹 Стан: telegram_client_module.telethon_client • Сесія Telethon для +380997751324 успішно збережена в БД.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.538] 🔹 Стан: telegram_client_module.telethon_client • Клієнт +380997751324 успішно авторизовано та збережено сесію.
+[Refridex OS • LOGCORE • 2025-06-03 23:59:51.591] 🔹 Стан: telegram_client_module.telethon_client • Увійшов як: Віталій (@Molfar2207); ID: 525974549
+[Refridex OS • ПОМИЛКА • 2025-06-03 23:59:55.353] ❌ Помилка: aiogram.event • Cause exception while process update id=88510767 by bot id=8157903938
+TypeError: TelegramEventObserver.trigger() got an unexpected keyword argument 'db_pool'
+Traceback (most recent call last):
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 309, in _process_update
+    response = await self.feed_update(bot, update, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/dispatcher.py", line 158, in feed_update
+    response = await self.update.wrap_outer_middleware(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/error.py", line 25, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/dispatcher/middlewares/user_context.py", line 56, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/venv/lib/python3.12/site-packages/aiogram/fsm/middleware.py", line 42, in __call__
+    return await handler(event, data)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/db_middleware.py", line 68, in __call__
+    return await handler(event, data) # ВИПРАВЛЕНО
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kondiki/Refridex/middlewares/telethon_middleware.py", line 70, in __call__
+    return await handler(event, **data)
+                 ^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TelegramEventObserver.trigger() got an unexpected keyword argument 'db_pool'

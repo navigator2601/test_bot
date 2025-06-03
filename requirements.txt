@@ -1,0 +1,13 @@
+# requirements.txt
+
+aiogram
+telethon
+python-dotenv
+SQLAlchemy
+asyncpg # Для роботи з PostgreSQL
+psycopg2-binary # Альтернатива, або якщо виникнуть проблеми з asyncpg
+
+# Додаткові бібліотеки, які можуть знадобитися пізніше:
+# aiofiles
+# requests
+# flask
