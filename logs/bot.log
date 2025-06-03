@@ -825,3 +825,46 @@ NameError: name 'state' is not defined
 [Refridex OS • DEBUG • 2025-06-04 00:34:27.554] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Подія Update не має прямого 'from_user'. Пропускаємо обробку користувача.
 [Refridex OS • DEBUG • 2025-06-04 00:34:27.554] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Обробка події Update
 [Refridex OS • DEBUG • 2025-06-04 00:34:27.555] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Додано 'telethon_manager' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:17.251] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Обробка події типу Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:17.251] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Додано 'db_pool' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:17.251] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Подія Update не має прямого 'from_user'. Пропускаємо обробку користувача.
+[Refridex OS • DEBUG • 2025-06-04 01:06:17.251] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Обробка події Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:17.251] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Додано 'telethon_manager' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:20.801] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Обробка події типу Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:20.801] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Додано 'db_pool' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:20.801] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Подія Update не має прямого 'from_user'. Пропускаємо обробку користувача.
+[Refridex OS • DEBUG • 2025-06-04 01:06:20.801] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Обробка події Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:20.801] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Додано 'telethon_manager' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:21.931] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Обробка події типу Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:21.931] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Додано 'db_pool' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:21.931] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Подія Update не має прямого 'from_user'. Пропускаємо обробку користувача.
+[Refridex OS • DEBUG • 2025-06-04 01:06:21.931] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Обробка події Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:21.931] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Додано 'telethon_manager' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:23.153] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Обробка події типу Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:23.153] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Додано 'db_pool' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:23.154] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Подія Update не має прямого 'from_user'. Пропускаємо обробку користувача.
+[Refridex OS • DEBUG • 2025-06-04 01:06:23.154] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Обробка події Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:23.154] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Додано 'telethon_manager' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:24.176] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Обробка події типу Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:24.177] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Додано 'db_pool' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:24.177] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Подія Update не має прямого 'from_user'. Пропускаємо обробку користувача.
+[Refridex OS • DEBUG • 2025-06-04 01:06:24.177] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Обробка події Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:24.177] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Додано 'telethon_manager' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:28.784] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Обробка події типу Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:28.784] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Додано 'db_pool' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:28.784] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Подія Update не має прямого 'from_user'. Пропускаємо обробку користувача.
+[Refridex OS • DEBUG • 2025-06-04 01:06:28.784] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Обробка події Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:28.784] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Додано 'telethon_manager' до 'data'.
+[Refridex OS • LOGCORE • 2025-06-04 01:06:28.785] 🔹 Стан: handlers.start_handler • Користувач Віталій (ID: 525974549) виконав команду /start.
+[Refridex OS • LOGCORE • 2025-06-04 01:06:28.816] 🔹 Стан: database.users_db • Оновлено last_activity для користувача 525974549.
+[Refridex OS • LOGCORE • 2025-06-04 01:06:28.817] 🔹 Стан: handlers.start_handler • Оновлено last_activity для існуючого користувача 525974549.
+[Refridex OS • LOGCORE • 2025-06-04 01:06:29.097] 🔹 Стан: handlers.start_handler • Відправлено привітальне повідомлення користувачу 525974549.
+[Refridex OS • LOGCORE • 2025-06-04 01:06:29.097] 🔹 Стан: handlers.menu_handler • Користувач Віталій Дзюба (ID: 525974549) викликав show_main_menu_handler (дія: /start).
+[Refridex OS • LOGCORE • 2025-06-04 01:06:29.098] 🔹 Стан: handlers.menu_handler • Користувач Віталій Дзюба (ID: 525974549) має рівень доступу: 10.
+[Refridex OS • LOGCORE • 2025-06-04 01:06:29.099] 🔹 Стан: handlers.menu_handler • Користувачу Віталій Дзюба (ID: 525974549) відображається 6 кнопок на сторінці 1.
+[Refridex OS • LOGCORE • 2025-06-04 01:06:29.192] 🔹 Стан: handlers.start_handler • Відображено головне меню для користувача 525974549.
+[Refridex OS • DEBUG • 2025-06-04 01:06:31.245] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Обробка події типу Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:31.245] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Додано 'db_pool' до 'data'.
+[Refridex OS • DEBUG • 2025-06-04 01:06:31.245] 🐞 Відлагодження: middlewares.db_middleware • DbSessionMiddleware: Подія Update не має прямого 'from_user'. Пропускаємо обробку користувача.
+[Refridex OS • DEBUG • 2025-06-04 01:06:31.245] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Обробка події Update
+[Refridex OS • DEBUG • 2025-06-04 01:06:31.246] 🐞 Відлагодження: middlewares.telethon_middleware • TelethonClientMiddleware: Додано 'telethon_manager' до 'data'.
