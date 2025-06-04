@@ -8,6 +8,10 @@
 
 ```
 .
+├── common
+│   ├── constants.py
+│   ├── __init__.py
+│   └── messages.py
 ├── config.py
 ├── database
 │   ├── db_pool_manager.py
@@ -22,7 +26,6 @@
 │   ├── echo_handler.py
 │   ├── __init__.py
 │   ├── menu_handler.py
-│   ├── reply_keyboard_handler.py
 │   └── start_handler.py
 ├── images
 │   ├── baner.png
@@ -54,9 +57,6 @@
     ├── __init__.py
     ├── logger.py
     └── set_bot_commands.py
-
-10 directories, 37 files
-
 ```
 
 Коментарі до структури
