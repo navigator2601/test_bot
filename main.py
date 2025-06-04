@@ -27,6 +27,9 @@ from middlewares.telethon_middleware import TelethonClientMiddleware
 from handlers.start_handler import router as start_router
 from handlers.menu_handler import router as menu_router
 
+# Підлючення ехо для обробки некомандних повідомлень
+from handlers.echo_handler import router as echo_router
+
 # НАЙПЕРШИЙ ВИКЛИК налаштування логів
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -153,6 +156,10 @@ async def main():
     if menu_router:
         logger.info("Реєстрація роутера 'menu_handler'.")
         dp.include_router(menu_router)
+
+    # echo_router для обробки некомандних повідомлень
+    logger.info("Реєстрація роутера 'echo_handler' (для невідомих кнопок та повідомлень).")
+    dp.include_router(echo_router)
 
     # Реєстрація функцій запуску/зупинки
     dp.startup.register(on_bot_startup)

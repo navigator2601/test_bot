@@ -7,10 +7,8 @@ import logging
 import asyncpg
 from typing import Any
 from aiogram.fsm.context import FSMContext
-from handlers.menu_handler import show_main_menu_handler, MenuStates # <-- ОНОВЛЕНО
+from handlers.menu_handler import show_main_menu_handler, MenuStates
 from database import users_db
-# random БІЛЬШЕ НЕ ПОТРІБЕН ТУТ, ЯКЩО НЕ ВИКОРИСТОВУЄТЬСЯ
-# від get_access_level_description
 
 logger = logging.getLogger(__name__)
 
@@ -66,12 +64,7 @@ async def command_start_handler(
         await state.set_state(MenuStates.main_menu)
         await state.update_data(menu_page=0)
 
-        # Викликаємо show_main_menu_handler
-        # Зауважте, що show_main_menu_handler очікує message.text для визначення дії.
-        # Для /start ми можемо просто передати заглушку або викликати його з іншим text
-        # щоб він показав стандартне привітальне повідомлення (не пагінацію).
-        # Наприклад, імітувати, що кнопка "На головну" була натиснута.
-        message.text = "На головну" # Імітуємо натискання "На головну" для хендлера
+        # Викликаємо show_main_menu_handler БЕЗ зміни message.text!
         await show_main_menu_handler(message, bot, db_pool, state)
         logger.info(f"Відображено головне меню для користувача {user_id}.")
 
