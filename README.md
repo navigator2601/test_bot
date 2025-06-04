@@ -7,36 +7,56 @@
 ## 📂 Структура проєкту
 
 ```
+.
 ├── config.py
 ├── database
 │   ├── db_pool_manager.py
 │   ├── __init__.py
 │   ├── telethon_sessions_db.py
 │   └── users_db.py
+├── filters
+│   └── admin_filter.py
+├── git_commit.txt
 ├── handlers
 │   ├── admin_handler.py
+│   ├── echo_handler.py
 │   ├── __init__.py
 │   ├── menu_handler.py
 │   ├── reply_keyboard_handler.py
 │   └── start_handler.py
+├── images
+│   ├── baner.png
+│   └── logo.jpg
 ├── __init__.py
 ├── keyboards
 │   ├── admin_keyboard.py
 │   ├── __init__.py
 │   ├── inline_keyboard.py
 │   └── reply_keyboard.py
+├── last_changes.diff
 ├── main.py
 ├── middlewares
+│   ├── db_middleware.py
+│   ├── __init__.py
+│   └── telethon_middleware.py
+├── minimal_bot.log
 ├── README.md
 ├── requirements.txt
 ├── states
 │   ├── admin_states.py
 │   └── __init__.py
-├── telethon_client.py
+├── telegram_client_module
+│   ├── auth_telethon.py
+│   ├── __init__.py
+│   └── telethon_client.py
 └── utils
     ├── auth_check.py
     ├── __init__.py
-    └── logger.py
+    ├── logger.py
+    └── set_bot_commands.py
+
+10 directories, 37 files
+
 ```
 
 Коментарі до структури
