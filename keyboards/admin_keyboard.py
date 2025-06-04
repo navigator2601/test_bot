@@ -2,16 +2,8 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from math import ceil
 
-# Конфігурація для кнопок рівня доступу (для використання в адмін-панелі)
-ACCESS_LEVEL_BUTTONS = [
-    (0, "🔒 Гість [Level 0]"),
-    (1, "🧭 Техно-Навігатор [L1]"),
-    (3, "🔧 Системний Інженер [L3]"),
-    (6, "📊 Керівник Протоколів [L6]"),
-    (10, "🛡️ Адміністратор Ядра [L10]"),
-    (100, "🧬 Архітектор Системи [ROOT]"),
-    (101, "🌀 Пробуджений Refridex [L∞]")  # Таємний рівень
-]
+from common.constants import ACCESS_LEVEL_BUTTONS # <--- ОНОВЛЕНО ІМПОРТИ
+# from math import ceil # Імпорт ceil вже є, але залиште його
 
 def get_admin_main_keyboard() -> InlineKeyboardMarkup:
     """Повертає головну клавіатуру адміністратора з оновленими кнопками."""
@@ -37,11 +29,16 @@ def get_users_list_keyboard(users: list, current_page: int, users_per_page: int)
         if user_id is not None:
             first_name = user.get('first_name', '')
             last_name = user.get('last_name', '')
+            username = user.get('username', '') # Отримуємо username
             access_level = user.get('access_level', 0)
             
-            # Формуємо текст кнопки з first_name, last_name та access_level
-            button_text = f"{first_name} {last_name} (Рівень: {access_level})"
-            # Callback_data залишаємо user_{user_id} для вибору користувача
+            # Формуємо текст кнопки з first_name, last_name та access_level,
+            # використовуючи username як запасний варіант
+            display_name = f"{first_name} {last_name}".strip()
+            if not display_name: # Якщо ім'я та прізвище порожні
+                display_name = username or f"ID: {user_id}" # Використовуємо username або ID
+            
+            button_text = f"{display_name} (Рівень: {access_level})"
             keyboard.append([InlineKeyboardButton(text=button_text, callback_data=f"user_{user_id}")])
 
     total_pages = ceil(len(users) / users_per_page) if len(users) > 0 else 1
@@ -49,13 +46,13 @@ def get_users_list_keyboard(users: list, current_page: int, users_per_page: int)
     # Додаємо кнопки пагінації
     pagination_buttons = []
     if current_page > 0:
-        pagination_buttons.append(InlineKeyboardButton(text="⬅️", callback_data=f"page_{current_page - 1}"))
+        pagination_buttons.append(InlineKeyboardButton(text="⬅️", callback_data=f"users_page_{current_page - 1}")) # Змінив callback_data
     
     # Кнопка поточної сторінки
-    pagination_buttons.append(InlineKeyboardButton(text=f"{current_page + 1}/{total_pages}", callback_data="current_page_info"))
+    pagination_buttons.append(InlineKeyboardButton(text=f"{current_page + 1}/{total_pages}", callback_data="users_current_page_info")) # Змінив callback_data
     
     if current_page < total_pages - 1:
-        pagination_buttons.append(InlineKeyboardButton(text="➡️", callback_data=f"page_{current_page + 1}"))
+        pagination_buttons.append(InlineKeyboardButton(text="➡️", callback_data=f"users_page_{current_page + 1}")) # Змінив callback_data
     
     keyboard.append(pagination_buttons)
     # Кнопка "Назад до адмін-меню"
@@ -64,25 +61,28 @@ def get_users_list_keyboard(users: list, current_page: int, users_per_page: int)
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
-def get_pagination_keyboard(current_page: int, total_pages: int) -> InlineKeyboardMarkup:
-    """
-    Генерує клавіатуру пагінації для списку користувачів.
-    Ця функція може бути використана, якщо пагінація потрібна окремо.
-    """
-    buttons = []
-    if current_page > 0:
-        buttons.append(InlineKeyboardButton(text="⬅️ Назад", callback_data=f"page_{current_page - 1}"))
-    
-    buttons.append(InlineKeyboardButton(text=f"{current_page + 1}/{total_pages}", callback_data="current_page_display"))
+# def get_pagination_keyboard(current_page: int, total_pages: int) -> InlineKeyboardMarkup:
+#     """
+#     Генерує клавіатуру пагінації для списку користувачів.
+#     Ця функція більше не потрібна, оскільки її функціонал включено в get_users_list_keyboard.
+#     Якщо вона використовується десь ще, потрібно переглянути її використання або уніфікувати.
+#     """
+#     buttons = []
+#     if current_page > 0:
+#         buttons.append(InlineKeyboardButton(text="⬅️ Назад", callback_data=f"users_page_{current_page - 1}"))
+#     
+#     buttons.append(InlineKeyboardButton(text=f"{current_page + 1}/{total_pages}", callback_data="users_current_page_display"))
+# 
+#     if current_page < total_pages - 1:
+#         buttons.append(InlineKeyboardButton(text="Вперед ➡️", callback_data=f"users_page_{current_page + 1}"))
+#     
+#     # Додаємо кнопку повернення
+#     back_button = [InlineKeyboardButton(text="⬅️ Назад до адмін-меню", callback_data="cancel_admin_action")]
+#     
+#     return InlineKeyboardMarkup(inline_keyboard=[buttons, back_button])
 
-    if current_page < total_pages - 1:
-        buttons.append(InlineKeyboardButton(text="Вперед ➡️", callback_data=f"page_{current_page + 1}"))
-    
-    # Додаємо кнопку повернення
-    back_button = [InlineKeyboardButton(text="⬅️ Назад до адмін-меню", callback_data="cancel_admin_action")]
-    
-    return InlineKeyboardMarkup(inline_keyboard=[buttons, back_button])
-
+# Якщо функція get_pagination_keyboard не використовується в інших місцях, її можна видалити.
+# Я її закоментував як приклад.
 
 def get_user_actions_keyboard(is_authorized: bool, current_access_level: int, user_id_to_manage: int) -> InlineKeyboardMarkup:
     """Повертає клавіатуру для дій з конкретним користувачем."""
@@ -107,13 +107,14 @@ def get_confirm_action_keyboard(action_data: str) -> InlineKeyboardMarkup:
 
 def get_access_level_keyboard(user_id_to_manage: int) -> InlineKeyboardMarkup:
     """Генерує клавіатуру з кнопками для вибору рівня доступу."""
-    buttons = []
+    buttons_flat = [] # Змінив назву, щоб було зрозуміліше
     for level, name in ACCESS_LEVEL_BUTTONS:
-        # Змінюємо формат тексту кнопки: числове значення на початок
-        buttons.append(InlineKeyboardButton(text=f"{name}", callback_data=f"set_access_level_{level}_{user_id_to_manage}"))
+        buttons_flat.append(InlineKeyboardButton(text=f"{name}", callback_data=f"set_access_level_{level}_{user_id_to_manage}"))
     
     # Розбиваємо кнопки на рядки: тепер по 2
-    keyboard = [buttons[i:i + 1] for i in range(0, len(buttons), 1)]
+    # Якщо ви хочете по 1, то [buttons_flat[i:i + 1] ... ]
+    # Якщо ви хочете по 2, то [buttons_flat[i:i + 2] ... ]
+    keyboard = [buttons_flat[i:i + 2] for i in range(0, len(buttons_flat), 2)] # <--- Змінив на 2 кнопки в ряд
     
     # Кнопка скасування повинна повертати до управління цим же користувачем
     keyboard.append([InlineKeyboardButton(text="Скасувати ❌", callback_data=f"user_{user_id_to_manage}")]) 

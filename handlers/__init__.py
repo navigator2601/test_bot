@@ -4,7 +4,7 @@
 from .start_handler import router as start_router
 from .menu_handler import router as menu_router
 from .admin_handler import router as admin_router # Для обробки Inline-кнопок адмін-панелі
-from .reply_keyboard_handler import router as reply_keyboard_router # Для обробки Reply-кнопок меню та пагінації
+# from .reply_keyboard_handler import router as reply_keyboard_router # Цей рядок ВИДАЛЯЄМО!
 from .echo_handler import router as echo_router # Завжди останній, обробляє невідомі повідомлення
 
 # --- Місце для майбутніх роутерів ---

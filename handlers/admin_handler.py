@@ -1,738 +1,444 @@
 # handlers/admin_handler.py
+
 import logging
-from aiogram import Router, types, F, Bot, Dispatcher
-import asyncpg
+from aiogram import Router, types, Bot, F
+from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
-from datetime import datetime, timezone
-import random
-import asyncio # Додано для sys.exit() і asyncio.sleep()
-import sys     # Додано для sys.exit()
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.enums import ParseMode
+import asyncpg
+from typing import Any, Optional
 
-# Імпортуємо загальні клавіатури з пакету keyboards
-from keyboards import get_main_menu_keyboard
-
-# Імпортуємо адмінські клавіатури з модуля admin_keyboard
+from database import users_db
 from keyboards.admin_keyboard import (
     get_admin_main_keyboard,
     get_users_list_keyboard,
     get_user_actions_keyboard,
+    get_confirm_action_keyboard,
     get_access_level_keyboard,
-    ACCESS_LEVEL_BUTTONS
+    get_telethon_actions_keyboard
 )
-
-# !!! ВИПРАВЛЕНО ШЛЯХ ДО ІМПОРТУ БАЗИ ДАНИХ !!!
-from database.users_db import get_user, add_user, update_user_activity, get_user_access_level, get_all_users, update_user_authorization_status
-
-# --- СПИСОК ВІТАЛЬНИХ ПОВІДОМЛЕНЬ ДЛЯ СПИСКУ КОРИСТУВАЧІВ ---
-USER_LIST_MESSAGES = [
-    "<b>🧾 Refridex OS:</b>\n “Сканування активних ID завершено. Обери ціль зі списку.”",
-    "<b>📂 Refridex OS:</b>\n “Інтерфейс користувачів ініціалізовано. Обери суб’єкта керування.”",
-    "<b>🔍 Refridex OS:</b>\n “Доступні персональні ядра. Підключення до одного — на твій вибір.”",
-    "<b>👤 Refridex OS:</b>\n “Виявлено облікові одиниці. Обери об'єкт взаємодії зі списку.”",
-    "<b>📡 Refridex OS:</b>\n “Модуль користувачів розгорнуто. Обери ідентифікатор.”",
-    "<b>🧬 Refridex OS:</b>\n “Список аватарів системи готовий до дій. Обери напрямок контролю.”",
-    "<b>💠 Refridex OS:</b>\n “Цифрові сигнатури активні. Кого просканувати далі?”",
-    "<b>📜 Refridex OS:</b>\n “Індекс користувачів завантажено. Розпочни взаємодію.”",
-    "<b>🕹️ Refridex OS:</b>\n “Об’єкти керування доступні. Система очікує вибору.”",
-    "<b>📊 Refridex OS:</b>\n “Активовано перегляд користувачів. Обери одиницю для дій.”"
-]
-# -----------------------------------------------------------
-
-# --- СПИСОК ПОВІДОМЛЕНЬ ПРИ ПОВЕРНЕННІ ДО АДМІН-МЕНЮ ---
-ADMIN_RETURN_MESSAGES = [
-    "🧠 Refridex OS:\nСеанс відновлено успішно.\n🔁 Ви знову перебуваєте в головному меню адміністратора.\n⌁ Очікую подальших інструкцій…",
-    "🧠 Refridex OS:\nАдмін-доступ підтверджено.\n🛡️ Панель команд активна.\n⌁ Час керувати Конди-Лендом.",
-    "🧠 Refridex OS:\nПовернення у контрольний центр виконано.\n🔧 Системні шини стабільні.\n⌁ Готовий до маніпуляцій.",
-    "🧠 Refridex OS:\nОператор у системі.\n☑️ Протоколи безпеки пройдено.\n⌁ Чекаю на ваш наступний хід.",
-    "🧠 Refridex OS:\nВи знову біля ядра.\n🧬 Права доступу рівня адміністратора активовано.\n⌁ Сканую можливі дії…",
-    "🧠 Refridex OS:\nКонтроль повернуто.\n📊 Інтерфейс головного меню готовий до обробки запитів.\n⌁ Виберіть команду.",
-    "🧠 Refridex OS:\nАдміністративна панель розблокована.\n⚙️ Прив'язка до профілю — підтверджена.\n⌁ Ядро в режимі очікування.",
-    "🧠 Refridex OS:\n🔄 Перехід завершено.\nВи в головному меню адміністратора.\n⌁ Підсистема слухає.",
-    "🧠 Refridex OS:\nВхід до адмін-терміналу завершено.\n🛠️ Інтерфейс оновлено.\n⌁ Система приймає команди.",
-    "🧠 Refridex OS:\nСигнал перевірено.\n🎛️ Головне меню адміністратора завантажено.\n⌁ Запуск команд — у вашому розпорядженні.",
-    "🧠 Refridex OS:\nЗ'єднання з панеллю підтверджено.\n📡 Рівень доступу: ROOT.\n⌁ Час діяти, командире.",
-    "🧠 Refridex OS:\nДобре повернутись, адміністраторе.\n🔐 Ваше місце за пультом контролю.\n⌁ Конди-світло готове до вашої волі.",
-    "🧠 Refridex OS:\nПорт керування відкрито.\n🧭 Ви в адміністративному модулі.\n⌁ Направляйте систему.",
-    "🧠 Refridex OS:\nВітаю в епіцентрі управління.\n⚡️ Система повністю в онлайні.\n⌁ Чекаю на вхідну команду.",
-    "🧠 Refridex OS:\nОпераційна лінія активна.\n🎯 Панель адміністратора виведено на передній план.\n⌁ Введіть наступну дію."
-]
-# -----------------------------------------------------------
-
-try:
-    from telethon_client import get_telethon_status, get_dialogs_list_telethon, TelethonClientManager
-except ImportError:
-    logging.warning("Telethon client not found. Telethon related functions will be disabled.")
-    async def get_telethon_status(client=None) -> str:
-        return "❓ Telethon не завантажено або не підключено."
-    async def get_dialogs_list_telethon(client=None) -> list:
-        return []
-    class TelethonClientManager:
-        def __init__(self, db_pool):
-            self.client = None
-            self.db_pool = db_pool
-        async def start_client(self): pass
-        async def disconnect_client(self): pass
-        async def authorize_client(self, phone_number): return False
-        async def sign_in_client(self, code, password=None): return False
-        async def get_client(self): return None
-        # Додані заглушки для нових методів
-        async def is_client_connected(self): return False
-        def get_session_name(self): return "N/A"
-        def get_phone_number(self): return "N/A"
-        def get_user_id(self): return "N/A"
-        def get_session_hash(self): return "N/A"
+from keyboards.reply_keyboard import get_main_menu_keyboard # Для повернення в головне меню
+from common.messages import get_access_level_description, get_random_admin_welcome_message # <--- ОНОВЛЕНО ІМПОРТИ
+from common.constants import ACCESS_LEVEL_BUTTONS, BUTTONS_PER_PAGE # <--- ОНОВЛЕНО ІМПОРТИ
 
 
 logger = logging.getLogger(__name__)
+
 router = Router()
-user_list_pages = {}
 
-# --- NEW HANDLER FOR CONNECTION STATUS ---
-@router.callback_query(F.data == "admin_connection_status")
-async def process_connection_status(callback: types.CallbackQuery, telethon_manager: TelethonClientManager, db_pool_instance: asyncpg.Pool):
+# Класи Callbacks для адмін-панелі
+class AdminCallback(CallbackData, prefix="admin"):
+    action: str
+    user_id: Optional[int] = None
+    page: Optional[int] = 0
+    level: Optional[int] = None
+
+class UserActionCallback(CallbackData, prefix="user_action"):
+    action: str # authorize, unauthorize, change_level
+    user_id: int
+
+class AccessLevelCallback(CallbackData, prefix="access_level"):
+    level: int
+    user_id: int
+
+# СТАНИ FSM ДЛЯ АДМІН-ПАНЕЛІ
+class AdminStates(StatesGroup):
+    admin_main = State() # Головна адмін-панель
+    user_management = State() # Управління користувачами
+    confirm_action = State() # Підтвердження дії
+    set_access_level = State() # Встановлення рівня доступу
+    telethon_management = State() # Управління Telethon
+
+# ACCESS_LEVEL_BUTTONS БІЛЬШЕ НЕ ПОТРІБЕН І ЙОГО СЛІД ВИДАЛИТИ З ЦЬОГО ФАЙЛУ!
+
+# Функція для отримання інформації про користувача (щоб уникнути дублювання коду)
+async def _get_user_info_message(db_pool: asyncpg.Pool, user_id: int) -> str:
+    user = await users_db.get_user(db_pool, user_id)
+    if not user:
+        return f"Користувача з ID {user_id} не знайдено."
+
+    user_info_parts = [
+        f"<b>⚙️ Інформація про користувача (ID: <code>{user.get('id')}</code>):</b>",
+        f"Ім'я: <b>{user.get('first_name', 'Не вказано')}</b>",
+        f"Прізвище: <b>{user.get('last_name', 'Не вказано')}</b>",
+        f"Username: <b>@{user.get('username', 'Не вказано')}</b>",
+        f"Рівень доступу: <b>{user.get('access_level', 0)}</b>"
+    ]
+    is_authorized_text = "✅ Авторизований" if user.get('is_authorized', False) else "❌ Неавторизований"
+    user_info_parts.append(f"Статус авторизації: {is_authorized_text}")
+    user_info_parts.append(f"Дата реєстрації: {user.get('registration_date', 'N/A').strftime('%Y-%m-%d %H:%M:%S')}")
+    user_info_parts.append(f"Остання активність: {user.get('last_activity', 'N/A').strftime('%Y-%m-%d %H:%M:%S')}")
+
+    return "\n".join(user_info_parts)
+
+
+@router.callback_query(AdminCallback.filter(F.action == "show_users"), AdminStates.admin_main | AdminStates.user_management)
+async def show_users_list(
+    callback: types.CallbackQuery,
+    callback_data: AdminCallback,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
     user_id = callback.from_user.id
-    current_message = callback.message
+    user_name = callback.from_user.full_name
+    logger.info(f"Користувач {user_name} (ID: {user_id}) натиснув 'show_users_list'.")
 
-    logger.info(f"Адміністратор {user_id} запитав статус підключення.")
+    await state.set_state(AdminStates.user_management)
 
-    # Перевірка рівня доступу
-    access_level = await get_user_access_level(db_pool_instance, user_id)
-    if access_level < 10: # Припускаємо, що рівень 10 (Адміністратор Ядра) або вище може перевіряти статус
-        await callback.answer("У вас недостатньо прав для перегляду статусу зв'язку.", show_alert=True)
-        logger.warning(f"Користувач {user_id} (рівень {access_level}) намагався переглянути статус підключення без достатніх прав.")
-        return
+    current_page = callback_data.page
+    if current_page is None: # На випадок прямого виклику без page
+        current_page = 0
+    
+    users = await users_db.get_all_users(db_pool)
+    users.sort(key=lambda u: u.get('id', 0)) # Сортуємо за ID для стабільної пагінації
 
-    await current_message.edit_text("📡 ReLink: Зчитую дані каналу зв'язку... Будь ласка, зачекайте.")
+    keyboard = get_users_list_keyboard(users, current_page, BUTTONS_PER_PAGE) # Використовуємо BUTTONS_PER_PAGE з common.constants
 
-    status_text = "📊 **ReLink: Статус каналу зв'язку**\n\n"
-    connection_successful = True
-
-    try:
-        # Перевірка статусу Telethon
-        is_connected = await telethon_manager.is_client_connected()
-        session_name = telethon_manager.get_session_name()
-        phone_number = telethon_manager.get_phone_number()
-
-        status_text += f"▪️ **Telethon:** "
-        if is_connected:
-            status_text += "✅ **Підключено**\n"
-            status_text += f"  • Ім'я сесії: `{session_name}`\n"
-            status_text += f"  • Номер телефону: `{phone_number if phone_number else 'Не визначено'}`\n"
-            status_text += f"  • ID користувача Telethon: `{telethon_manager.get_user_id() if telethon_manager.get_user_id() else 'Не визначено'}`\n"
-            status_text += f"  • Хеш сесії: `{telethon_manager.get_session_hash()[:8]}...`\n" # Показуємо перші 8 символів хешу
-        else:
-            status_text += "❌ **Відключено**\n"
-            status_text += "  • Рекомендація: Запустіть авторизацію TeleKey.\n"
-            connection_successful = False
-
-        # Тут можна додати перевірку інших підключень або сервісів
-
-        # Додамо загальний статус
-        if connection_successful:
-            status_text += "\n🌟 **Загальний стан:** Всі основні системи зв'язку працюють стабільно."
-        else:
-            status_text += "\n⚠️ **Загальний стан:** Виявлені проблеми з підключеннями. Рекомендується перевірка."
-
-    except Exception as e:
-        status_text = f"❌ **ReLink: Помилка при отриманні статусу зв'язку!**\n"
-        status_text += f"Деталі: `{e}`\n"
-        status_text += "\nБудь ласка, зверніться до розробника."
-        logger.error(f"Помилка при перевірці статусу підключення: {e}", exc_info=True)
-
-    await current_message.edit_text(status_text, reply_markup=get_admin_main_keyboard(), parse_mode="Markdown")
-    await callback.answer() # Завершуємо обробку callback-запиту
-# --- END NEW HANDLER ---
-
-# --- NEW HANDLER FOR BOT RESTART ---
-@router.callback_query(F.data == "admin_restart_bot") # Це callback, який ви додасте в клавіатуру
-async def admin_restart_bot_handler(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    user_id = callback_query.from_user.id
-    db_pool = dispatcher.workflow_data.get('db_pool_instance')
-    bot = callback_query.bot
-
-    logger.info(f"Адміністратор {user_id} запросив перезапуск бота.")
-
-    # Перевірка рівня доступу адміністратора (необхідно для безпеки)
-    if not db_pool:
-        logger.error("db_pool_instance не знайдено в workflow_data для admin_restart_bot_handler!")
-        await callback_query.answer("Виникла внутрішня помилка. Будь ласка, спробуйте пізніше.")
-        return
-
-    admin_access_level = await get_user_access_level(db_pool, user_id)
-    if admin_access_level < 100: # Припускаємо, що 100 - це рівень супер-адміна (Архітектор Системи)
-        await callback_query.answer("У вас недостатньо прав для цієї дії.", show_alert=True)
-        logger.warning(f"Користувач {user_id} (рівень {admin_access_level}) намагався перезапустити бота без достатніх прав.")
-        return
-
-    try:
-        restart_message = "🔄 Refridex OS: Запускаю протокол 'Перезапуск системи'.\nОчікуйте, відновлення зв'язку відбудеться за декілька секунд..."
-        await callback_query.message.edit_text(restart_message)
-        await callback_query.answer("Запит на перезапуск надіслано.", show_alert=False)
-        logger.info(f"Надіслано повідомлення про перезапуск користувачу {user_id}.")
-
-        # Важливо: Завершити всі асинхронні операції та закрити з'єднання
-        if db_pool:
-            logger.info("Закриваю пул з'єднань до БД...")
-            await db_pool.close()
-            logger.info("Пул з'єднань до БД закрито.")
-
-        # Якщо у вас є менеджер Telethon, який потрібно відключити перед виходом
-        telethon_manager = dispatcher.workflow_data.get('telethon_manager')
-        if telethon_manager:
-            logger.info("Відключаю Telethon клієнта...")
-            await telethon_manager.disconnect_client()
-            logger.info("Telethon клієнт відключений.")
-
-        # Невеликий таймаут, щоб Telegram встиг обробити останнє повідомлення
-        await asyncio.sleep(1)
-
-        logger.critical(f"Бот ініціює вихід для перезапуску за запитом адміністратора {user_id}.")
-        sys.exit(0) # Завершуємо процес бота
-
-    except Exception as e:
-        logger.error(f"Помилка при ініціації перезапуску бота для {user_id}: {e}", exc_info=True)
-        await callback_query.message.answer("Виникла помилка під час спроби перезапуску. Перевірте логи.")
-        await callback_query.answer("Помилка перезапуску.", show_alert=True)
-# --- END NEW HANDLER FOR BOT RESTART ---
-
-
-@router.callback_query(F.data == "admin_show_users")
-async def admin_show_users_handler(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    db_pool = dispatcher.workflow_data.get('db_pool_instance')
-    bot = callback_query.bot
-    logger.info(f"!!! Спрацював обробник admin_show_users_handler для {callback_query.from_user.id} !!!")
-    logger.info(f"DB Pool: {db_pool is not None}, Bot: {bot is not None}")
-    logger.info(f"Callback data: {callback_query.data}")
-
-    if not db_pool:
-        logger.error("db_pool_instance не знайдено в workflow_data для admin_show_users_handler!")
-        await callback_query.answer("Виникла внутрішня помилка. Будь ласка, спробуйте пізніше.")
-        return
-
-    users = await get_all_users(db_pool)
-    logger.info(f"Отримано {len(users)} користувачів з БД.")
-
-    user_list_pages[callback_query.from_user.id] = 0
-    current_page = user_list_pages[callback_query.from_user.id]
-    users_per_page = 5
-    total_users = len(users)
-    total_pages = (total_users + users_per_page - 1) // users_per_page if total_users > 0 else 1
-
-    user_list_welcome_text = random.choice(USER_LIST_MESSAGES)
-
-    response_text = ""
-    reply_markup = None
-
-    if not users:
-        response_text = "Наразі немає зареєстрованих користувачів."
-        reply_markup = get_admin_main_keyboard()
-        logger.warning(f"Користувач {callback_query.from_user.id} запросив список користувачів, але їх немає.")
-    else:
-        response_text = (
-            f"{user_list_welcome_text}\n\n"
-            f"<i>(стор. {current_page + 1}/{total_pages}):</i>"
-        )
-        reply_markup = get_users_list_keyboard(users, current_page, users_per_page)
-        logger.info(f"Користувачу {callback_query.from_user.id} відображено список користувачів на сторінці {current_page + 1}.")
-
-    try:
-        await callback_query.message.edit_text(
-            response_text,
-            parse_mode='HTML',
-            reply_markup=reply_markup
-        )
-    except Exception as e:
-        logger.error(f"Помилка при оновленні повідомлення для списку користувачів {callback_query.from_user.id}: {e}", exc_info=True)
-        await callback_query.message.answer(
-            response_text,
-            parse_mode='HTML',
-            reply_markup=reply_markup
-        )
-    await callback_query.answer()
-
-@router.callback_query(F.data == "cancel_admin_action")
-async def cancel_admin_action_handler(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    user_id = callback_query.from_user.id
-    logger.info(f"Користувач {user_id} натиснув '⬅️ Назад до адмін-меню'.")
-
-    # Вибираємо випадкове повідомлення зі списку
-    return_message = random.choice(ADMIN_RETURN_MESSAGES)
-
-    try:
-        await callback_query.message.edit_text(
-            return_message, # Використовуємо рандомне повідомлення
-            parse_mode='HTML',
-            reply_markup=get_admin_main_keyboard()
-        )
-    except Exception as e:
-        logger.error(f"Помилка при поверненні до адмін-меню для користувача {user_id}: {e}", exc_info=True)
-        await callback_query.message.answer(
-            return_message, # Використовуємо рандомне повідомлення
-            parse_mode='HTML',
-            reply_markup=get_admin_main_keyboard()
-        )
-    await callback_query.answer()
-
-@router.callback_query(F.data.startswith("page_"))
-async def paginate_users_list(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    user_id = callback_query.from_user.id
-    db_pool = dispatcher.workflow_data.get('db_pool_instance')
-
-    if not db_pool:
-        logger.error("db_pool_instance не знайдено в workflow_data для paginate_users_list!")
-        await callback_query.answer("Виникла внутрішня помилка. Будь ласка, спробуйте пізніше.")
-        return
-
-    new_page = int(callback_query.data.split('_')[1])
-    user_list_pages[user_id] = new_page
-
-    users = await get_all_users(db_pool)
-    users_per_page = 5
-    total_users = len(users)
-    total_pages = (total_users + users_per_page - 1) // users_per_page if total_users > 0 else 1
-
-    user_list_welcome_text = random.choice(USER_LIST_MESSAGES)
-
-    if not users:
-        response_text = "Наразі немає зареєстрованих користувачів."
-        reply_markup = get_admin_main_keyboard()
-    else:
-        response_text = (
-            f"{user_list_welcome_text}\n\n"
-            f"<b>Оберіть користувача зі списку (стор. {new_page + 1}/{total_pages}):</b>"
-        )
-        reply_markup = get_users_list_keyboard(users, new_page, users_per_page)
-
-    try:
-        await callback_query.message.edit_text(
-            response_text,
-            parse_mode='HTML',
-            reply_markup=reply_markup
-        )
-    except Exception as e:
-        logger.error(f"Помилка при пагінації списку користувачів для {user_id}: {e}", exc_info=True)
-        await callback_query.message.answer(
-            response_text,
-            parse_mode='HTML',
-            reply_markup=reply_markup
-        )
-    await callback_query.answer()
-
-@router.callback_query(F.data.startswith("user_"))
-async def show_user_management_menu(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    user_id_to_manage = int(callback_query.data.split('_')[1])
-    current_admin_id = callback_query.from_user.id
-    db_pool = dispatcher.workflow_data.get('db_pool_instance')
-    bot = callback_query.bot
-
-    logger.info(f"Адміністратор {current_admin_id} обрав користувача {user_id_to_manage} для керування.")
-
-    if not db_pool:
-        logger.error("db_pool_instance не знайдено в workflow_data для show_user_management_menu!")
-        await callback_query.answer("Виникла внутрішня помилка. Будь ласка, спробуйте пізніше.")
-        return
-
-    user_info = await get_user(db_pool, user_id_to_manage)
-    if not user_info:
-        logger.warning(f"Спроба керувати неіснуючим користувачем {user_id_to_manage} адміністратором {current_admin_id}.")
-        await callback_query.answer("Користувача не знайдено.", show_alert=True)
-        await admin_show_users_handler(callback_query, dispatcher)
-        return
-
-    is_authorized = user_info.get('is_authorized', False)
-    access_level = user_info.get('access_level', 0)
-
-    access_level_display_name = "Невідомий рівень"
-    for level, name in ACCESS_LEVEL_BUTTONS:
-        if level == access_level:
-            access_level_display_name = name
-            break
-
-    status_text = "Авторизований ✅" if is_authorized else "Неавторизований ❌"
-
-    # !!! ВИПРАВЛЕНО: Використання 'registered_at' для дати реєстрації !!!
-    registered_at_dt = user_info.get('registered_at', datetime.now(timezone.utc))
-    last_activity_dt = user_info.get('last_activity', datetime.now(timezone.utc))
-
-    registered_at_str = registered_at_dt.strftime('%d.%m.%Y / %H:%M')
-    last_activity_str = last_activity_dt.strftime('%d.%m.%Y / %H:%M')
-
-    response_text = (
-        f"<b>🧾 ID-ключ:</b> <code>{user_id_to_manage}</code>\n"
-        f"<b>🧑‍🚀 Агент:</b> {user_info.get('first_name', '')} {user_info.get('last_name', '')}\n"
-        f"<b>💬 Позивний:</b> @{user_info.get('username', 'N/A')}\n"
-        f"<b>🛡️ Протокол доступу:</b> {access_level_display_name}\n"
-        f"<b>📶 Статус:</b> {status_text}\n"
-        f"<b>📥 Занесено в систему:</b> {registered_at_str}\n"
-        f"<b>📈 Остання активність:</b> {last_activity_str}\n"
-        f"☰☱☲☳☴☵☶☷☰☱☲☳☴☵☶☷☰☱☲☳\n"
-        f"<b>📡 Командний центр активний. Очікується інструкція…</b>"
+    await callback.message.edit_text(
+        "<b>👥 Юзер-матриця:</b>\n\nСписок користувачів системи:",
+        reply_markup=keyboard,
+        parse_mode=ParseMode.HTML
     )
+    await callback.answer()
+    logger.info(f"Користувачу {user_id} показано список користувачів (сторінка {current_page + 1}).")
 
-    reply_markup = get_user_actions_keyboard(is_authorized, access_level, user_id_to_manage)
+# Обробка пагінації для списку користувачів
+@router.callback_query(AdminCallback.filter(F.action == "users_page"), AdminStates.user_management)
+async def process_users_pagination(
+    callback: types.CallbackQuery,
+    callback_data: AdminCallback,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
+    await show_users_list(callback, callback_data, db_pool, state)
+    await callback.answer()
 
-    try:
-        await callback_query.message.edit_text(
-            response_text,
-            parse_mode='HTML',
-            reply_markup=reply_markup
-        )
-    except Exception as e:
-        logger.error(f"Помилка при відображенні меню управління користувачем {user_id_to_manage}: {e}", exc_info=True)
-        await callback_query.message.answer(
-            response_text,
-            parse_mode='HTML',
-            reply_markup=reply_markup
-        )
-    await callback_query.answer()
+@router.callback_query(F.data.startswith("user_"), AdminStates.user_management)
+async def process_user_selection(
+    callback: types.CallbackQuery,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    user_name = callback.from_user.full_name
+    selected_user_id = int(callback.data.split('_')[1])
+    logger.info(f"Користувач {user_name} (ID: {user_id}) вибрав користувача {selected_user_id} для управління.")
 
-
-@router.callback_query(F.data.startswith("change_access_level_"))
-async def request_change_access_level(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    user_id_to_manage = int(callback_query.data.split('_')[3])
-    admin_id = callback_query.from_user.id
-    db_pool = dispatcher.workflow_data.get('db_pool_instance')
-
-    logger.info(f"Користувач {admin_id} запросив зміну рівня доступу для {user_id_to_manage}.")
-
-    if not db_pool:
-        logger.error("db_pool_instance не знайдено в workflow_data для request_change_access_level!")
-        await callback_query.answer("Виникла внутрішня помилка. Будь ласка, спробуйте пізніше.")
+    user_to_manage = await users_db.get_user(db_pool, selected_user_id)
+    if not user_to_manage:
+        await callback.message.edit_text("Користувача не знайдено.")
+        await callback.answer()
         return
 
-    user_info = await get_user(db_pool, user_id_to_manage)
+    is_authorized = user_to_manage.get('is_authorized', False)
+    current_access_level = user_to_manage.get('access_level', 0)
 
-    user_name_display = f"ID: {user_id_to_manage}"
-    if user_info:
-        first_name = user_info.get('first_name')
-        last_name = user_info.get('last_name')
+    user_info_message = await _get_user_info_message(db_pool, selected_user_id) # Використовуємо хелпер
+    keyboard = get_user_actions_keyboard(is_authorized, current_access_level, selected_user_id)
 
-        if first_name and last_name:
-            user_name_display = f"{first_name} {last_name} (ID: {user_id_to_manage})"
-        elif first_name:
-            user_name_display = f"{first_name} (ID: {user_id_to_manage})"
+    await state.update_data(selected_user_id=selected_user_id) # Зберігаємо ID обраного користувача в стані
+    await callback.message.edit_text(user_info_message, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+    await callback.answer()
 
-    reply_markup = get_access_level_keyboard(user_id_to_manage)
 
-    try:
-        await callback_query.message.edit_text(
-            f"Оберіть новий рівень доступу для користувача <b>{user_name_display}</b>:",
-            parse_mode='HTML',
-            reply_markup=reply_markup
-        )
-    except Exception as e:
-        logger.error(f"Помилка при запиті зміни рівня доступу для {user_id_to_manage}: {e}", exc_info=True)
-        await callback_query.message.answer(
-            f"Оберіть новий рівень доступу для користувача <b>{user_name_display}</b>:",
-            parse_mode='HTML',
-            reply_markup=reply_markup
-        )
-    await callback_query.answer()
+@router.callback_query(UserActionCallback.filter(F.action.in_({"authorize", "unauthorize"})), AdminStates.user_management)
+async def process_authorize_unauthorize(
+    callback: types.CallbackQuery,
+    callback_data: UserActionCallback,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    selected_user_id = callback_data.user_id
+    action_type = callback_data.action # 'authorize' або 'unauthorize'
+    
+    logger.info(f"Користувач {user_id} ініціював {action_type} для користувача {selected_user_id}.")
 
-@router.callback_query(F.data.startswith("set_access_level_"))
-async def set_new_access_level(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    parts = callback_query.data.split('_')
-    new_level = int(parts[3])
-    user_id_to_manage = int(parts[4])
-    admin_id = callback_query.from_user.id
-    db_pool = dispatcher.workflow_data.get('db_pool_instance')
-    bot = callback_query.bot
+    current_state_data = await state.get_data()
+    stored_selected_user_id = current_state_data.get('selected_user_id')
 
-    logger.info(f"Адміністратор {admin_id} встановлює рівень доступу {new_level} для користувача {user_id_to_manage}.")
-
-    if not db_pool:
-        logger.error("db_pool_instance не знайдено в workflow_data для set_new_access_level!")
-        await callback_query.answer("Виникла внутрішня помилка. Будь ласка, спробуйте пізніше.")
+    if stored_selected_user_id != selected_user_id:
+        logger.warning(f"Невідповідність user_id: {stored_selected_user_id} (state) != {selected_user_id} (callback_data).")
+        await callback.answer("Помилка: Вибраний користувач не відповідає поточному стану.", show_alert=True)
         return
 
+    action_text = "авторизацію" if action_type == "authorize" else "деавторизацію"
+    confirm_message = f"Ви впевнені, що хочете виконати {action_text} користувача з ID <code>{selected_user_id}</code>?"
+    
+    # Зберігаємо дію для підтвердження
+    await state.update_data(pending_action={'type': action_type, 'user_id': selected_user_id})
+    keyboard = get_confirm_action_keyboard(f"{action_type}_{selected_user_id}")
+    
+    await callback.message.edit_text(confirm_message, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+    await state.set_state(AdminStates.confirm_action)
+    await callback.answer()
+
+
+@router.callback_query(AccessLevelCallback.filter(), AdminStates.set_access_level)
+async def process_set_access_level(
+    callback: types.CallbackQuery,
+    callback_data: AccessLevelCallback,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    selected_user_id = callback_data.user_id
+    new_access_level = callback_data.level
+    
+    logger.info(f"Користувач {user_id} спробував встановити рівень доступу {new_access_level} для користувача {selected_user_id}.")
+
+    # Отримуємо інформацію про поточного адміна, щоб перевірити його рівень доступу
+    admin_access_level = await users_db.get_user_access_level(db_pool, user_id)
+    if admin_access_level is None or admin_access_level < 10:
+        await callback.answer("У вас недостатньо прав для виконання цієї дії.", show_alert=True)
+        logger.warning(f"Неавторизована спроба зміни рівня доступу користувачем {user_id} для {selected_user_id}.")
+        # Можна повернути до попереднього стану, але, ймовірно, краще дозволити користувачу просто залишитись
+        # у поточному меню або повернутися до головного адмін-меню.
+        await state.set_state(AdminStates.user_management) # Повертаємося до управління користувачами
+        await callback.message.edit_text(
+            "У вас недостатньо прав. Дія скасована.",
+            reply_markup=get_user_actions_keyboard(
+                await users_db.is_user_authorized(db_pool, selected_user_id),
+                (await users_db.get_user(db_pool, selected_user_id)).get('access_level', 0),
+                selected_user_id
+            ),
+            parse_mode=ParseMode.HTML
+        )
+        return
+
+    # Перевірка, чи не намагається адміністратор понизити або підвищити себе або іншого адміна вищого рівня
+    if selected_user_id == user_id and new_access_level > admin_access_level:
+        await callback.answer("Ви не можете підвищити свій власний рівень доступу таким чином.", show_alert=True)
+        logger.warning(f"Користувач {user_id} спробував підвищити свій рівень доступу.")
+        # Повертаємо до меню вибору рівня, щоб користувач міг вибрати інший рівень або скасувати
+        await callback.message.edit_text(
+            "Ви не можете підвищити свій рівень доступу таким чином.",
+            reply_markup=get_access_level_keyboard(selected_user_id),
+            parse_mode=ParseMode.HTML
+        )
+        return
+    
+    target_user_current_level = (await users_db.get_user(db_pool, selected_user_id)).get('access_level', 0)
+    if admin_access_level <= target_user_current_level and selected_user_id != user_id:
+        await callback.answer("Ви не можете змінювати рівень доступу користувача з рівнем, рівним або вищим за ваш.", show_alert=True)
+        logger.warning(f"Користувач {user_id} спробував змінити рівень доступу користувача {selected_user_id} з рівнем {target_user_current_level}, який більший або дорівнює його власному {admin_access_level}.")
+        # Повертаємо до меню вибору рівня
+        await callback.message.edit_text(
+            "Ви не можете змінювати рівень доступу користувача з рівнем, рівним або вищим за ваш.",
+            reply_markup=get_access_level_keyboard(selected_user_id),
+            parse_mode=ParseMode.HTML
+        )
+        return
+
+    # Зберігаємо дію для підтвердження
+    await state.update_data(pending_action={'type': 'set_access_level', 'user_id': selected_user_id, 'level': new_access_level})
+    
+    level_name = next((name for level, name in ACCESS_LEVEL_BUTTONS if level == new_access_level), f"Рівень {new_access_level}")
+    confirm_message = (
+        f"Ви впевнені, що хочете встановити рівень доступу "
+        f"<b>{level_name} ({new_access_level})</b> для користувача з ID <code>{selected_user_id}</code>?"
+    )
+    keyboard = get_confirm_action_keyboard(f"set_access_level_{new_access_level}_{selected_user_id}")
+    
+    await callback.message.edit_text(confirm_message, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+    await state.set_state(AdminStates.confirm_action)
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("confirm_"), AdminStates.confirm_action)
+async def process_confirm_action(
+    callback: types.CallbackQuery,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    action_full_data = callback.data.split('confirm_')[1]
+    
+    current_state_data = await state.get_data()
+    pending_action = current_state_data.get('pending_action')
+
+    if not pending_action:
+        logger.error(f"Користувач {user_id} спробував підтвердити дію, але pending_action не знайдено.")
+        await callback.answer("Помилка: Немає дії для підтвердження.", show_alert=True)
+        await state.set_state(AdminStates.user_management) # Повертаємося до управління користувачами
+        await callback.message.edit_text("Дія скасована через помилку. Ви повернулись до списку користувачів.", reply_markup=get_admin_main_keyboard(), parse_mode=ParseMode.HTML)
+        return
+
+    action_type = pending_action['type']
+    selected_user_id = pending_action['user_id']
+    
+    success_message = "Дія успішно виконана."
+    error_message = "Виникла помилка під час виконання дії."
+    
     try:
-        async with db_pool.acquire() as conn:
-            await conn.execute(
-                "UPDATE users SET access_level = $1 WHERE id = $2",
-                new_level,
-                user_id_to_manage
+        if action_type == "authorize":
+            await users_db.set_user_authorization_status(db_pool, selected_user_id, True)
+            success_message = f"Користувач <code>{selected_user_id}</code> успішно авторизований."
+            logger.info(f"Користувач {user_id} авторизував користувача {selected_user_id}.")
+        elif action_type == "unauthorize":
+            await users_db.set_user_authorization_status(db_pool, selected_user_id, False)
+            success_message = f"Користувач <code>{selected_user_id}</code> успішно деавторизований."
+            logger.info(f"Користувач {user_id} деавторизував користувача {selected_user_id}.")
+        elif action_type == "set_access_level":
+            new_access_level = pending_action['level']
+            await users_db.set_user_access_level(db_pool, selected_user_id, new_access_level)
+            level_name = next((name for level, name in ACCESS_LEVEL_BUTTONS if level == new_access_level), f"Рівень {new_access_level}")
+            success_message = (
+                f"Рівень доступу користувача <code>{selected_user_id}</code> успішно встановлено на "
+                f"<b>{level_name} ({new_access_level})</b>."
             )
-        await callback_query.answer(f"Рівень доступу користувача {user_id_to_manage} змінено на {new_level}.", show_alert=True)
-        logger.info(f"Рівень доступу користувача {user_id_to_manage} змінено на {new_level} адміністратором {admin_id}.")
-
-        user_info = await get_user(db_pool, user_id_to_manage)
-        if not user_info:
-            logger.warning(f"Користувача {user_id_to_manage} не знайдено після зміни рівня доступу. Неможливо оновити інтерфейс.")
+            logger.info(f"Користувач {user_id} встановив рівень доступу {new_access_level} для користувача {selected_user_id}.")
+        else:
+            await callback.answer("Невідома дія.", show_alert=True)
+            logger.warning(f"Невідома дія підтвердження: {action_type}.")
+            await state.set_state(AdminStates.user_management) # Повертаємося до управління користувачами
+            await callback.message.edit_text("Дія скасована. Ви повернулись до списку користувачів.", reply_markup=get_admin_main_keyboard(), parse_mode=ParseMode.HTML)
             return
 
-        is_authorized = user_info.get('is_authorized', False)
-        access_level = user_info.get('access_level', 0)
-
-        access_level_display_name = "Невідомий рівень"
-        for level, name in ACCESS_LEVEL_BUTTONS:
-            if level == access_level:
-                access_level_display_name = name
-                break
-
-        status_text = "Авторизований ✅" if is_authorized else "Неавторизований ❌"
-
-        # !!! ВИПРАВЛЕНО: Використання 'registered_at' для дати реєстрації !!!
-        registered_at_dt = user_info.get('registered_at', datetime.now(timezone.utc))
-        last_activity_dt = user_info.get('last_activity', datetime.now(timezone.utc))
-
-        registered_at_str = registered_at_dt.strftime('%d.%m.%Y / %H:%M')
-        last_activity_str = last_activity_dt.strftime('%d.%m.%Y / %H:%M')
-
-        response_text = (
-            f"<b>🧾 ID-ключ:</b> <code>{user_id_to_manage}</code>\n"
-            f"<b>🧑‍🚀 Агент:</b> {user_info.get('first_name', '')} {user_info.get('last_name', '')}\n"
-            f"<b>💬 Позивний:</b> @{user_info.get('username', 'N/A')}\n"
-            f"<b>🛡️ Протокол доступу:</b> {access_level_display_name}\n"
-            f"<b>📶 Статус:</b> {status_text}\n"
-            f"<b>📥 Занесено в систему:</b> {registered_at_str}\n"
-            f"<b>📈 Остання активність:</b> {last_activity_str}\n"
-            f"☰☱☲☳☴☵☶☷☰☱☲☳☴☵☶☷☰☱☲☳\n"
-            f"<b>📡 Командний центр активний. Очікується інструкція…</b>"
-        )
-
-        reply_markup = get_user_actions_keyboard(is_authorized, access_level, user_id_to_manage)
-
-        try:
-            await bot.edit_message_text(
-                chat_id=callback_query.message.chat.id,
-                message_id=callback_query.message.message_id,
-                text=response_text,
-                parse_mode='HTML',
-                reply_markup=reply_markup
-            )
-            logger.info(f"Оновлено меню управління для користувача {user_id_to_manage} після зміни рівня.")
-        except Exception as edit_e:
-            logger.error(f"Помилка при оновленні повідомлення управління користувачем {user_id_to_manage} після зміни рівня: {edit_e}", exc_info=True)
-            await bot.send_message(
-                chat_id=callback_query.message.chat.id,
-                text=response_text,
-                parse_mode='HTML',
-                reply_markup=reply_markup
-            )
-            logger.warning(f"Відправлено нове повідомлення замість редагування для користувача {user_id_to_manage} після зміни рівня.")
-
+        await callback.message.edit_text(success_message, parse_mode=ParseMode.HTML)
+        
+        # Повертаємось до меню управління користувачем або до списку користувачів
+        await state.set_state(AdminStates.user_management) # Переходимо в стан управління користувачами
+        user_info_message = await _get_user_info_message(db_pool, selected_user_id)
+        is_authorized_after_action = await users_db.is_user_authorized(db_pool, selected_user_id)
+        current_access_level_after_action = (await users_db.get_user(db_pool, selected_user_id)).get('access_level', 0)
+        keyboard = get_user_actions_keyboard(is_authorized_after_action, current_access_level_after_action, selected_user_id)
+        await callback.message.answer(user_info_message, reply_markup=keyboard, parse_mode=ParseMode.HTML)
+        
     except Exception as e:
-        logger.error(f"Глобальна помилка в set_new_access_level для користувача {user_id_to_manage}: {e}", exc_info=True)
-        await callback_query.answer("Помилка при зміні рівня доступу.", show_alert=True)
-        user_info = await get_user(db_pool, user_id_to_manage)
-        if user_info:
-            is_authorized = user_info.get('is_authorized', False)
-            access_level = user_info.get('access_level', 0)
+        logger.error(f"Помилка при підтвердженні дії '{action_type}' для користувача {selected_user_id}: {e}", exc_info=True)
+        await callback.message.edit_text(error_message, parse_mode=ParseMode.HTML)
+        await state.set_state(AdminStates.user_management) # Повертаємось до управління користувачами
+        user_info_message = await _get_user_info_message(db_pool, selected_user_id)
+        is_authorized_after_action = await users_db.is_user_authorized(db_pool, selected_user_id)
+        current_access_level_after_action = (await users_db.get_user(db_pool, selected_user_id)).get('access_level', 0)
+        keyboard = get_user_actions_keyboard(is_authorized_after_action, current_access_level_after_action, selected_user_id)
+        await callback.message.answer(user_info_message, reply_markup=keyboard, parse_mode=ParseMode.HTML)
 
-            access_level_display_name = "Невідомий рівень"
-            for level, name in ACCESS_LEVEL_BUTTONS:
-                if level == access_level:
-                    access_level_display_name = name
-                    break
+    await callback.answer()
 
-            status_text = "Авторизований ✅" if is_authorized else "Неавторизований ❌"
 
-            # !!! ВИПРАВЛЕНО: Використання 'registered_at' для дати реєстрації !!!
-            registered_at_dt = user_info.get('registered_at', datetime.now(timezone.utc))
-            last_activity_dt = user_info.get('last_activity', datetime.now(timezone.utc))
+@router.callback_query(F.data == "cancel_action", AdminStates.confirm_action)
+async def process_cancel_action(
+    callback: types.CallbackQuery,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    logger.info(f"Користувач {user_id} скасував дію.")
 
-            registered_at_str = registered_at_dt.strftime('%d.%m.%Y / %H:%M')
-            last_activity_str = last_activity_dt.strftime('%d.%m.%Y / %H:%M')
-
-            response_text_error = (
-                f"<b>🧾 ID-ключ:</b> <code>{user_id_to_manage}</code>\n"
-                f"<b>🧑‍🚀 Агент:</b> {user_info.get('first_name', '')} {user_info.get('last_name', '')}\n"
-                f"<b>💬 Позивний:</b> @{user_info.get('username', 'N/A')}\n"
-                f"<b>🛡️ Протокол доступу:</b> {access_level_display_name}\n"
-                f"<b>📶 Статус:</b> {status_text}\n"
-                f"<b>📥 Занесено в систему:</b> {registered_at_str}\n"
-                f"<b>📈 Остання активність:</b> {last_activity_str}\n"
-                f"☰☱☲☳☴☵☶☷☰☱☲☳☴☵☶☷☰☱☲☳\n"
-                f"<b>📡 Командний центр активний. Очікується інструкція…</b>"
-            )
-            reply_markup_error = get_user_actions_keyboard(is_authorized, access_level, user_id_to_manage)
-            try:
-                await bot.edit_message_text(
-                    chat_id=callback_query.message.chat.id,
-                    message_id=callback_query.message.message_id,
-                    text=response_text_error,
-                    parse_mode='HTML',
-                    reply_markup=reply_markup_error
-                )
-            except Exception as final_e:
-                logger.error(f"ФІНАЛЬНА ПОМИЛКА: Не вдалося оновити/відправити повідомлення після помилки зміни рівня доступу для {user_id_to_manage}: {final_e}", exc_info=True)
-
-# !!! ДОДАНО НОВИЙ ОБРОБНИК ДЛЯ АВТОРИЗАЦІЇ/ДЕАВТОРИЗАЦІЇ !!!
-@router.callback_query(F.data.startswith(("unauthorize_user_", "authorize_user_")))
-async def toggle_user_authorization(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    parts = callback_query.data.split('_')
-
-    # Визначаємо дію та user_id_to_manage на основі префіксу
-    if parts[0] == "unauthorize":
-        action = "deauthorize"
-        user_id_to_manage = int(parts[2])
-    elif parts[0] == "authorize":
-        action = "authorize"
-        user_id_to_manage = int(parts[2])
+    current_state_data = await state.get_data()
+    pending_action = current_state_data.get('pending_action')
+    
+    if pending_action and 'user_id' in pending_action:
+        selected_user_id = pending_action['user_id']
+        await state.set_state(AdminStates.user_management) # Повертаємося до управління користувачами
+        user_info_message = await _get_user_info_message(db_pool, selected_user_id)
+        is_authorized_after_action = await users_db.is_user_authorized(db_pool, selected_user_id)
+        current_access_level_after_action = (await users_db.get_user(db_pool, selected_user_id)).get('access_level', 0)
+        keyboard = get_user_actions_keyboard(is_authorized_after_action, current_access_level_after_action, selected_user_id)
+        await callback.message.edit_text("Дія скасована.", reply_markup=keyboard, parse_mode=ParseMode.HTML)
     else:
-        logger.error(f"Невідомий формат callback_data для toggle_user_authorization: {callback_query.data}")
-        await callback_query.answer("Невідома дія.", show_alert=True)
-        return
-
-    admin_id = callback_query.from_user.id
-    db_pool = dispatcher.workflow_data.get('db_pool_instance')
-    bot = callback_query.bot
-
-    logger.info(f"Адміністратор {admin_id} намагається {action} користувача {user_id_to_manage}.")
-
-    if not db_pool:
-        logger.error("db_pool_instance не знайдено в workflow_data для toggle_user_authorization!")
-        await callback_query.answer("Виникла внутрішня помилка. Будь ласка, спробуйте пізніше.")
-        return
-
-    is_authorized_status = True if action == "authorize" else False
-
-    try:
-        await update_user_authorization_status(db_pool, user_id_to_manage, is_authorized_status)
-
-        status_message = "авторизовано" if is_authorized_status else "деавторизовано"
-        await callback_query.answer(f"Користувача {user_id_to_manage} успішно {status_message}.", show_alert=True)
-        logger.info(f"Користувача {user_id_to_manage} успішно {status_message} адміністратором {admin_id}.")
-
-        # Оновлення інтерфейсу користувача після зміни статусу
-        user_info = await get_user(db_pool, user_id_to_manage)
-        if not user_info:
-            logger.warning(f"Користувача {user_id_to_manage} не знайдено після зміни статусу авторизації. Неможливо оновити інтерфейс.")
-            return
-
-        is_authorized = user_info.get('is_authorized', False)
-        access_level = user_info.get('access_level', 0)
-
-        access_level_display_name = "Невідомий рівень"
-        for level, name in ACCESS_LEVEL_BUTTONS:
-            if level == access_level:
-                access_level_display_name = name
-                break
-
-        status_text = "Авторизований ✅" if is_authorized else "Неавторизований ❌"
-
-        # !!! ВИПРАВЛЕНО: Використання 'registered_at' для дати реєстрації !!!
-        registered_at_dt = user_info.get('registered_at', datetime.now(timezone.utc))
-        last_activity_dt = user_info.get('last_activity', datetime.now(timezone.utc))
-
-        registered_at_str = registered_at_dt.strftime('%d.%m.%Y / %H:%M')
-        last_activity_str = last_activity_dt.strftime('%d.%m.%Y / %H:%M')
-
-        response_text = (
-            f"<b>🧾 ID-ключ:</b> <code>{user_id_to_manage}</code>\n"
-            f"<b>🧑‍🚀 Агент:</b> {user_info.get('first_name', '')} {user_info.get('last_name', '')}\n"
-            f"<b>💬 Позивний:</b> @{user_info.get('username', 'N/A')}\n"
-            f"<b>🛡️ Протокол доступу:</b> {access_level_display_name}\n"
-            f"<b>📶 Статус:</b> {status_text}\n"
-            f"<b>📥 Занесено в систему:</b> {registered_at_str}\n"
-            f"<b>📈 Остання активність:</b> {last_activity_str}\n"
-            f"☰☱☲☳☴☵☶☷☰☱☲☳☴☵☶☷☰☱☲☳\n"
-            f"<b>📡 Командний центр активний. Очікується інструкція…</b>"
+        # Якщо немає конкретного користувача або pending_action невірний, повертаємо до головної адмін-панелі
+        await state.set_state(AdminStates.admin_main)
+        await callback.message.edit_text(
+            "Дія скасована. Ви повернулись до головної адмін-панелі.",
+            reply_markup=get_admin_main_keyboard(),
+            parse_mode=ParseMode.HTML
         )
-        reply_markup = get_user_actions_keyboard(is_authorized, access_level, user_id_to_manage)
-
-        try:
-            await bot.edit_message_text(
-                chat_id=callback_query.message.chat.id,
-                message_id=callback_query.message.message_id,
-                text=response_text,
-                parse_mode='HTML',
-                reply_markup=reply_markup
-            )
-            logger.info(f"Оновлено меню управління для користувача {user_id_to_manage} після зміни авторизації.")
-        except Exception as edit_e:
-            logger.error(f"Помилка при оновленні повідомлення управління користувачем {user_id_to_manage} після зміни авторизації: {edit_e}", exc_info=True)
-            await bot.send_message(
-                chat_id=callback_query.message.chat.id,
-                text=response_text,
-                parse_mode='HTML',
-                reply_markup=reply_markup
-            )
-            logger.warning(f"Відправлено нове повідомлення замість редагування для користувача {user_id_to_manage} після зміни авторизації.")
-
-    except Exception as e:
-        logger.error(f"Помилка при зміні статусу авторизації для користувача {user_id_to_manage}: {e}", exc_info=True)
-        await callback_query.answer("Помилка при зміні статусу авторизації.", show_alert=True)
-        user_info = await get_user(db_pool, user_id_to_manage)
-        if user_info:
-            is_authorized = user_info.get('is_authorized', False)
-            access_level = user_info.get('access_level', 0)
-            access_level_display_name = "Невідомий рівень"
-            for level, name in ACCESS_LEVEL_BUTTONS:
-                if level == access_level:
-                    access_level_display_name = name
-                    break
-            status_text = "Авторизований ✅" if is_authorized else "Неавторизований ❌"
-
-            # !!! ВИПРАВЛЕНО: Використання 'registered_at' для дати реєстрації !!!
-            registered_at_dt = user_info.get('registered_at', datetime.now(timezone.utc))
-            last_activity_dt = user_info.get('last_activity', datetime.now(timezone.utc))
-
-            registered_at_str = registered_at_dt.strftime('%d.%m.%Y / %H:%M')
-            last_activity_str = last_activity_dt.strftime('%d.%m.%Y / %H:%M')
-
-            response_text_error = (
-                f"<b>🧾 ID-ключ:</b> <code>{user_id_to_manage}</code>\n"
-                f"<b>🧑‍🚀 Агент:</b> {user_info.get('first_name', '')} {user_info.get('last_name', '')}\n"
-                f"<b>💬 Позивний:</b> @{user_info.get('username', 'N/A')}\n"
-                f"<b>🛡️ Протокол доступу:</b> {access_level_display_name}\n"
-                f"<b>📶 Статус:</b> {status_text}\n"
-                f"<b>📥 Занесено в систему:</b> {registered_at_str}\n"
-                f"<b>📈 Остання активність:</b> {last_activity_str}\n"
-                f"☰☱☲☳☴☵☶☷☰☱☲☳☴☵☶☷☰☱☲☳\n"
-                f"<b>📡 Командний центр активний. Очікується інструкція…</b>"
-            )
-            reply_markup_error = get_user_actions_keyboard(is_authorized, access_level, user_id_to_manage)
-            try:
-                await bot.edit_message_text(
-                    chat_id=callback_query.message.chat.id,
-                    message_id=callback_query.message.message_id,
-                    text=response_text_error,
-                    parse_mode='HTML',
-                    reply_markup=reply_markup_error
-                )
-            except Exception as final_e:
-                logger.error(f"ФІНАЛЬНА ПОМИЛКА: Не вдалося оновити/відправити повідомлення після помилки зміни статусу авторизації для {user_id_to_manage}: {final_e}", exc_info=True)
+    
+    await state.update_data(pending_action=None) # Очищаємо pending_action
+    await callback.answer("Дія скасована.")
 
 
-@router.callback_query(F.data == "close_admin_panel")
-async def close_admin_panel(callback_query: types.CallbackQuery, dispatcher: Dispatcher) -> None:
-    user_id = callback_query.from_user.id
-    db_pool = dispatcher.workflow_data.get('db_pool_instance')
-    bot = callback_query.bot
+@router.callback_query(F.data.startswith("change_access_level_"), AdminStates.user_management)
+async def process_change_access_level_button(
+    callback: types.CallbackQuery,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    selected_user_id = int(callback.data.split('_')[3])
+    logger.info(f"Користувач {user_id} ініціював зміну рівня доступу для користувача {selected_user_id}.")
 
-    logger.info(f"Користувач {user_id} закриває панель адміністратора.")
+    await state.set_state(AdminStates.set_access_level)
+    await state.update_data(selected_user_id=selected_user_id) # Зберігаємо ID обраного користувача
 
-    if not db_pool:
-        logger.error("db_pool_instance не знайдено в workflow_data для close_admin_panel!")
-        await callback_query.answer("Виникла внутрішня помилка. Будь ласка, спробуйте пізніше.")
-        return
+    keyboard = get_access_level_keyboard(selected_user_id) # Передаємо selected_user_id для кнопки "Скасувати"
+    await callback.message.edit_text(
+        f"Виберіть новий рівень доступу для користувача з ID <code>{selected_user_id}</code>:",
+        reply_markup=keyboard,
+        parse_mode=ParseMode.HTML
+    )
+    await callback.answer()
 
-    access_level = await get_user_access_level(db_pool, user_id)
 
-    try:
-        await bot.delete_message(
-            chat_id=callback_query.message.chat.id,
-            message_id=callback_query.message.message_id
-        )
-        logger.info(f"Видалено повідомлення з адмін-панеллю для {user_id}.")
+@router.callback_query(AdminCallback.filter(F.action == "telethon_auth"), AdminStates.admin_main | AdminStates.telethon_management)
+async def process_telethon_auth(
+    callback: types.CallbackQuery,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    logger.info(f"Користувач {user_id} натиснув 'TeleKey · Авторизація API-зв’язку'.")
+    
+    await state.set_state(AdminStates.telethon_management) # Встановлюємо стан для Telethon управління
 
-        # Вибираємо випадкове повідомлення зі списку при закритті адмін-панелі
-        return_message = random.choice(ADMIN_RETURN_MESSAGES)
+    keyboard = get_telethon_actions_keyboard()
+    await callback.message.edit_text(
+        "<b>🔐 TeleKey · Авторизація API-зв’язку:</b>\n\n"
+        "Оберіть дію для управління Telethon API:",
+        reply_markup=keyboard,
+        parse_mode=ParseMode.HTML
+    )
+    await callback.answer()
 
-        await bot.send_message(
-            chat_id=callback_query.message.chat.id,
-            text=return_message, # Використовуємо рандомне повідомлення
-            parse_mode='HTML',
-            reply_markup=await get_main_menu_keyboard(access_level, user_list_pages.get(user_id, 0))
-        )
-        logger.info(f"Відправлено головне меню для {user_id} після закриття адмін-панелі.")
+@router.callback_query(F.data == "cancel_admin_action", AdminStates.user_management | AdminStates.telethon_management | AdminStates.set_access_level)
+async def cancel_admin_action(
+    callback: types.CallbackQuery,
+    db_pool: asyncpg.Pool,
+    state: FSMContext,
+    bot: Bot # Потрібен, якщо send_message відбувається не через callback.message
+) -> None:
+    user_id = callback.from_user.id
+    logger.info(f"Користувач {user_id} скасував адмін-дію і повертається до головного адмін-меню.")
+    
+    await state.set_state(AdminStates.admin_main) # Повертаємось до головної адмін-панелі
+    await state.update_data(pending_action=None, selected_user_id=None) # Очищаємо дані
 
-    except Exception as e:
-        logger.error(f"Помилка при закритті адмін-панелі для користувача {user_id}: {e}", exc_info=True)
-        await bot.send_message(
-            chat_id=callback_query.message.chat.id,
-            text="Виникла проблема при закритті панелі. Повернуто до головного меню.", # Статичне повідомлення у випадку помилки
-            reply_markup=await get_main_menu_keyboard(access_level, user_list_pages.get(user_id, 0))
-        )
-    await callback_query.answer()
+    await callback.message.edit_text(
+        "Ви повернулись до головної адмін-панелі.",
+        reply_markup=get_admin_main_keyboard(),
+        parse_mode=ParseMode.HTML
+    )
+    await callback.answer()
+
+@router.callback_query(F.data == "close_admin_panel", AdminStates.admin_main)
+async def close_admin_panel(
+    callback: types.CallbackQuery,
+    db_pool: asyncpg.Pool,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    logger.info(f"Користувач {user_id} закриває адмін-панель.")
+
+    await state.clear() # Очищаємо всі стани FSM
+    await state.set_state(MenuStates.main_menu) # Встановлюємо стан головного меню
+
+    access_level = await users_db.get_user_access_level(db_pool, user_id)
+    if access_level is None:
+        access_level = 0
+    
+    # Викликаємо функцію для відображення головного меню з handlers.menu_handler
+    # Це вимагає передачі message, bot, db_pool, state.
+    # Оскільки тут callback, ми можемо або викликати безпосередньо send_message
+    # або імітувати message для show_main_menu_handler.
+    
+    # Краще просто відправити повідомлення з головним меню, не викликаючи хендлер.
+    await callback.message.edit_text(
+        "Ви вийшли з адмін-панелі. Повернення до головного меню.",
+        reply_markup=await get_main_menu_keyboard(access_level, 0), # page=0 для головного меню
+        parse_mode=ParseMode.HTML
+    )
+    await callback.answer("Адмін-панель закрито.")
+    logger.info(f"Адмін-панель закрито для користувача {user_id}.")

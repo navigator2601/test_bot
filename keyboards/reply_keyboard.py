@@ -4,46 +4,31 @@ import math
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-# Конфігурація кнопок за рівнями доступу
-# Кожен елемент кортежу: (Текст кнопки, Мінімальний рівень доступу для кнопки)
-BUTTONS_CONFIG = {
-    0: [ # Базовий рівень доступу
-        ("📚 Каталог", 0),
-        ("📖 Довідники", 0),
-        ("🕵️ Пошук", 0),
-        ("⚠️ Коди помилок", 0),
-        ("🛠️ Інструкції", 0),
-        ("📐 Додаткові функції", 0),
-    ],
-    1: [ # Рівень доступу 1 (додаткові кнопки)
-        ("📚 Каталог", 0),
-        ("📖 Довідники", 0),
-        ("🕵️ Пошук", 0),
-        ("⚠️ Коди помилок", 0),
-        ("🛠️ Інструкції", 0),
-        ("📐 Додаткові функції", 0),
-        ("🅰️ Пошук магазинів", 1),
-        ("🔄 Отримати список ТТ", 1),
-        ("📝 Завдання в роботі", 1),
-        ("🧾 Звіт по роботі", 1),
-    ],
-    10: [ # Рівень доступу 10 (адмінські кнопки)
-        ("📚 Каталог", 0),
-        ("📖 Довідники", 0),
-        ("🕵️ Пошук", 0),
-        ("⚠️ Коди помилок", 0),
-        ("🛠️ Інструкції", 0),
-        ("📐 Додаткові функції", 0),
-        ("🅰️ Пошук магазинів", 1),
-        ("🔄 Отримати список ТТ", 1),
-        ("📝 Завдання в роботі", 1),
-        ("🧾 Звіт по роботі", 1),
-        ("⚙️ Адміністрування", 10),
-    ]
-    # Додайте інші рівні доступу та їхні кнопки тут за потребою
-}
+from common.constants import ALL_MENU_BUTTONS, BUTTONS_PER_PAGE # <--- ОНОВЛЕНО ІМПОРТИ
 
-BUTTONS_PER_PAGE = 6 # Максимум 3 ряди по 2 кнопки, якщо кнопок більше чим 6 то розділяти клавіатуру на сторінки
+# BUTTONS_CONFIG БІЛЬШЕ НЕ ПОТРІБЕН І ЙОГО СЛІД ВИДАЛИТИ З ЦЬОГО ФАЙЛУ!
+
+def _get_filtered_menu_buttons(access_level: int) -> list[str]:
+    """
+    Фільтрує всі можливі кнопки меню за рівнем доступу користувача.
+    Повертає унікальний список текстів кнопок.
+    """
+    filtered_buttons = []
+    seen_buttons = set()
+    for button_text, min_level in ALL_MENU_BUTTONS:
+        if access_level >= min_level and button_text not in seen_buttons:
+            filtered_buttons.append(button_text)
+            seen_buttons.add(button_text)
+    return filtered_buttons
+
+def get_main_menu_pages_info(access_level: int) -> tuple[int, int]:
+    """
+    Повертає загальну кількість доступних кнопок та загальну кількість сторінок для головного меню.
+    """
+    filtered_buttons = _get_filtered_menu_buttons(access_level)
+    total_buttons = len(filtered_buttons)
+    total_pages = math.ceil(total_buttons / BUTTONS_PER_PAGE) if total_buttons > 0 else 1
+    return total_buttons, total_pages
 
 async def get_main_menu_keyboard(access_level: int = 0, page: int = 0) -> ReplyKeyboardMarkup:
     """
@@ -55,18 +40,9 @@ async def get_main_menu_keyboard(access_level: int = 0, page: int = 0) -> ReplyK
     """
     builder = ReplyKeyboardBuilder()
 
-    # Отримуємо всі унікальні кнопки, доступні для даного рівня доступу
-    # Зберігаємо лише текст кнопки, щоб уникнути дублікатів (наприклад, "Каталог" з level 0 і level 1)
-    unique_buttons_texts = []
-    for level in sorted(BUTTONS_CONFIG.keys()): # Сортуємо рівні, щоб базові кнопки додавалися першими
-        if access_level >= level:
-            for button_text, min_level in BUTTONS_CONFIG[level]:
-                if access_level >= min_level and button_text not in unique_buttons_texts:
-                    unique_buttons_texts.append(button_text)
-    
-    # Визначаємо загальну кількість сторінок
-    total_buttons = len(unique_buttons_texts)
-    total_pages = math.ceil(total_buttons / BUTTONS_PER_PAGE) if total_buttons > 0 else 1
+    unique_buttons_texts = _get_filtered_menu_buttons(access_level)
+
+    total_buttons, total_pages = get_main_menu_pages_info(access_level)
 
     # Визначаємо кнопки для поточної сторінки
     start_index = page * BUTTONS_PER_PAGE

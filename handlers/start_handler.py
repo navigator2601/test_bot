@@ -9,6 +9,8 @@ from typing import Any
 from aiogram.fsm.context import FSMContext
 from handlers.menu_handler import show_main_menu_handler, MenuStates # <-- ОНОВЛЕНО
 from database import users_db
+# random БІЛЬШЕ НЕ ПОТРІБЕН ТУТ, ЯКЩО НЕ ВИКОРИСТОВУЄТЬСЯ
+# від get_access_level_description
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +21,8 @@ async def command_start_handler(
     message: types.Message,
     bot: Bot,
     db_pool: asyncpg.Pool,
-    telethon_manager: Any,
-    state: FSMContext # <-- ДОДАНО FSMContext
+    telethon_manager: Any, # Якщо не використовується, можна видалити
+    state: FSMContext
 ) -> None:
     """
     Обробник команди /start.
@@ -64,7 +66,12 @@ async def command_start_handler(
         await state.set_state(MenuStates.main_menu)
         await state.update_data(menu_page=0)
 
-        # ОНОВЛЕНО: Викликаємо show_main_menu_handler і передаємо 'state'
+        # Викликаємо show_main_menu_handler
+        # Зауважте, що show_main_menu_handler очікує message.text для визначення дії.
+        # Для /start ми можемо просто передати заглушку або викликати його з іншим text
+        # щоб він показав стандартне привітальне повідомлення (не пагінацію).
+        # Наприклад, імітувати, що кнопка "На головну" була натиснута.
+        message.text = "На головну" # Імітуємо натискання "На головну" для хендлера
         await show_main_menu_handler(message, bot, db_pool, state)
         logger.info(f"Відображено головне меню для користувача {user_id}.")
 
