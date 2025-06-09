@@ -1,39 +1,39 @@
 # handlers/menu_handler.py
 import logging
-import math # Все ще потрібен, якщо використовується math.ceil напряму (але тепер буде викликатися з keyboards.reply_keyboard)
+import math
 
 from aiogram import Router, types, Bot, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.enums import ParseMode # <--- ДОДАНО ЦЕЙ ІМПОРТ
+from aiogram.enums import ParseMode
+
 import asyncpg
 
-from keyboards.reply_keyboard import get_main_menu_keyboard, get_main_menu_pages_info # <--- ОНОВЛЕНО ІМПОРТИ
+from keyboards.reply_keyboard import get_main_menu_keyboard, get_main_menu_pages_info
 from keyboards.admin_keyboard import get_admin_main_keyboard
 from database.users_db import get_user_access_level
-from common.messages import get_access_level_description, get_random_admin_welcome_message # <--- ОНОВЛЕНО ІМПОРТИ
-from common.constants import BUTTONS_PER_PAGE, ALL_MENU_BUTTONS # <--- ОНОВЛЕНО ІМПОРТИ
+from common.messages import get_access_level_description, get_random_admin_welcome_message
+from common.constants import BUTTONS_PER_PAGE, ALL_MENU_BUTTONS
+
+# <--- НОВИЙ ІМПОРТ: імпортуємо AdminStates з admin_handler.py --->
+from handlers.admin_handler import AdminStates
+# <----------------------------------------------------------------->
 
 logger = logging.getLogger(__name__)
 
 router = Router()
 
-# СТАНИ FSM ДЛЯ МЕНЮ
+# СТАНИ FSM ДЛЯ МЕНЮ (MenuStates більше не потрібен admin_panel)
 class MenuStates(StatesGroup):
     main_menu = State() # Стан, коли користувач знаходиться в головному меню
-    admin_panel = State() # Стан для адмін-панелі
+    # admin_panel = State() # <--- ЦЕЙ СТАН ВИДАЛЕНО, використовуємо AdminStates.admin_main
 
-# ГЛОБАЛЬНА ЗМІННА user_menu_page БІЛЬШЕ НЕ ПОТРІБНА!
-# user_menu_page = {} # <--- ЦЕЙ РЯДОК МАЄ БУТИ ВИДАЛЕНО!
-
-# ADMIN_WELCOME_MESSAGES БІЛЬШЕ НЕ ПОТРІБЕН І ЙОГО СЛІД ВИДАЛИТИ З ЦЬОГО ФАЙЛУ!
-# get_access_level_description БІЛЬШЕ НЕ ПОТРІБЕН І ЙОГО СЛІД ВИДАЛИТИ З ЦЬОГО ФАЙЛУ!
 
 # ОНОВЛЕНО: Функція show_main_menu тепер є хендлером для певних кнопок та команд
-@router.message(F.text == "⬅️ Назад", MenuStates.main_menu) # Фільтр по стану
-@router.message(F.text == "➡️ Іще", MenuStates.main_menu)   # Фільтр по стану
-@router.message(F.text == "На головну") # Додамо кнопку "На головну" для повернення з підменю
+@router.message(F.text == "⬅️ Назад", MenuStates.main_menu)
+@router.message(F.text == "➡️ Іще", MenuStates.main_menu)
+@router.message(F.text == "На головну")
 async def show_main_menu_handler(
     message: types.Message,
     bot: Bot,
@@ -60,8 +60,7 @@ async def show_main_menu_handler(
     current_state_data = await state.get_data()
     current_page = current_state_data.get("menu_page", 0)
 
-    # Отримуємо інформацію про сторінки з keyboards/reply_keyboard.py
-    total_buttons, total_pages = get_main_menu_pages_info(access_level) # <--- ВИКОРИСТАННЯ НОВОЇ ФУНКЦІЇ
+    total_buttons, total_pages = get_main_menu_pages_info(access_level)
 
     if message.text == "⬅️ Назад":
         current_page = max(0, current_page - 1)
@@ -71,12 +70,7 @@ async def show_main_menu_handler(
         current_page = 0
         await state.set_state(MenuStates.main_menu) # Переходимо в головне меню
 
-    # Оновлюємо сторінку в FSM-стані користувача
     await state.update_data(menu_page=current_page)
-
-    # Цей рядок тепер не потрібен, оскільки інформація про кількість кнопок вже є
-    # buttons_on_current_page_count = len(BUTTONS_CONFIG.get(access_level, [])[current_page * BUTTONS_PER_PAGE : (current_page * BUTTONS_PER_PAGE) + BUTTONS_PER_PAGE])
-    # logger.info(f"Користувачу {user_name} (ID: {user_id}) відображається {buttons_on_current_page_count} кнопок на сторінці {current_page + 1}.")
     
     menu_message_text = ""
     if is_pagination_action:
@@ -84,7 +78,7 @@ async def show_main_menu_handler(
             menu_message_text = "Ви повернулись до попередньої сторінки меню."
         elif message.text == "➡️ Іще":
             menu_message_text = "Ви перейшли до наступної сторінки меню."
-    else: # Це може бути для інших випадків, коли просто оновлюємо меню без конкретної дії
+    else:
         level_name, level_description = get_access_level_description(access_level)
         menu_message_text = (
             "Ваш рівень доступу:\n"
@@ -97,7 +91,7 @@ async def show_main_menu_handler(
 
 
 # НОВИЙ ХЕНДЛЕР ДЛЯ КНОПКИ "⚙️ АДМІНІСТРУВАННЯ"
-@router.message(F.text == "⚙️ Адміністрування", MenuStates.main_menu) # Фільтр по стану
+@router.message(F.text == "⚙️ Адміністрування", MenuStates.main_menu)
 async def handle_admin_button(
     message: types.Message,
     bot: Bot,
@@ -118,13 +112,13 @@ async def handle_admin_button(
     if access_level is None:
         access_level = 0
     
-    # Перевірка, чи має користувач рівень доступу 10 або вище для адмін-панелі
     if access_level >= 10:
-        admin_keyboard = get_admin_main_keyboard() # Отримуємо клавіатуру адмін-панелі
+        admin_keyboard = get_admin_main_keyboard()
         
-        # Використовуємо функцію з common.messages
-        welcome_admin_text = get_random_admin_welcome_message() 
-        await state.set_state(MenuStates.admin_panel)
+        welcome_admin_text = get_random_admin_welcome_message()
+        # <--- ВИПРАВЛЕНО ТУТ: Встановлюємо стан AdminStates.admin_main --->
+        await state.set_state(AdminStates.admin_main)
+        # <----------------------------------------------------------------->
         
         await message.answer(
             f"{welcome_admin_text}",
@@ -133,20 +127,15 @@ async def handle_admin_button(
         )
         logger.info(f"Користувачу {user_id} (рівень {access_level}) відображено панель адміністратора.")
     else:
-        # Якщо у користувача немає доступу, повертаємо його до головного меню
         await message.answer(
             "У вас немає доступу до панелі адміністратора.",
-            reply_markup=await get_main_menu_keyboard(access_level, 0) # Повертаємо на першу сторінку головного меню
+            reply_markup=await get_main_menu_keyboard(access_level, 0)
         )
         logger.warning(f"Користувач {user_id} (рівень {access_level}) спробував отримати доступ до адмін-панелі без дозволу.")
 
 # Існуючі хендлери (без змін, але переконайтеся, що вони не перекривають логіку FSM)
 @router.message(Command("help"))
 async def command_help_handler(message: types.Message) -> None:
-    """
-    Обробник команди /help.
-    Надає інформацію про доступні команди бота.
-    """
     user_id = message.from_user.id
     user_name = message.from_user.full_name
     logger.info(f"Користувач {user_name} (ID: {user_id}) виконав команду /help.")
@@ -165,10 +154,6 @@ async def command_help_handler(message: types.Message) -> None:
 
 @router.message(Command("info"))
 async def command_info_handler(message: types.Message) -> None:
-    """
-    Обробник команди /info.
-    Надає розширену інформацію про бота з детальним описом.
-    """
     user_id = message.from_user.id
     user_name = message.from_user.full_name
     logger.info(f"Користувач {user_name} (ID: {user_id}) виконав команду /info.")
@@ -203,10 +188,6 @@ async def command_info_handler(message: types.Message) -> None:
 
 @router.message(Command("find"))
 async def command_find_handler(message: types.Message) -> None:
-    """
-    Обробник команди /find.
-    Поки що заглушка для функції пошуку.
-    """
     user_id = message.from_user.id
     user_name = message.from_user.full_name
     logger.info(f"Користувач {user_name} (ID: {user_id}) виконав команду /find.")
