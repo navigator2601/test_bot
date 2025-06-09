@@ -1,8 +1,11 @@
+# keyboards/admin_keyboard.py
+
+import math
+from typing import Optional
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from math import ceil
 
 from common.constants import ACCESS_LEVEL_BUTTONS
-from keyboards.callback_factories import AdminCallback
+from keyboards.callback_factories import AdminCallback, UserActionCallback, AccessLevelCallback
 
 def get_admin_main_keyboard() -> InlineKeyboardMarkup:
     """Повертає головну клавіатуру адміністратора з оновленими кнопками."""
@@ -25,7 +28,7 @@ def get_admin_main_keyboard() -> InlineKeyboardMarkup:
         )],
         [InlineKeyboardButton(
             text="🏁 Завершити командування",
-            callback_data="close_admin_panel"
+            callback_data=AdminCallback(action="close_admin_panel").pack()
         )]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -33,7 +36,7 @@ def get_admin_main_keyboard() -> InlineKeyboardMarkup:
 def get_users_list_keyboard(users: list, current_page: int, users_per_page: int) -> InlineKeyboardMarkup:
     """Генерує клавіатуру зі списком користувачів для вибору та пагінації."""
     keyboard = []
-    
+
     start_index = current_page * users_per_page
     end_index = start_index + users_per_page
     users_on_page = users[start_index:end_index]
@@ -55,7 +58,7 @@ def get_users_list_keyboard(users: list, current_page: int, users_per_page: int)
                 callback_data=AdminCallback(action="select_user", user_id=user_id).pack()
             )])
 
-    total_pages = ceil(len(users) / users_per_page) if len(users) > 0 else 1
+    total_pages = math.ceil(len(users) / users_per_page) if len(users) > 0 else 1
 
     # Додаємо кнопки пагінації
     pagination_buttons = []
@@ -69,7 +72,7 @@ def get_users_list_keyboard(users: list, current_page: int, users_per_page: int)
     pagination_buttons.append(
         InlineKeyboardButton(
             text=f"{current_page + 1}/{total_pages}",
-            callback_data="users_current_page_info"
+            callback_data="users_current_page_info" # Цю кнопку не потрібно обробляти як CallbackData, вона просто відображає інфо
         )
     )
     if current_page < total_pages - 1:
@@ -83,7 +86,7 @@ def get_users_list_keyboard(users: list, current_page: int, users_per_page: int)
     keyboard.append([
         InlineKeyboardButton(
             text="⬅️ Назад до адмін-меню",
-            callback_data="cancel_admin_action"
+            callback_data=AdminCallback(action="cancel_admin_action").pack()
         )
     ])
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
@@ -94,16 +97,16 @@ def get_user_actions_keyboard(is_authorized: bool, current_access_level: int, us
     if is_authorized:
         buttons.append([InlineKeyboardButton(
             text="Деавторизувати ❌",
-            callback_data=f"unauthorize_user_{user_id_to_manage}"
+            callback_data=UserActionCallback(action="unauthorize", user_id=user_id_to_manage).pack()
         )])
     else:
         buttons.append([InlineKeyboardButton(
             text="Авторизувати ✅",
-            callback_data=f"authorize_user_{user_id_to_manage}"
+            callback_data=UserActionCallback(action="authorize", user_id=user_id_to_manage).pack()
         )])
     buttons.append([InlineKeyboardButton(
         text=f"Змінити рівень доступу ({current_access_level}) ⬆️",
-        callback_data=f"change_access_level_{user_id_to_manage}"
+        callback_data=AdminCallback(action="change_access_level", user_id=user_id_to_manage).pack()
     )])
     buttons.append([InlineKeyboardButton(
         text="⬅️ Назад до списку користувачів",
@@ -111,15 +114,26 @@ def get_user_actions_keyboard(is_authorized: bool, current_access_level: int, us
     )])
     buttons.append([InlineKeyboardButton(
         text="⬅️ Назад до адмін-меню",
-        callback_data="cancel_admin_action"
+        callback_data=AdminCallback(action="cancel_admin_action").pack()
     )])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def get_confirm_action_keyboard(action_data: str) -> InlineKeyboardMarkup:
-    """Повертає клавіатуру підтвердження дії."""
+def get_confirm_action_keyboard(action: str, user_id: int, level: Optional[int] = None) -> InlineKeyboardMarkup:
+    """
+    Повертає клавіатуру підтвердження дії.
+    action: тип дії (наприклад, "authorize", "unauthorize", "set_level")
+    user_id: ID користувача, якого стосується дія
+    level: новий рівень доступу, якщо дія "set_level"
+    """
     buttons = [
-        [InlineKeyboardButton(text="Підтвердити ✅", callback_data=f"confirm_{action_data}")],
-        [InlineKeyboardButton(text="Скасувати ❌", callback_data="cancel_action")]
+        [InlineKeyboardButton(
+            text="Підтвердити ✅",
+            callback_data=UserActionCallback(action=f"confirm_{action}", user_id=user_id, level=level).pack()
+        )],
+        [InlineKeyboardButton(
+            text="Скасувати ❌",
+            callback_data=AdminCallback(action="cancel_action").pack()
+        )]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -130,7 +144,7 @@ def get_access_level_keyboard(user_id_to_manage: int) -> InlineKeyboardMarkup:
         buttons_flat.append(
             InlineKeyboardButton(
                 text=f"{name}",
-                callback_data=f"set_access_level_{level}_{user_id_to_manage}"
+                callback_data=AccessLevelCallback(level=level, user_id=user_id_to_manage).pack()
             )
         )
     keyboard = [buttons_flat[i:i + 2] for i in range(0, len(buttons_flat), 2)]
@@ -145,23 +159,23 @@ def get_telethon_actions_keyboard() -> InlineKeyboardMarkup:
     buttons = [
         [InlineKeyboardButton(
             text="Перевірити статус Telethon 👁️",
-            callback_data="telethon_check_status"
+            callback_data=AdminCallback(action="telethon_check_status").pack()
         )],
         [InlineKeyboardButton(
             text="Авторизувати Telethon 🔑",
-            callback_data="telethon_start_auth"
+            callback_data=AdminCallback(action="telethon_start_auth").pack()
         )],
         [InlineKeyboardButton(
             text="Отримати інфо про користувача 🆔",
-            callback_data="telethon_get_user_info"
+            callback_data=AdminCallback(action="telethon_get_user_info").pack()
         )],
         [InlineKeyboardButton(
             text="Приєднатися до каналу ➕",
-            callback_data="telethon_join_channel"
+            callback_data=AdminCallback(action="telethon_join_channel").pack()
         )],
         [InlineKeyboardButton(
             text="⬅️ Назад до адмін-меню",
-            callback_data="cancel_admin_action"
+            callback_data=AdminCallback(action="cancel_admin_action").pack()
         )]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)

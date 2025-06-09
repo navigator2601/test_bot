@@ -26,8 +26,9 @@ from middlewares.telethon_middleware import TelethonClientMiddleware
 # Імпорти для роутерів
 from handlers.start_handler import router as start_router
 from handlers.menu_handler import router as menu_router
+from handlers.admin_handler import router as admin_router # <--- ДОДАНО ЦЕЙ ІМПОРТ
 
-# Підлючення ехо для обробки некомандних повідомлень
+# Підключення ехо для обробки некомандних повідомлень
 from handlers.echo_handler import router as echo_router
 
 # НАЙПЕРШИЙ ВИКЛИК налаштування логів
@@ -67,21 +68,13 @@ async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
 
     # --- ЛОГІКА TELETHON: ІНІЦІАЛІЗАЦІЯ та ЗАПУСК ---
     logger.info("Ініціалізація TelethonClientManager.")
-    # ЗМІНА ТУТ: Створюємо без аргументів
     telethon_manager = TelethonClientManager()
-    # І ТУТ: Викликаємо метод initialize()
     await telethon_manager.initialize()
 
-    # Зберігаємо менеджер у workflow_data для доступу через мідлвари та хендлери
     dispatcher.workflow_data['telethon_manager'] = telethon_manager
     logger.info("TelethonClientManager ініціалізовано.")
 
-    # Логіка запуску клієнтів вже всередині telethon_manager.initialize(),
-    # тому тут вже не потрібен окремий виклик telethon_manager.start_all_clients()
-    # Просто перевіряємо, чи були клієнти запущені.
-
     if config.telethon_client_enabled:
-        # Лог буде повідомляти, що клієнти вже запущені всередині initialize()
         logger.info("Telethon клієнти налаштовано та, якщо потрібно, запущені (через initialize()).")
     else:
         logger.warning("Telethon клієнти вимкнено через конфігурацію. Пропускаю їх запуск.")
@@ -102,7 +95,6 @@ async def on_bot_shutdown(bot: Bot, dispatcher: Dispatcher) -> None:
     if telethon_manager and config.telethon_client_enabled:
         logger.info("Спроба відключити Telethon клієнтів.")
         try:
-            # Викликаємо метод shutdown() замість stop_all_clients()
             await telethon_manager.shutdown()
             logger.info("Telethon клієнти відключено.")
         except Exception as e:
@@ -153,11 +145,19 @@ async def main():
     # Реєстрація роутерів
     logger.info("Реєстрація роутера 'start_handler'.")
     dp.include_router(start_router)
+    
+    # Забезпечуємо, що menu_router існує, хоча він зазвичай не None
     if menu_router:
         logger.info("Реєстрація роутера 'menu_handler'.")
         dp.include_router(menu_router)
 
-    # echo_router для обробки некомандних повідомлень
+    # <--- ДОДАНО ЦЕЙ БЛОК ДЛЯ ADMIN_ROUTER --->
+    if admin_router:
+        logger.info("Реєстрація роутера 'admin_handler'.")
+        dp.include_router(admin_router)
+    # <---------------------------------------->
+
+    # echo_router для обробки некомандних повідомлень (завжди останнім!)
     logger.info("Реєстрація роутера 'echo_handler' (для невідомих кнопок та повідомлень).")
     dp.include_router(echo_router)
 
