@@ -1,9 +1,16 @@
 # handlers/__init__.py
 
-# Експортуємо основні роутери, які вже існують
+# Експортуємо основні роутери
 from .start_handler import router as start_router
 from .menu_handler import router as menu_router
-from .admin_handler import router as admin_router # Для обробки Inline-кнопок адмін-панелі
+
+# <--- ОНОВЛЕНІ ІМПОРТИ: Тепер імпортуємо з нової структури адмін-панелі --->
+from .admin.main_menu import router as admin_main_menu_router
+from .admin.user_management import router as user_management_router
+from .admin.telethon_operations import router as telethon_operations_router
+# <-------------------------------------------------------------------------->
+
+# from .admin_handler import router as admin_router # Цей рядок ВИДАЛЯЄМО!
 # from .reply_keyboard_handler import router as reply_keyboard_router # Цей рядок ВИДАЛЯЄМО!
 from .echo_handler import router as echo_router # Завжди останній, обробляє невідомі повідомлення
 
@@ -11,8 +18,7 @@ from .echo_handler import router as echo_router # Завжди останній,
 # Коли ви створюватимете нові файли хендлерів для кнопок Reply-клавіатури,
 # імпортуйте їх тут. Наприклад:
 
-# from .admin_menu_handler import router as admin_menu_router # Для кнопки "⚙️ Адміністрування"
-# from .catalog_handler import router as catalog_router         # Для кнопки "📚 Каталог"
-# from .reports_handler import router as reports_router         # Для кнопки "🧾 Звіт по роботі"
-# from .search_handler import router as search_router           # Для кнопки "🕵️ Пошук"
+# from .catalog_handler import router as catalog_router
+# from .reports_handler import router as reports_router
+# from .search_handler import router as search_router
 # ... і так далі для інших кнопок

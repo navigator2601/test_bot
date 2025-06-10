@@ -3,6 +3,7 @@
 import math
 from typing import Optional
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder # Додано імпорт InlineKeyboardBuilder
 
 from common.constants import ACCESS_LEVEL_BUTTONS
 from keyboards.callback_factories import AdminCallback, UserActionCallback, AccessLevelCallback
@@ -24,7 +25,7 @@ def get_admin_main_keyboard() -> InlineKeyboardMarkup:
         )],
         [InlineKeyboardButton(
             text="💬 Чат-матриця · Перегляд активних зон",
-            callback_data=AdminCallback(action="telethon_chats").pack()
+            callback_data=AdminCallback(action="chat_matrix").pack() # Змінено callback_data на "chat_matrix"
         )],
         [InlineKeyboardButton(
             text="🏁 Завершити командування",
@@ -179,3 +180,30 @@ def get_telethon_actions_keyboard() -> InlineKeyboardMarkup:
         )]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+# НОВА ФУНКЦІЯ: Клавіатура для "Чат-матриця"
+def get_chat_matrix_keyboard() -> InlineKeyboardMarkup:
+    """
+    Повертає інлайн-клавіатуру для управління чат-матрицею.
+    """
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="📜 Список підключених чатів",
+            callback_data=AdminCallback(action="list_connected_chats").pack()
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🔍 Пошук чатів",
+            callback_data=AdminCallback(action="search_chats").pack()
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🔙 Назад до адмін-меню",
+            callback_data=AdminCallback(action="cancel_admin_action").pack()
+        )
+    )
+    return builder.as_markup()

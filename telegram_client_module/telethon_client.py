@@ -3,11 +3,13 @@ import logging
 from typing import Dict, Any, Optional
 
 from telethon import TelegramClient
-from telethon.tl.types import User # Якщо ви використовуєте User, переконайтесь, що він імпортований
-from telethon.sessions import StringSession # <--- НОВЕ: Імпорт StringSession
+from telethon.tl.types import User 
+from telethon.sessions import StringSession 
 from telethon.errors import SessionPasswordNeededError, FloodWaitError, AuthKeyUnregisteredError
 
-from config import config # Імпортуємо ваш об'єкт конфігурації
+# Імпортуємо ваш об'єкт конфігурації. 
+# Переконайтеся, що 'config' має атрибути 'api_id', 'api_hash' (як SecretStr) та 'telegram_phone'.
+from config import config 
 from database.db_pool_manager import get_db_pool # Імпорт для доступу до пулу БД
 
 logger = logging.getLogger(__name__)
@@ -30,61 +32,85 @@ class TelethonClientManager:
 
         if config.telethon_client_enabled:
             logger.info("Спроба запуску Telethon клієнтів...")
-            # Запускаємо клієнт для кожного сконфігурованого номера телефону
-            # Наразі у нас лише один номер з .env
-            phone_number = config.telegram_phone
-            if phone_number:
-                await self._setup_client(phone_number)
+            
+            # Завантажуємо всі існуючі сесії з бази даних
+            sessions_data = await self._get_all_sessions_from_db()
+
+            if sessions_data:
+                logger.info(f"Знайдено {len(sessions_data)} збережених сесій. Запускаємо їх...")
+                for session_record in sessions_data:
+                    phone_number = session_record['phone_number']
+                    session_string = session_record['session_string']
+                    # API ID та API Hash з БД можуть бути застарілими,
+                    # краще завжди використовувати з конфігурації
+                    
+                    # API Hash має бути SecretStr
+                    api_hash_value = config.api_hash.get_secret_value() if hasattr(config.api_hash, 'get_secret_value') else config.api_hash
+
+                    # Створюємо клієнт для кожної знайденої сесії
+                    client = TelegramClient(
+                        session=StringSession(session_string),
+                        api_id=config.api_id,
+                        api_hash=api_hash_value
+                    )
+                    self.clients[phone_number] = client
+                    logger.info(f"TelethonClientManager: Клієнт об'єкт для {phone_number} завантажено з БД.")
+                    
+                    # Створюємо задачу для підключення та авторизації
+                    asyncio.create_task(self._run_client_and_authorize(phone_number, client, config.api_id, api_hash_value))
+                    logger.info(f"Створено задачу для запуску та авторизації клієнта (з БД): {phone_number}")
             else:
-                logger.warning("TELEGRAM_PHONE не встановлено в конфігурації. Telethon клієнт не буде запущено.")
+                logger.info("Не знайдено збережених Telethon сесій у базі даних.")
+                # Якщо немає збережених сесій, спробуйте запустити з номера з конфігурації
+                phone_number_from_config = config.telegram_phone
+                if phone_number_from_config:
+                    # API Hash має бути SecretStr
+                    api_hash_value = config.api_hash.get_secret_value() if hasattr(config.api_hash, 'get_secret_value') else config.api_hash
+                    
+                    # Створюємо новий клієнт без початкової сесії
+                    client = TelegramClient(
+                        session=StringSession(), # Порожня сесія для нового клієнта
+                        api_id=config.api_id,
+                        api_hash=api_hash_value
+                    )
+                    self.clients[phone_number_from_config] = client
+                    logger.info(f"TelethonClientManager: Клієнт об'єкт для {phone_number_from_config} створено (нова сесія).")
+                    asyncio.create_task(self._run_client_and_authorize(phone_number_from_config, client, config.api_id, api_hash_value))
+                    logger.info(f"Створено задачу для запуску та авторизації клієнта (нова сесія): {phone_number_from_config}")
+                else:
+                    logger.warning("TELEGRAM_PHONE не встановлено в конфігурації і немає збережених сесій. Telethon клієнт не буде запущено.")
         else:
             logger.warning("Telethon клієнти вимкнено через конфігурацію.")
 
     async def _setup_client(self, phone_number: str):
-        """Створює та налаштовує один Telethon клієнт."""
-        api_id = config.api_id
-        api_hash = config.api_hash
-
-        if not api_id or not api_hash:
-            logger.error(f"API_ID або API_HASH відсутні для {phone_number}. Клієнт не буде запущено.")
-            return
-
-        client = await self._initialize_client(phone_number, api_id, api_hash)
-        self.clients[phone_number] = client
-        logger.info(f"TelethonClientManager: Клієнт об'єкт для {phone_number} створено.")
-
-        # Створюємо задачу для запуску та авторизації клієнта
-        asyncio.create_task(self._run_client_and_authorize(phone_number, client, api_id, api_hash))
-        logger.info(f"Створено задачу для запуску та авторизації клієнта: {phone_number}")
-
+        """
+        Ця функція більше не потрібна як окремий виклик,
+        оскільки логіка створення/завантаження та запуску клієнта перенесена в initialize().
+        Її можна видалити або залишити закоментованою, якщо плануєте використовувати для індивідуального додавання клієнтів.
+        Для поточних потреб initialize() є достатнім.
+        """
+        logger.warning(f"_setup_client викликано для {phone_number}, але ця функція застаріла. Використовуйте initialize().")
+        # Якщо ви хочете додати клієнт вручну (наприклад, через адмін-панель), 
+        # то ця логіка має бути винесена в окремий метод, який приймає phone_number, code, password
+        pass 
+        
 
     async def _initialize_client(self, phone_number: str, api_id: int, api_hash: str) -> TelegramClient:
         """
-        Ініціалізує об'єкт TelegramClient, завантажуючи існуючу сесію або створюючи нову.
+        Цей метод тепер є частиною логіки initialize(), 
+        тому він більше не використовується напряму як окремий крок.
+        Його можна видалити.
         """
-        # <--- ПОЧАТОК ЗМІН В _initialize_client ---
-        session_string = None
-        session_data = await self._get_session_from_db(phone_number)
-        if session_data:
-            session_string = session_data['session_string']
-
-        # Створюємо TelegramClient, використовуючи StringSession
-        # Якщо session_string є, Telethon спробує завантажити сесію з нього.
-        # Якщо ні, створиться нова порожня сесія.
-        client = TelegramClient(
-            session=StringSession(session_string) if session_string else StringSession(),
-            api_id=api_id,
-            api_hash=api_hash
-        )
-        # <--- КІНЕЦЬ ЗМІН В _initialize_client ---
-        return client
+        logger.warning(f"_initialize_client викликано для {phone_number}, але ця функція застаріла.")
+        return TelegramClient(StringSession(), api_id, api_hash) # Повертаємо заглушку для компіляції, але метод слід видалити
 
     async def _run_client_and_authorize(self, phone_number: str, client: TelegramClient, api_id: int, api_hash: str):
         """Запускає клієнт Telethon та виконує авторизацію."""
         logger.info(f"Розпочинається авторизація для клієнта: {phone_number}")
         try:
-            await client.connect()
-            logger.info(f"Клієнт {phone_number} підключено.")
+            if not client.is_connected():
+                await client.connect()
+                logger.info(f"Клієнт {phone_number} підключено.")
 
             if not await client.is_user_authorized():
                 logger.info(f"Клієнт {phone_number} не авторизовано. Запускаємо авторизацію...")
@@ -92,12 +118,17 @@ class TelethonClientManager:
                     await client.start(phone=lambda: phone_number) # Передаємо функцію для отримання номера
                     logger.info(f"Код авторизації надіслано на {phone_number}. Перевірте Telegram.")
                     # Telethon автоматично запросить код та пароль у консолі
+                    # Якщо ви хочете автоматично вводити код, вам потрібно буде створити функцію-хендлер
+                    # для очікування вводу від користувача (наприклад, через Telegram-бота)
+                    # і передавати його в client.start(code_callback=...)
                 except FloodWaitError as e:
                     logger.error(f"FloodWaitError для {phone_number}: занадто багато запитів. Спробуйте пізніше. Чекайте {e.seconds} секунд.")
-                    # Можете додати тут логіку для очікування
+                    await asyncio.sleep(e.seconds + 5) # Чекаємо і спробуємо знову, або позначаємо як помилку
+                    await self._run_client_and_authorize(phone_number, client, api_id, api_hash) # Рекурсивний виклик або альтернативна логіка
+                    return
                 except SessionPasswordNeededError:
-                    logger.warning(f"Для {phone_number} потрібен двофакторний пароль.")
-                    # Telethon запитає пароль в консолі, якщо не було передано password=...
+                    logger.warning(f"Для {phone_number} потрібен двофакторний пароль. Будь ласка, введіть його в консолі, якщо бот зупинився.")
+                    # Telethon запитає пароль в консолі. Якщо ви хочете автоматизувати, потрібно інтегрувати ввід через бота.
                 except Exception as e:
                     logger.error(f"Помилка під час авторизації {phone_number}: {e}", exc_info=True)
                     await client.disconnect()
@@ -105,15 +136,14 @@ class TelethonClientManager:
 
             # Після успішної авторизації, зберігаємо сесію
             if await client.is_user_authorized():
-                # <--- ПОЧАТОК ЗМІН У _save_session_to_db виклику ---
                 await self._save_session_to_db(
                     phone_number=phone_number,
-                    client=client, # <--- Тепер передаємо об'єкт client
+                    client=client, 
                     api_id=api_id,
-                    api_hash=api_hash
+                    api_hash=api_hash # Це може бути SecretStr, тому передаємо як є
                 )
-                # <--- КІНЕЦЬ ЗМІН У _save_session_to_db виклику ---
                 logger.info(f"Клієнт {phone_number} успішно авторизовано та збережено сесію.")
+                
                 # Отримання інформації про користувача після авторизації
                 me: User = await client.get_me()
                 logger.info(f"Увійшов як: {me.first_name} (@{me.username or 'N/A'}); ID: {me.id}")
@@ -127,18 +157,33 @@ class TelethonClientManager:
         except Exception as e:
             logger.error(f"Загальна помилка запуску/авторизації клієнта {phone_number}: {e}", exc_info=True)
         finally:
-            # Важливо: відключайте клієнт, коли він не потрібен або при завершенні роботи
-            # Для постійно працюючого бота, відключення може бути не відразу після авторизації
-            # але при завершенні роботи програми.
+            # Для постійно працюючого бота, клієнт повинен залишатися підключеним, 
+            # тому не викликаємо client.disconnect() тут.
+            # Відключення відбувається тільки при завершенні роботи менеджера.
             pass
 
+    async def _get_all_sessions_from_db(self) -> list[Dict[str, Any]]:
+        """Отримує всі дані сесій з бази даних."""
+        if not self.db_pool:
+            logger.error("DB pool не ініціалізовано, неможливо отримати всі сесії.")
+            return []
+        
+        async with self.db_pool.acquire() as conn:
+            records = await conn.fetch(
+                """
+                SELECT phone_number, session_string, api_id, api_hash, last_login
+                FROM telethon_sessions;
+                """
+            )
+            return [dict(r) for r in records] # Перетворюємо записи в словники
+
     async def _get_session_from_db(self, phone_number: str) -> Optional[Dict[str, Any]]:
-        """Отримує дані сесії з бази даних за номером телефону."""
+        """Отримує дані однієї сесії з бази даних за номером телефону."""
         if not self.db_pool:
             logger.error("DB pool не ініціалізовано, неможливо отримати сесію.")
             return None
+        
         async with self.db_pool.acquire() as conn:
-            # <--- ЗМІНИ ТУТ: Використовуємо 'session_string' та 'last_login' ---
             session_str_row = await conn.fetchrow(
                 """
                 SELECT session_string, api_id, api_hash, last_login
@@ -147,22 +192,23 @@ class TelethonClientManager:
                 """,
                 phone_number
             )
-            # <--- КІНЕЦЬ ЗМІН ---
-            return session_str_row
+            return dict(session_str_row) if session_str_row else None
 
-    # <--- ПОЧАТОК ЗМІН В _save_session_to_db ---
-    async def _save_session_to_db(self, phone_number: str, client: TelegramClient, api_id: int, api_hash: str):
+
+    async def _save_session_to_db(self, phone_number: str, client: TelegramClient, api_id: int, api_hash: Any):
         """Зберігає або оновлює дані сесії Telethon у базі даних."""
         if not self.db_pool:
             logger.error("DB pool не ініціалізовано, неможливо зберегти сесію.")
             return
 
         # Отримуємо session_string безпосередньо з об'єкта сесії клієнта
-        # Це критично важливий крок, який генерує рядок сесії для зберігання.
         session_string = client.session.save()
         if not session_string:
             logger.error(f"Отримана порожня session_string для {phone_number}. Неможливо зберегти сесію.")
             return
+        
+        # Перетворюємо SecretStr до str для збереження в БД, якщо це SecretStr
+        api_hash_value = api_hash.get_secret_value() if hasattr(api_hash, 'get_secret_value') else api_hash
 
         try:
             async with self.db_pool.acquire() as conn:
@@ -173,12 +219,11 @@ class TelethonClientManager:
                         session_string = EXCLUDED.session_string,
                         api_id = EXCLUDED.api_id,
                         api_hash = EXCLUDED.api_hash,
-                        last_login = NOW(); -- Тепер стовпець називається last_login
-                """, phone_number, session_string, api_id, api_hash)
+                        last_login = NOW();
+                """, phone_number, session_string, api_id, api_hash_value)
             logger.info(f"Сесія Telethon для {phone_number} успішно збережена в БД.")
         except Exception as e:
             logger.error(f"Помилка при збереженні сесії Telethon для {phone_number} в БД: {e}", exc_info=True)
-    # <--- КІНЕЦЬ ЗМІН ---
 
     async def _delete_session_from_db(self, phone_number: str):
         """Видаляє дані сесії з бази даних за номером телефону."""
@@ -197,8 +242,13 @@ class TelethonClientManager:
         logger.info("Завершення роботи TelethonClientManager. Відключення клієнтів...")
         for phone_number, client in self.clients.items():
             if client.is_connected():
-                await client.disconnect()
-                logger.info(f"Клієнт {phone_number} відключено.")
+                try:
+                    await client.disconnect()
+                    logger.info(f"Клієнт {phone_number} відключено.")
+                except Exception as e:
+                    logger.error(f"Помилка при відключенні клієнта {phone_number}: {e}", exc_info=True)
+            else:
+                logger.info(f"Клієнт {phone_number} вже відключено.")
         self.clients.clear()
 
 # Якщо TelethonClientManager використовується як частина aiogram startup/shutdown hooks

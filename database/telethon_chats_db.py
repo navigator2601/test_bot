@@ -1,81 +1,79 @@
-# database/telethon_chats_db.py
 import asyncpg
 import logging
-from typing import List, Optional, Tuple
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-async def add_allowed_chat(
-    db_pool: asyncpg.Pool,
-    chat_id: int,
-    chat_title: Optional[str] = None,
-    added_by_user_id: Optional[int] = None
+async def create_telethon_allowed_chats_table(conn: asyncpg.Connection):
+    """Створює таблицю 'telethon_allowed_chats', якщо її не існує, з оновленими полями."""
+    await conn.execute('''
+        CREATE TABLE IF NOT EXISTS telethon_allowed_chats (
+            id SERIAL PRIMARY KEY,
+            chat_id BIGINT NOT NULL UNIQUE,
+            chat_title TEXT,
+            chat_type TEXT, -- НОВЕ ПОЛЕ
+            username TEXT,  -- НОВЕ ПОЛЕ
+            added_by_user_id BIGINT,
+            added_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    logger.info("Таблиця 'telethon_allowed_chats' перевірена/створена (з полями chat_type та username).")
+
+async def add_telethon_allowed_chat(
+    pool: asyncpg.Pool, 
+    chat_id: int, 
+    chat_title: str, 
+    chat_type: Optional[str], 
+    username: Optional[str],  
+    added_by_user_id: int
 ) -> bool:
-    """
-    Додає ID чату до списку дозволених Telethon чатів.
-    Повертає True, якщо чат було додано, False, якщо він вже існував.
+    """Додає дозволений чат до таблиці telethon_allowed_chats з типом та юзернеймом.
+    
+    Повертає True у разі успіху, False, якщо чат вже існує або виникла помилка.
     """
     try:
-        query = """
-            INSERT INTO telethon_allowed_chats (chat_id, chat_title, added_by_user_id)
-            VALUES ($1, $2, $3)
+        # ON CONFLICT (chat_id) DO NOTHING - дозволяє уникнути помилки, якщо чат вже є
+        result = await pool.execute(
+            '''
+            INSERT INTO telethon_allowed_chats (chat_id, chat_title, chat_type, username, added_by_user_id)
+            VALUES ($1, $2, $3, $4, $5)
             ON CONFLICT (chat_id) DO NOTHING
-            RETURNING id;
-        """
-        res = await db_pool.fetchval(query, chat_id, chat_title, added_by_user_id)
-        if res:
-            logger.info(f"Чат ID {chat_id} ('{chat_title}') додано до дозволених Telethon чатів.")
+            ''',
+            chat_id, chat_title, chat_type, username, added_by_user_id
+        )
+        # 'INSERT 0 1' означає, що 1 рядок було вставлено. 'INSERT 0 0' означає, що рядок не було вставлено (через ON CONFLICT)
+        if result == 'INSERT 0 1':
+            logger.info(f"Чат '{chat_title}' (ID: {chat_id}, Type: {chat_type}, Username: {username}) успішно додано до telethon_allowed_chats.")
             return True
         else:
-            logger.info(f"Чат ID {chat_id} ('{chat_title}') вже існує у дозволених Telethon чатах.")
+            logger.warning(f"Чат '{chat_title}' (ID: {chat_id}) вже існує в telethon_allowed_chats (або не було додано).")
             return False
     except Exception as e:
-        logger.error(f"Помилка при додаванні чату {chat_id} до дозволених: {e}", exc_info=True)
+        logger.error(f"Помилка при додаванні чату '{chat_title}' (ID: {chat_id}) до telethon_allowed_chats: {e}", exc_info=True)
         return False
 
-async def remove_allowed_chat(db_pool: asyncpg.Pool, chat_id: int) -> bool:
-    """
-    Видаляє ID чату зі списку дозволених Telethon чатів.
-    Повертає True, якщо чат було видалено, False, якщо його не існувало.
-    """
+async def get_all_telethon_allowed_chats(pool: asyncpg.Pool) -> list[dict]:
+    """Повертає всі дозволені чати з БД, включаючи тип та юзернейм."""
     try:
-        query = """
-            DELETE FROM telethon_allowed_chats
-            WHERE chat_id = $1
-            RETURNING id;
-        """
-        res = await db_pool.fetchval(query, chat_id)
-        if res:
-            logger.info(f"Чат ID {chat_id} видалено зі списку дозволених Telethon чатів.")
-            return True
-        else:
-            logger.info(f"Чат ID {chat_id} не знайдено у дозволених Telethon чатах.")
-            return False
+        records = await pool.fetch("SELECT * FROM telethon_allowed_chats ORDER BY added_at DESC")
+        return [dict(r) for r in records]
     except Exception as e:
-        logger.error(f"Помилка при видаленні чату {chat_id} зі списку дозволених: {e}", exc_info=True)
-        return False
-
-async def get_all_allowed_chats(db_pool: asyncpg.Pool) -> List[Tuple[int, Optional[str]]]:
-    """
-    Отримує список всіх дозволених Telethon чатів.
-    Повертає список кортежів (chat_id, chat_title).
-    """
-    try:
-        query = "SELECT chat_id, chat_title FROM telethon_allowed_chats ORDER BY chat_title ASC NULLS LAST;"
-        rows = await db_pool.fetch(query)
-        return [(r['chat_id'], r['chat_title']) for r in rows]
-    except Exception as e:
-        logger.error(f"Помилка при отриманні списку дозволених Telethon чатів: {e}", exc_info=True)
+        logger.error(f"Помилка при отриманні дозволених чатів з БД: {e}", exc_info=True)
         return []
 
-async def is_chat_allowed(db_pool: asyncpg.Pool, chat_id: int) -> bool:
-    """
-    Перевіряє, чи є чат з даним ID у списку дозволених.
-    """
+async def delete_telethon_allowed_chat(pool: asyncpg.Pool, chat_id: int) -> bool:
+    """Видаляє дозволений чат з БД за chat_id."""
     try:
-        query = "SELECT EXISTS (SELECT 1 FROM telethon_allowed_chats WHERE chat_id = $1);"
-        exists = await db_pool.fetchval(query, chat_id)
-        return exists
+        result = await pool.execute(
+            "DELETE FROM telethon_allowed_chats WHERE chat_id = $1",
+            chat_id
+        )
+        if result == "DELETE 1":
+            logger.info(f"Чат з ID {chat_id} успішно видалено з telethon_allowed_chats.")
+            return True
+        else:
+            logger.warning(f"Чат з ID {chat_id} не знайдено в telethon_allowed_chats для видалення.")
+            return False
     except Exception as e:
-        logger.error(f"Помилка при перевірці дозволеного чату {chat_id}: {e}", exc_info=True)
+        logger.error(f"Помилка при видаленні чату з ID {chat_id} з telethon_allowed_chats: {e}", exc_info=True)
         return False
