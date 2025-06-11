@@ -3,7 +3,7 @@
 import math
 from typing import Optional
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.utils.keyboard import InlineKeyboardBuilder # Додано імпорт InlineKeyboardBuilder
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from common.constants import ACCESS_LEVEL_BUTTONS
 from keyboards.callback_factories import AdminCallback, UserActionCallback, AccessLevelCallback
@@ -15,17 +15,14 @@ def get_admin_main_keyboard() -> InlineKeyboardMarkup:
             text="👥 Юзер-матриця · Редактор доступу",
             callback_data=AdminCallback(action="show_users").pack()
         )],
-        [InlineKeyboardButton(
-            text="📡 ReLink · Статус каналу зв'язку",
-            callback_data=AdminCallback(action="connection_status").pack()
-        )],
+        # Кнопка "📡 ReLink · Статус каналу зв'язку" видалена
         [InlineKeyboardButton(
             text="🔐 TeleKey · Авторизація API-зв’язку",
             callback_data=AdminCallback(action="telethon_auth").pack()
         )],
         [InlineKeyboardButton(
             text="💬 Чат-матриця · Перегляд активних зон",
-            callback_data=AdminCallback(action="chat_matrix").pack() # Змінено callback_data на "chat_matrix"
+            callback_data=AdminCallback(action="chat_matrix").pack()
         )],
         [InlineKeyboardButton(
             text="🏁 Завершити командування",
@@ -98,12 +95,12 @@ def get_user_actions_keyboard(is_authorized: bool, current_access_level: int, us
     if is_authorized:
         buttons.append([InlineKeyboardButton(
             text="Деавторизувати ❌",
-            callback_data=UserActionCallback(action="unauthorize", user_id=user_id_to_manage).pack()
+            callback_data=UserActionCallback(action="unauthorize", target_user_id=user_id_to_manage).pack()
         )])
     else:
         buttons.append([InlineKeyboardButton(
             text="Авторизувати ✅",
-            callback_data=UserActionCallback(action="authorize", user_id=user_id_to_manage).pack()
+            callback_data=UserActionCallback(action="authorize", target_user_id=user_id_to_manage).pack()
         )])
     buttons.append([InlineKeyboardButton(
         text=f"Змінити рівень доступу ({current_access_level}) ⬆️",
@@ -129,7 +126,7 @@ def get_confirm_action_keyboard(action: str, user_id: int, level: Optional[int] 
     buttons = [
         [InlineKeyboardButton(
             text="Підтвердити ✅",
-            callback_data=UserActionCallback(action=f"confirm_{action}", user_id=user_id, level=level).pack()
+            callback_data=UserActionCallback(action=f"confirm_{action}", target_user_id=user_id, level=level).pack()
         )],
         [InlineKeyboardButton(
             text="Скасувати ❌",
@@ -140,20 +137,20 @@ def get_confirm_action_keyboard(action: str, user_id: int, level: Optional[int] 
 
 def get_access_level_keyboard(user_id_to_manage: int) -> InlineKeyboardMarkup:
     """Генерує клавіатуру з кнопками для вибору рівня доступу."""
-    buttons_flat = []
+    builder = InlineKeyboardBuilder()
     for level, name in ACCESS_LEVEL_BUTTONS:
-        buttons_flat.append(
-            InlineKeyboardButton(
-                text=f"{name}",
-                callback_data=AccessLevelCallback(level=level, user_id=user_id_to_manage).pack()
-            )
+        builder.button(
+            text=f"{name}",
+            callback_data=AccessLevelCallback(action="set_level", level=level, target_user_id=user_id_to_manage).pack()
         )
-    keyboard = [buttons_flat[i:i + 2] for i in range(0, len(buttons_flat), 2)]
-    keyboard.append([InlineKeyboardButton(
-        text="Скасувати ❌",
-        callback_data=AdminCallback(action="select_user", user_id=user_id_to_manage).pack()
-    )])
-    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+    builder.adjust(1) # Розміщуємо по 2 кнопки в рядку
+    builder.row(
+        InlineKeyboardButton(
+            text="Скасувати ❌",
+            callback_data=AdminCallback(action="select_user", user_id=user_id_to_manage).pack()
+        )
+    )
+    return builder.as_markup()
 
 def get_telethon_actions_keyboard() -> InlineKeyboardMarkup:
     """Повертає клавіатуру для дій Telethon."""

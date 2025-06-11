@@ -1,3 +1,5 @@
+# main.py
+
 import asyncio
 import logging
 from typing import Any
@@ -9,7 +11,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.default import DefaultBotProperties
 
 # Імпорти для вашої конфігурації та логування
-from config import config # ЗАЛИШАЄМО from config import config, якщо ваш файл називається config.py
+from config import config
 from utils.logger import setup_logging
 
 # Імпорти для БД та Мідлвари
@@ -24,7 +26,6 @@ from middlewares.telethon_middleware import TelethonClientMiddleware
 # Імпорти для роутерів
 from handlers.start_handler import router as start_router
 from handlers.menu_handler import router as menu_router
-# from handlers.admin_handler import router as admin_router # <--- ВИДАЛЯЄМО ЦЕЙ ІМПОРТ
 
 # <--- НОВІ ІМПОРТИ ДЛЯ РОУТЕРІВ АДМІН-ПАНЕЛІ --->
 from handlers.admin.main_menu import router as admin_main_menu_router
@@ -39,8 +40,9 @@ from handlers.echo_handler import router as echo_router
 setup_logging()
 logger = logging.getLogger(__name__)
 
-# Глобальний екземпляр TelethonManager
-telethon_manager: TelethonClientManager = None
+# Глобальний екземпляр TelethonManager - ТЕПЕР ІНІЦІАЛІЗУЄМО БЕЗ API_ID/HASH ТУТ.
+# ЇХ БУДЕ ПЕРЕДАНО В main() ПІСЛЯ ЗАВАНТАЖЕННЯ З CONFIG.
+telethon_manager: TelethonClientManager = None # Змінено на None, буде ініціалізовано пізніше
 
 
 async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
@@ -49,8 +51,6 @@ async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
     Ініціалізує пул підключень до БД, таблиці та Telethon-клієнти.
     """
     logger.info("Початок запуску бота. Зареєстровані startup-хуки виконуються.")
-
-    global telethon_manager # Оголошуємо, що будемо змінювати глобальну змінну
 
     logger.info("Спроба створити пул підключень до бази даних.")
     try:
@@ -65,24 +65,24 @@ async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
 
     logger.info("Ініціалізація таблиць бази даних.")
     try:
-        await init_db_tables() # Це функція має ініціалізувати всі таблиці (користувачів, сесій, дозволених чатів)
+        await init_db_tables()
         logger.info("Таблиці бази даних ініціалізовано.")
     except Exception as e:
         logger.error(f"Помилка ініціалізації таблиць БД: {e}", exc_info=True)
 
     # --- ЛОГІКА TELETHON: ІНІЦІАЛІЗАЦІЯ та ЗАПУСК ---
-    logger.info("Ініціалізація TelethonClientManager.")
-    # ПЕРЕДАЄМО db_pool_instance ДО TELETHONCLIENTMANAGER
-    telethon_manager = TelethonClientManager(db_pool=db_pool_instance) 
-    await telethon_manager.initialize()
-
-    dispatcher.workflow_data['telethon_manager'] = telethon_manager
-    logger.info("TelethonClientManager ініціалізовано.")
-
-    if config.telethon_client_enabled:
+    # Global telethon_manager вже ініціалізовано в main(), але тут ми запускаємо його
+    # Його потрібно передати в initialize
+    # if 'telethon_manager' in dispatcher.workflow_data: # Додано перевірку
+    global telethon_manager # Отримуємо доступ до глобальної змінної
+    # Передача db_pool_instance до initialize
+    if telethon_manager and config.telethon_client_enabled:
+        logger.info("Ініціалізація TelethonClientManager.")
+        await telethon_manager.initialize(db_pool_instance) # <--- ВИПРАВЛЕНО: передаємо db_pool_instance
+        logger.info("TelethonClientManager ініціалізовано.")
         logger.info("Telethon клієнти налаштовано та, якщо потрібно, запущені (через initialize()).")
     else:
-        logger.warning("Telethon клієнти вимкнено через конфігурацію. Пропускаю їх запуск.")
+        logger.warning("Telethon клієнти вимкнено через конфігурацію або TelethonClientManager не був ініціалізований.")
     # --------------------------------------------------
 
     logger.info("Завершення on_startup.")
@@ -94,22 +94,17 @@ async def on_bot_shutdown(bot: Bot, dispatcher: Dispatcher) -> None:
     """
     logger.info("Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.")
 
-    global telethon_manager # Оголошуємо, що будемо використовувати глобальну змінну
-
-    # --- ЛОГІКА TELETHON: ЗУПИНКА КЛІЄНТІВ ---
-    # Перевіряємо наявність telethon_manager у workflow_data, якщо глобальна змінна не спрацює
-    if 'telethon_manager' in dispatcher.workflow_data and config.telethon_client_enabled:
-        current_telethon_manager = dispatcher.workflow_data['telethon_manager']
+    global telethon_manager # Отримуємо доступ до глобальної змінної
+    if telethon_manager and config.telethon_client_enabled:
         logger.info("Спроба відключити Telethon клієнтів.")
         try:
-            await current_telethon_manager.shutdown()
+            await telethon_manager.shutdown_all_clients() # <--- ВИПРАВЛЕНО: shutdown_all_clients
             logger.info("Telethon клієнти відключено.")
         except Exception as e:
             logger.error(f"Помилка відключення Telethon клієнтів: {e}", exc_info=True)
     elif config.telethon_client_enabled:
-        logger.warning("TelethonClientManager не знайдено в dispatcher.workflow_data під час завершення роботи.")
-    # ------------------------------------------
-
+        logger.warning("TelethonClientManager не був ініціалізований або доступний під час завершення роботи.")
+    
     logger.info("Спроба закрити пул підключень до бази даних.")
     try:
         await close_db_pool()
@@ -124,13 +119,7 @@ async def on_bot_shutdown(bot: Bot, dispatcher: Dispatcher) -> None:
 async def main():
     logger.info("Початок виконання головної асинхронної функції 'main'.")
 
-    # Якщо config.bot_token є SecretStr, використовуємо .get_secret_value()
-    # Якщо це просто str, то перевірка if not config.bot_token буде достатньою.
-    # Я залишаю тут .get_secret_value() припускаючи, що ви використовуєте Pydantic SecretStr.
-    if hasattr(config.bot_token, 'get_secret_value'): # БЕЗПЕЧНА ПЕРЕВІРКА НАЯВНОСТІ МЕТОДУ
-        bot_token_value = config.bot_token.get_secret_value()
-    else:
-        bot_token_value = config.bot_token # Якщо це звичайна змінна str
+    bot_token_value = config.bot_token 
 
     if not bot_token_value:
         logger.critical("BOT_TOKEN не встановлено у файлі конфігурації. Будь ласка, перевірте .env та config.py.")
@@ -139,7 +128,7 @@ async def main():
     default_props = DefaultBotProperties(parse_mode=ParseMode.HTML)
 
     logger.info("Ініціалізація об'єкта Bot.")
-    bot = Bot(token=bot_token_value, default=default_props) # ВИКОРИСТОВУЄМО ОТРИМАНЕ ЗНАЧЕННЯ ТОКЕНА
+    bot = Bot(token=bot_token_value, default=default_props)
 
     storage = MemoryStorage()
 
@@ -150,20 +139,31 @@ async def main():
     dp.update.outer_middleware.register(DbSessionMiddleware())
     logger.info("DbSessionMiddleware зареєстровано глобально.")
 
-    # --- РЕЄСТРАЦІЯ TELETHON МІДЛВАРИ ---
+    # --- РЕЄСТРАЦІЯ TELETHON МІДЛВАРИ ТА ІНІЦІАЛІЗАЦІЯ TELETHON_MANAGER ---
+    global telethon_manager # Отримуємо доступ до глобальної змінної
+
     if config.telethon_client_enabled:
-        logger.info("Реєстрація TelethonClientMiddleware.")
-        dp.update.outer_middleware.register(TelethonClientMiddleware())
+        logger.info("Ініціалізація глобального TelethonClientManager.")
+        telethon_manager = TelethonClientManager(
+            api_id=config.api_id,
+            api_hash=config.api_hash
+        )
+        # Зберігаємо TelethonClientManager у workflow_data Dispatcher'а
+        # Мідлвара буде отримувати його звідси
+        dp.workflow_data['telethon_manager'] = telethon_manager
+        logger.info("TelethonClientManager додано до dispatcher.workflow_data.")
+
+        logger.info("Реєстрація TelethonClientMiddleware (без прямого передавання менеджера).")
+        dp.update.outer_middleware.register(TelethonClientMiddleware()) # <--- ВИПРАВЛЕНО: БЕЗ telethon_manager=...
         logger.info("TelethonClientMiddleware зареєстровано глобально.")
     else:
         logger.warning("TelethonClientMiddleware не реєструється (вимкнено через конфігурацію).")
     # ------------------------------------
-
+    
     # Реєстрація роутерів
     logger.info("Реєстрація роутера 'start_handler'.")
     dp.include_router(start_router)
     
-    # if menu_router: - Ця перевірка не потрібна, якщо роутер завжди імпортується
     logger.info("Реєстрація роутера 'menu_handler'.")
     dp.include_router(menu_router)
 

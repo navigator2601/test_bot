@@ -1,7 +1,7 @@
 # handlers/admin/main_menu.py
-import logging
-import math # Для math.ceil у process_show_users
 
+import logging
+import math
 from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
@@ -10,34 +10,32 @@ from aiogram.filters import StateFilter
 import asyncpg
 
 from keyboards.admin_keyboard import get_admin_main_keyboard, get_users_list_keyboard, get_telethon_actions_keyboard
-from keyboards.reply_keyboard import get_main_menu_keyboard # Для повернення в головне меню
+from keyboards.reply_keyboard import get_main_menu_keyboard
 from database.users_db import get_user_access_level, get_all_users
-from common.messages import get_access_level_description
-from common.constants import USERS_PER_PAGE, ACCESS_LEVEL_BUTTONS # Додано ACCESS_LEVEL_BUTTONS
+from common.messages import get_access_level_description, get_random_admin_welcome_message # <--- Додано імпорт
+from common.constants import USERS_PER_PAGE, ACCESS_LEVEL_BUTTONS
 
-# Імпортуємо стани з централізованого файлу
 from common.states import AdminStates, MenuStates
-from filters.admin_filter import AdminAccessFilter # Для застосування до роутера або хендлерів
+from filters.admin_filter import AdminAccessFilter
 from keyboards.callback_factories import AdminCallback, UserActionCallback, AccessLevelCallback
 
 logger = logging.getLogger(__name__)
 
 router = Router()
 
-# Застосовуємо фільтр адмін-доступу до всього роутера
-# Це гарантує, що тільки адміністратори зможуть викликати хендлери в цьому роутері.
 router.callback_query.filter(AdminAccessFilter())
 router.message.filter(AdminAccessFilter())
 
 
 # Хендлер для повернення в головне адмін-меню
+# Цей хендлер викликається, коли адміністратор натискає "⬅️ Назад до адмін-меню" з підменю
 @router.callback_query(AdminCallback.filter(F.action == "cancel_admin_action"), AdminStates.admin_main)
 @router.callback_query(AdminCallback.filter(F.action == "cancel_admin_action"), AdminStates.user_management)
 @router.callback_query(AdminCallback.filter(F.action == "cancel_admin_action"), AdminStates.confirm_action)
 @router.callback_query(AdminCallback.filter(F.action == "cancel_admin_action"), AdminStates.set_access_level)
 @router.callback_query(AdminCallback.filter(F.action == "cancel_admin_action"), AdminStates.telethon_management)
 @router.callback_query(AdminCallback.filter(F.action == "cancel_admin_action"), AdminStates.waiting_for_telethon_input)
-@router.callback_query(AdminCallback.filter(F.action == "cancel_admin_action"), AdminStates.chat_matrix_management) # ВИПРАВЛЕНО: Додано стан для Чат-матриці
+@router.callback_query(AdminCallback.filter(F.action == "cancel_admin_action"), AdminStates.chat_matrix_management)
 async def back_to_admin_main_menu(
     callback: types.CallbackQuery,
     state: FSMContext
@@ -45,8 +43,12 @@ async def back_to_admin_main_menu(
     logger.info(f"Користувач {callback.from_user.id} натиснув '⬅️ Назад до адмін-меню'.")
     await state.set_state(AdminStates.admin_main)
     keyboard = get_admin_main_keyboard()
+    
+    # <--- ЗМІНЕНО ТУТ: Використовуємо рандомне повідомлення
+    welcome_message = get_random_admin_welcome_message()
+    
     await callback.message.edit_text(
-        "<b>Адмін-панель:</b>\n\nОберіть дію:",
+        welcome_message, # <--- Рандомне повідомлення
         reply_markup=keyboard,
         parse_mode=ParseMode.HTML
     )
@@ -58,7 +60,7 @@ async def back_to_admin_main_menu(
 async def close_admin_panel(
     callback: types.CallbackQuery,
     state: FSMContext,
-    db_pool: asyncpg.Pool # db_pool потрібен для отримання рівня доступу
+    db_pool: asyncpg.Pool
 ) -> None:
     user_id = callback.from_user.id
     logger.info(f"Користувач {user_id} натиснув '🏁 Завершити командування'.")
@@ -70,14 +72,14 @@ async def close_admin_panel(
         access_level = 0
     
     current_state_data = await state.get_data()
-    current_page = current_state_data.get("menu_page", 0) # Повертаємось на ту ж сторінку меню, що була
+    current_page = current_state_data.get("menu_page", 0)
 
     keyboard = await get_main_menu_keyboard(access_level, current_page)
     
     level_name, level_description = get_access_level_description(access_level, ACCESS_LEVEL_BUTTONS)
 
-    await callback.message.delete() # Видаляємо попереднє повідомлення з inline-клавіатурою
-    await callback.message.answer( # Відправляємо нове повідомлення з ReplyKeyboardMarkup
+    await callback.message.delete()
+    await callback.message.answer(
         f"Ви повернулися до головного меню.\n\nВаш рівень доступу:\n<b>{level_name}</b>\n{level_description}",
         reply_markup=keyboard,
         parse_mode=ParseMode.HTML
@@ -107,8 +109,9 @@ async def process_show_users(
     if not users:
         await callback.answer("Не знайдено жодного користувача в базі даних.", show_alert=True)
         await callback.message.edit_text(
+            f"{get_random_admin_welcome_message()}\n\n" # <--- Можливо, тут теж варто використати рандомне
             "<b>👥 Юзер-матриця · Редактор доступу:</b>\n\nНемає зареєстрованих користувачів.",
-            reply_markup=get_admin_main_keyboard(), # Повертаємось до головного адмін-меню
+            reply_markup=get_admin_main_keyboard(),
             parse_mode=ParseMode.HTML
         )
         return
@@ -129,29 +132,43 @@ async def process_show_users(
     )
     await callback.answer()
 
-# Хендлер для кнопки "📡 ReLink · Статус каналу зв'язку"
-# !!! ЦЕЙ ХЕНДЛЕР МАЄ БУТИ ВИДАЛЕНИЙ ПІСЛЯ УСПІШНОГО ЗАПУСКУ БОТА З ОНОВЛЕНОЮ СТРУКТУРОЮ.
-# !!! ВІН ТИМЧАСОВО ДУБЛЮЄТЬСЯ В telethon_operations.py
-# !!! Я ЗАЛИШИВ ЙОГО ТУТ ДЛЯ ПОТОЧНОЇ ПЕРЕВІРКИ, АЛЕ ВІН ЗАЙВИЙ.
-# !!! ЛОГІКА ДЛЯ ЦІЄЇ КНОПКИ ПОВИННА ОБРОБЛЯТИСЯ В telethon_operations.py
-# @router.callback_query(
-#      AdminCallback.filter(F.action == "connection_status"), # Це callback для кнопки "📡 ReLink · Статус каналу зв'язку"
-#      StateFilter(AdminStates.admin_main, AdminStates.telethon_management)
-# )
-# async def telethon_connection_status(
-#      callback: types.CallbackQuery,
-#      telethon_manager: Any # telethon_manager має бути переданий через Middleware
-# ) -> None:
-#      user_id = callback.from_user.id
-#      logger.info(f"Користувач {user_id} перевіряє статус з'єднання.")
-#      logger.debug(f"Telethon Manager received in telethon_connection_status: {telethon_manager}")
+# --- Хендлер для кнопки "🔐 TeleKey · Авторизація API-зв’язку" ---
+@router.callback_query(AdminCallback.filter(F.action == "telethon_auth"), AdminStates.admin_main)
+async def process_telethon_auth_button(
+    callback: types.CallbackQuery,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    logger.info(f"Користувач {user_id} натиснув '🔐 TeleKey · Авторизація API-зв’язку'.")
     
-#      status_message = "❌ Telethon API: не підключено або немає активних клієнтів."
+    # Переходимо в стан управління Telethon
+    await state.set_state(AdminStates.telethon_management)
+    
+    # Відправляємо повідомлення з опціями для Telethon
+    keyboard = get_telethon_actions_keyboard()
+    await callback.message.edit_text(
+        "<b>🔐 TeleKey · Панель керування API-зв’язком:</b>\n\nОберіть дію:",
+        reply_markup=keyboard,
+        parse_mode=ParseMode.HTML
+    )
+    await callback.answer()
 
-#      if telethon_manager and telethon_manager.clients:
-#          for phone_number, client_obj in telethon_manager.clients.items():
-#              if client_obj.is_connected():
-#                  status_message = f"✅ Telethon API: підключено (через {phone_number})"
-#                  break
+
+# Хендлер для кнопки "💬 Чат-матриця · Перегляд активних зон"
+@router.callback_query(AdminCallback.filter(F.action == "chat_matrix"), AdminStates.admin_main)
+async def process_chat_matrix_button(
+    callback: types.CallbackQuery,
+    state: FSMContext
+) -> None:
+    user_id = callback.from_user.id
+    logger.info(f"Користувач {user_id} натиснув '💬 Чат-матриця'.")
     
-#      await callback.answer(status_message, show_alert=True)
+    await state.set_state(AdminStates.chat_matrix_management)
+    
+    keyboard = get_chat_matrix_keyboard() # Потрібно імпортувати get_chat_matrix_keyboard
+    await callback.message.edit_text(
+        "<b>💬 Чат-матриця · Перегляд активних зон:</b>\n\nОберіть дію:",
+        reply_markup=keyboard,
+        parse_mode=ParseMode.HTML
+    )
+    await callback.answer()
