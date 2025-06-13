@@ -1,49 +1,79 @@
 # handlers/admin_handler.py
-
 import logging
-from aiogram import Router, types, Bot, F
+from typing import Any, List
+from aiogram import Router, F, types
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
-from aiogram.enums import ParseMode
-import asyncpg
-from typing import Any, Optional, List # Додаємо List для типізації
-from telethon.tl.types import Dialog # Імпортуємо Dialog для типізації
+from aiogram.enums.parse_mode import ParseMode
 
-from database import users_db
-from keyboards.admin_keyboard import (
+from common.keyboards import (
     get_admin_main_keyboard,
     get_users_list_keyboard,
     get_user_actions_keyboard,
     get_confirm_action_keyboard,
     get_access_level_keyboard,
-    get_telethon_actions_keyboard
+    get_telethon_actions_keyboard,
+    get_main_menu_keyboard
 )
-from keyboards.reply_keyboard import get_main_menu_keyboard
-from common.messages import get_access_level_description, get_random_admin_welcome_message
-from common.constants import ACCESS_LEVEL_BUTTONS, BUTTONS_PER_PAGE
-from keyboards.callback_factories import AdminCallback, UserActionCallback, AccessLevelCallback
-# from handlers.menu_handler import MenuStates # Цей імпорт тут більше не потріжен через циклічний імпорт
+from common.callbacks import (
+    AdminCallback,
+    UserActionCallback,
+    AccessLevelCallback
+)
+from common.states import AdminStates
+from database import users_db
+from common.constants import BUTTONS_PER_PAGE, ACCESS_LEVEL_BUTTONS, MAX_DIALOGS_TO_SHOW
+from common.messages import (
+    ADMIN_WELCOME_MESSAGE_DEFAULT,
+    ADMIN_RETURN_MAIN_PANEL,
+    ADMIN_EXIT_MESSAGE,
+    ADMIN_USER_MATRIX_PROMPT,
+    ADMIN_USER_NOT_FOUND,
+    ADMIN_ERROR_NO_USER_ID,
+    ADMIN_ERROR_NO_CONFIRM_DATA,
+    ADMIN_ERROR_UNKNOWN_STEP,
+    ADMIN_ACTION_CANCELED,
+    ADMIN_TELETHON_MAIN_PROMPT,
+    ADMIN_TELETHON_ALREADY_CONNECTED,
+    ADMIN_TELETHON_AUTH_START,
+    ADMIN_TELETHON_ENTER_PHONE,
+    ADMIN_TELETHON_INVALID_PHONE,
+    ADMIN_TELETHON_CODE_SENT,
+    ADMIN_TELETHON_ENTER_CODE,
+    ADMIN_TELETHON_NO_PHONE_IN_STATE,
+    ADMIN_TELETHON_CHECKING_CODE,
+    ADMIN_TELETHON_AUTH_SUCCESS,
+    ADMIN_TELETHON_CLIENT_NOT_CONNECTED,
+    ADMIN_TELETHON_GET_INFO_PROMPT,
+    ADMIN_TELETHON_JOIN_CHANNEL_PROMPT,
+    ADMIN_TELETHON_JOIN_CHANNEL_SUCCESS,
+    ADMIN_TELETHON_CHATS_LOADING,
+    ADMIN_TELETHON_NO_CHATS_FOUND,
+    ADMIN_TELETHON_PARTIAL_CHATS_INFO,
+    ADMIN_TELETHON_CHECK_STATUS_CONNECTED,
+    ADMIN_USER_ACCESS_LEVEL_PROMPT,
+    ADMIN_USER_ACCESS_LEVEL_CHANGED,
+    ADMIN_USER_MANAGEMENT_ACTION_CONFIRM,
+    ADMIN_USER_MANAGEMENT_ACTION_SUCCESS,
+    ADMIN_ACTION_CANCELED_USER_MANAGEMENT,
+    ADMIN_GENERAL_ERROR_RETURN_TO_MAIN,
+    ADMIN_ACTION_CANCELED_ALERT,
+    ADMIN_ACCESS_LEVEL_CHANGED_ALERT,
+    ADMIN_USER_ACTION_SUCCESS_ALERT,
+    get_user_details_text
+)
 
 logger = logging.getLogger(__name__)
-
 router = Router()
 
-class AdminStates(StatesGroup):
-    admin_main = State()
-    user_management = State()
-    confirm_action = State()
-    set_access_level = State()
-    telethon_management = State()
-    waiting_for_telethon_input = State()
 
 # ----------------------------------------------------------------------
 # Допоміжні функції
 # ----------------------------------------------------------------------
 
 async def _send_admin_welcome_message(message: types.Message, state: FSMContext) -> None:
-    """Відправляє випадкове привітальне повідомлення адміну."""
-    welcome_admin_text = get_random_admin_welcome_message()
+    """Відправляє дефолтне привітальне повідомлення адміну."""
+    welcome_admin_text = ADMIN_WELCOME_MESSAGE_DEFAULT
     await state.set_state(AdminStates.admin_main)
     await message.answer(
         welcome_admin_text,
@@ -51,36 +81,72 @@ async def _send_admin_welcome_message(message: types.Message, state: FSMContext)
         parse_mode=ParseMode.HTML
     )
 
-async def _get_user_info_text(db_pool: asyncpg.Pool, user_id: int) -> str:
+async def _get_user_info_text(db_pool: Any, user_id: int) -> str:
     """Форматує інформацію про користувача для відображення."""
     user = await users_db.get_user(db_pool, user_id)
     if not user:
-        return "Користувача не знайдено."
+        return ADMIN_USER_NOT_FOUND
+    return get_user_details_text(user, user.get('is_authorized', False), ACCESS_LEVEL_BUTTONS)
 
-    access_level_name, access_level_desc = get_access_level_description(user['access_level'])
-    auth_status = "Авторизований ✅" if user['is_authorized'] else "Не авторизований ❌"
-    registered_at_local = user['registered_at'].strftime("%Y-%m-%d %H:%M:%S") if user['registered_at'] else "Невідомо"
-    last_activity_local = user['last_activity'].strftime("%Y-%m-%d %H:%M:%S") if user['last_activity'] else "Невідомо"
+async def _return_to_user_management(
+    callback: types.CallbackQuery,
+    state: FSMContext,
+    db_pool: Any, # Тип змінено на Any
+    user_id_to_manage: int,
+    status_message: str = None
+) -> None:
+    """
+    Повертає до меню управління конкретним користувачем, оновлюючи інформацію та клавіатуру.
+    """
+    await state.set_state(AdminStates.user_management)
+    await state.update_data(pending_action=None, temp_access_level=None)
 
-    user_info_text = (
-        f"<b>⚙️ Інформація про користувача:</b>\n\n"
-        f"  <b>ID:</b> <code>{user['id']}</code>\n"
-        f"  <b>Username:</b> @{user['username'] if user['username'] else 'Не вказано'}\n"
-        f"  <b>Ім'я:</b> {user['first_name'] if user['first_name'] else 'Не вказано'}\n"
-        f"  <b>Прізвище:</b> {user['last_name'] if user['last_name'] else 'Не вказано'}\n"
-        f"  <b>Рівень доступу:</b> {user['access_level']} (<i>{access_level_name}</i>)\n"
-        f"  <b>Статус авторизації:</b> {auth_status}\n"
-        f"  <b>Зареєстрований:</b> {registered_at_local}\n"
-        f"  <b>Остання активність:</b> {last_activity_local}\n\n"
-        f"<i>{access_level_desc}</i>"
+    user_info_text = await _get_user_info_text(db_pool, user_id_to_manage)
+    user_data = await users_db.get_user(db_pool, user_id_to_manage)
+    if not user_data:
+        await callback.message.edit_text(
+            ADMIN_USER_NOT_FOUND,
+            reply_markup=get_admin_main_keyboard(),
+            parse_mode=ParseMode.HTML
+        )
+        await state.set_state(AdminStates.admin_main)
+        return
+
+    keyboard = get_user_actions_keyboard(
+        is_authorized=user_data['is_authorized'],
+        current_access_level=user_data['access_level'],
+        user_id_to_manage=user_id_to_manage
     )
-    return user_info_text
+
+    final_text = ""
+    if status_message:
+        final_text += f"{status_message}\n\n"
+    final_text += user_info_text
+
+    await callback.message.edit_text(
+        final_text,
+        reply_markup=keyboard,
+        parse_mode=ParseMode.HTML
+    )
+
+async def _get_active_telethon_client(telethon_manager: Any, callback: types.CallbackQuery = None) -> Any | None:
+    """
+    Повертає активний Telethon клієнт. Якщо клієнт не знайдений або не підключений,
+    надсилає попередження через callback.answer (якщо надано) та повертає None.
+    """
+    if telethon_manager and telethon_manager.clients:
+        for phone_number, client_obj in telethon_manager.clients.items():
+            if client_obj.is_connected():
+                return client_obj
+    
+    if callback:
+        await callback.answer(ADMIN_TELETHON_CLIENT_NOT_CONNECTED, show_alert=True)
+    return None
 
 # ----------------------------------------------------------------------
 # Хендлери для головного адмін-меню
 # ----------------------------------------------------------------------
 
-# Хендлер для повернення до головного адмін-меню з будь-якого підменю (загальна кнопка "Назад")
 @router.callback_query(
     AdminCallback.filter(F.action == "cancel_admin_action"),
     StateFilter(AdminStates.user_management, AdminStates.telethon_management, AdminStates.set_access_level, AdminStates.confirm_action, AdminStates.waiting_for_telethon_input)
@@ -89,27 +155,34 @@ async def cancel_admin_action(
     callback: types.CallbackQuery,
     state: FSMContext
 ) -> None:
+    """Хендлер для скасування поточної адмін-дії та повернення до головного адмін-меню."""
     logger.info(f"Користувач {callback.from_user.id} скасував адмін-дію і повертається до головного адмін-меню.")
     await state.set_state(AdminStates.admin_main)
-    await state.update_data(pending_action=None, selected_user_id=None, temp_access_level=None, telethon_auth_step=None, telethon_phone_number=None) # Очищаємо тимчасові дані
+    await state.update_data(
+        pending_action=None,
+        selected_user_id=None,
+        temp_access_level=None,
+        telethon_auth_step=None,
+        telethon_phone_number=None,
+        telethon_client_session_name=None
+    )
     await callback.message.edit_text(
-        "Ви повернулись до головної адмін-панелі.",
+        ADMIN_RETURN_MAIN_PANEL,
         reply_markup=get_admin_main_keyboard(),
         parse_mode=ParseMode.HTML
     )
-    await callback.answer()
+    await callback.answer(ADMIN_ACTION_CANCELED_ALERT)
 
-# Хендлер для закриття адмін-панелі
 @router.callback_query(
     AdminCallback.filter(F.action == "close_admin_panel"),
     StateFilter(AdminStates)
 )
 async def close_admin_panel(
     callback: types.CallbackQuery,
-    db_pool: asyncpg.Pool,
+    db_pool: Any, # Тепер ін'єктується
     state: FSMContext
 ) -> None:
-    # Важливо: локальний імпорт MenuStates, щоб уникнути циклічного імпорту
+    """Хендлер для закриття адмін-панелі та повернення до головного меню користувача."""
     from handlers.menu_handler import MenuStates
 
     user_id = callback.from_user.id
@@ -128,14 +201,14 @@ async def close_admin_panel(
         pass
 
     await callback.message.answer(
-        "Ви вийшли з адмін-панелі. Повернення до головного меню.",
-        reply_markup=await get_main_menu_keyboard(access_level, 0),
+        ADMIN_EXIT_MESSAGE,
+        reply_markup=await get_main_menu_keyboard(access_level, page=0),
         parse_mode=ParseMode.HTML
     )
-    await callback.answer("Адмін-панель закрито.")
+    await callback.answer(ADMIN_EXIT_MESSAGE)
     logger.info(f"Адмін-панель закрито для користувача {user_id}.")
 
-# Хендлер для кнопки "👥 Юзер-матриця · Редактор доступу"
+
 @router.callback_query(
     AdminCallback.filter(F.action == "show_users"),
     StateFilter(AdminStates.admin_main, AdminStates.user_management)
@@ -143,9 +216,10 @@ async def close_admin_panel(
 async def show_users_list(
     callback: types.CallbackQuery,
     callback_data: AdminCallback,
-    db_pool: asyncpg.Pool,
+    db_pool: Any, # Тепер ін'єктується
     state: FSMContext
 ) -> None:
+    """Показує список користувачів з пагінацією."""
     user_id = callback.from_user.id
     logger.info(f"Користувач {user_id} натиснув 'Юзер-матриця'.")
     await state.set_state(AdminStates.user_management)
@@ -158,13 +232,12 @@ async def show_users_list(
 
     keyboard = get_users_list_keyboard(users, current_page, users_per_page)
     await callback.message.edit_text(
-        "<b>👥 Юзер-матриця:</b>\nОберіть користувача для управління або перегляньте сторінки.",
+        ADMIN_USER_MATRIX_PROMPT,
         reply_markup=keyboard,
         parse_mode=ParseMode.HTML
     )
     await callback.answer()
 
-# Хендлер для вибору конкретного користувача зі списку
 @router.callback_query(
     AdminCallback.filter(F.action == "select_user"),
     StateFilter(AdminStates.user_management, AdminStates.set_access_level)
@@ -172,35 +245,19 @@ async def show_users_list(
 async def select_user_from_list(
     callback: types.CallbackQuery,
     callback_data: AdminCallback,
-    db_pool: asyncpg.Pool,
+    db_pool: Any, # Тепер ін'єктується
     state: FSMContext
 ) -> None:
+    """Вибирає користувача зі списку для подальшого управління."""
     selected_user_id = callback_data.user_id
     if selected_user_id is None:
-        await callback.answer("Помилка: не знайдено ID користувача.", show_alert=True)
+        await callback.answer(ADMIN_ERROR_NO_USER_ID, show_alert=True)
         return
 
     logger.info(f"Адмін {callback.from_user.id} обрав користувача {selected_user_id} для управління.")
-    await state.set_state(AdminStates.user_management)
-
     await state.update_data(selected_user_id=selected_user_id)
 
-    user_info_text = await _get_user_info_text(db_pool, selected_user_id)
-    user_data = await users_db.get_user(db_pool, selected_user_id)
-    if not user_data:
-        await callback.answer("Помилка: Користувача не знайдено в базі даних.", show_alert=True)
-        return
-
-    keyboard = get_user_actions_keyboard(
-        is_authorized=user_data['is_authorized'],
-        current_access_level=user_data['access_level'],
-        user_id_to_manage=selected_user_id
-    )
-    await callback.message.edit_text(
-        user_info_text,
-        reply_markup=keyboard,
-        parse_mode=ParseMode.HTML
-    )
+    await _return_to_user_management(callback, state, db_pool, selected_user_id)
     await callback.answer()
 
 # ----------------------------------------------------------------------
@@ -216,6 +273,7 @@ async def request_authorization_confirm(
     callback_data: UserActionCallback,
     state: FSMContext
 ) -> None:
+    """Запитує підтвердження для авторизації/деавторизації користувача."""
     selected_user_id = callback_data.user_id
     action_type = callback_data.action
 
@@ -228,7 +286,7 @@ async def request_authorization_confirm(
     )
 
     action_text = "авторизувати" if action_type == "authorize" else "деавторизувати"
-    question_text = f"Ви впевнені, що хочете <b>{action_text}</b> користувача <code>{selected_user_id}</code>?"
+    question_text = ADMIN_USER_MANAGEMENT_ACTION_CONFIRM.format(action_text=action_text, user_id=selected_user_id)
     keyboard = get_confirm_action_keyboard(action=action_type, user_id=selected_user_id)
 
     await callback.message.edit_text(
@@ -245,21 +303,22 @@ async def request_authorization_confirm(
 async def confirm_authorization_action(
     callback: types.CallbackQuery,
     callback_data: UserActionCallback,
-    db_pool: asyncpg.Pool,
+    db_pool: Any, # Тепер ін'єктується
     state: FSMContext
 ) -> None:
+    """Підтверджує та виконує авторизацію/деавторизацію користувача."""
     state_data = await state.get_data()
     selected_user_id = state_data.get("selected_user_id")
     pending_action = state_data.get("pending_action")
 
     if not selected_user_id or not pending_action:
-        await callback.answer("Помилка: не знайдено даних для підтвердження.", show_alert=True)
-        await state.set_state(AdminStates.admin_main)
+        await callback.answer(ADMIN_ERROR_NO_CONFIRM_DATA, show_alert=True)
         await callback.message.edit_text(
-            "Сталася помилка. Повернення до головної адмін-панелі.",
+            ADMIN_GENERAL_ERROR_RETURN_TO_MAIN,
             reply_markup=get_admin_main_keyboard(),
             parse_mode=ParseMode.HTML
         )
+        await state.set_state(AdminStates.admin_main)
         return
 
     is_authorized = (pending_action == "authorize")
@@ -268,61 +327,58 @@ async def confirm_authorization_action(
     status_text = "авторизовано" if is_authorized else "деавторизовано"
     logger.info(f"Користувача {selected_user_id} було {status_text} адміністратором {callback.from_user.id}.")
 
-    await state.set_state(AdminStates.user_management)
-    await state.update_data(pending_action=None)
-
-    user_info_text = await _get_user_info_text(db_pool, selected_user_id)
-    user_data = await users_db.get_user(db_pool, selected_user_id)
-    keyboard = get_user_actions_keyboard(
-        is_authorized=user_data['is_authorized'],
-        current_access_level=user_data['access_level'],
-        user_id_to_manage=selected_user_id
+    await _return_to_user_management(
+        callback,
+        state,
+        db_pool,
+        selected_user_id,
+        status_message=ADMIN_USER_MANAGEMENT_ACTION_SUCCESS.format(user_id=selected_user_id, status_text=status_text)
     )
-
-    await callback.message.edit_text(
-        f"Користувача <code>{selected_user_id}</code> успішно <b>{status_text}</b>.\n\n{user_info_text}",
-        reply_markup=keyboard,
-        parse_mode=ParseMode.HTML
-    )
-    await callback.answer(f"Користувача {selected_user_id} успішно {status_text}.")
+    await callback.answer(ADMIN_USER_ACTION_SUCCESS_ALERT.format(user_id=selected_user_id, status_text=status_text))
 
 @router.callback_query(
     AdminCallback.filter(F.action == "cancel_action"),
-    StateFilter(AdminStates.confirm_action)
+    StateFilter(AdminStates.confirm_action, AdminStates.set_access_level, AdminStates.waiting_for_telethon_input) # Додано, щоб покрити скасування введення Telethon
 )
 async def cancel_pending_action(
     callback: types.CallbackQuery,
     state: FSMContext,
-    db_pool: asyncpg.Pool
+    db_pool: Any # Тепер ін'єктується
 ) -> None:
+    """Скасовує очікувану дію та повертає до попереднього стану."""
     state_data = await state.get_data()
     selected_user_id = state_data.get("selected_user_id")
+    current_state = await state.get_state()
 
     logger.info(f"Адмін {callback.from_user.id} скасував очікувану дію для користувача {selected_user_id}.")
-    await state.set_state(AdminStates.user_management)
-    await state.update_data(pending_action=None)
 
-    if selected_user_id:
-        user_info_text = await _get_user_info_text(db_pool, selected_user_id)
-        user_data = await users_db.get_user(db_pool, selected_user_id)
-        keyboard = get_user_actions_keyboard(
-            is_authorized=user_data['is_authorized'],
-            current_access_level=user_data['access_level'],
-            user_id_to_manage=selected_user_id
+    if selected_user_id and current_state in [AdminStates.confirm_action, AdminStates.set_access_level]:
+        # Якщо дія скасована під час управління користувачем, повертаємося до його деталей
+        await _return_to_user_management(
+            callback,
+            state,
+            db_pool,
+            selected_user_id,
+            status_message=ADMIN_ACTION_CANCELED_USER_MANAGEMENT.format(user_id=selected_user_id)
         )
+    elif current_state == AdminStates.waiting_for_telethon_input:
+        # Якщо скасовано введення для Telethon, повертаємось до меню Telethon
+        await state.set_state(AdminStates.telethon_management)
+        await state.update_data(telethon_auth_step=None, telethon_phone_number=None)
         await callback.message.edit_text(
-            f"Дію скасовано. Повернення до управління користувачем <code>{selected_user_id}</code>.\n\n{user_info_text}",
-            reply_markup=keyboard,
+            f"{ADMIN_ACTION_CANCELED}. {ADMIN_TELETHON_MAIN_PROMPT}",
+            reply_markup=get_telethon_actions_keyboard(),
             parse_mode=ParseMode.HTML
         )
     else:
+        # В іншому випадку (наприклад, якщо вибраний користувач ID зник або інший невідомий сценарій), повертаємося до головного меню
         await callback.message.edit_text(
-            "Дію скасовано. Повернення до головної адмін-панелі.",
+            f"{ADMIN_ACTION_CANCELED}. {ADMIN_RETURN_MAIN_PANEL}",
             reply_markup=get_admin_main_keyboard(),
             parse_mode=ParseMode.HTML
         )
         await state.set_state(AdminStates.admin_main)
-    await callback.answer("Дію скасовано.")
+    await callback.answer(ADMIN_ACTION_CANCELED_ALERT)
 
 # ----------------------------------------------------------------------
 # Хендлери для зміни рівня доступу
@@ -337,9 +393,10 @@ async def request_change_access_level(
     callback_data: AdminCallback,
     state: FSMContext
 ) -> None:
+    """Запитує зміну рівня доступу для користувача."""
     selected_user_id = callback_data.user_id
     if selected_user_id is None:
-        await callback.answer("Помилка: не знайдено ID користувача.", show_alert=True)
+        await callback.answer(ADMIN_ERROR_NO_USER_ID, show_alert=True)
         return
 
     logger.info(f"Адмін {callback.from_user.id} запросив зміну рівня доступу для користувача {selected_user_id}.")
@@ -348,7 +405,7 @@ async def request_change_access_level(
 
     keyboard = get_access_level_keyboard(selected_user_id)
     await callback.message.edit_text(
-        f"Оберіть новий рівень доступу для користувача <code>{selected_user_id}</code>:",
+        ADMIN_USER_ACCESS_LEVEL_PROMPT.format(user_id=selected_user_id),
         reply_markup=keyboard,
         parse_mode=ParseMode.HTML
     )
@@ -362,36 +419,34 @@ async def confirm_set_access_level(
     callback: types.CallbackQuery,
     callback_data: AccessLevelCallback,
     state: FSMContext,
-    db_pool: asyncpg.Pool
+    db_pool: Any # Тепер ін'єктується
 ) -> None:
+    """Підтверджує та встановлює новий рівень доступу для користувача."""
     selected_user_id = callback_data.user_id
     new_access_level = callback_data.level
 
     if selected_user_id is None or new_access_level is None:
-        await callback.answer("Помилка: не знайдено даних для зміни рівня доступу.", show_alert=True)
+        await callback.answer(ADMIN_ERROR_NO_CONFIRM_DATA, show_alert=True)
+        await callback.message.edit_text(
+            ADMIN_GENERAL_ERROR_RETURN_TO_MAIN,
+            reply_markup=get_admin_main_keyboard(),
+            parse_mode=ParseMode.HTML
+        )
+        await state.set_state(AdminStates.admin_main)
         return
 
     logger.info(f"Адмін {callback.from_user.id} встановлює рівень доступу {new_access_level} для користувача {selected_user_id}.")
 
     await users_db.update_user_access_level(db_pool, selected_user_id, new_access_level)
 
-    await state.set_state(AdminStates.user_management)
-    await state.update_data(temp_access_level=None)
-
-    user_info_text = await _get_user_info_text(db_pool, selected_user_id)
-    user_data = await users_db.get_user(db_pool, selected_user_id)
-    keyboard = get_user_actions_keyboard(
-        is_authorized=user_data['is_authorized'],
-        current_access_level=user_data['access_level'],
-        user_id_to_manage=selected_user_id
+    await _return_to_user_management(
+        callback,
+        state,
+        db_pool,
+        selected_user_id,
+        status_message=ADMIN_USER_ACCESS_LEVEL_CHANGED.format(user_id=selected_user_id, access_level=new_access_level)
     )
-
-    await callback.message.edit_text(
-        f"Рівень доступу для користувача <code>{selected_user_id}</code> успішно встановлено на <b>{new_access_level}</b>.\n\n{user_info_text}",
-        reply_markup=keyboard,
-        parse_mode=ParseMode.HTML
-    )
-    await callback.answer(f"Рівень доступу змінено на {new_access_level}.")
+    await callback.answer(ADMIN_ACCESS_LEVEL_CHANGED_ALERT.format(access_level=new_access_level))
 
 # ----------------------------------------------------------------------
 # Хендлери для Telethon
@@ -405,11 +460,12 @@ async def process_telethon_auth(
     callback: types.CallbackQuery,
     state: FSMContext
 ) -> None:
+    """Відкриває меню управління Telethon-клієнтами."""
     logger.info(f"Користувач {callback.from_user.id} натиснув 'TeleKey · Авторизація API-зв’язку'.")
     await state.set_state(AdminStates.telethon_management)
     keyboard = get_telethon_actions_keyboard()
     await callback.message.edit_text(
-        "<b>🔐 TeleKey · Авторизація API-зв’язку:</b>\n\nОберіть дію для управління Telethon API:",
+        ADMIN_TELETHON_MAIN_PROMPT,
         reply_markup=keyboard,
         parse_mode=ParseMode.HTML
     )
@@ -421,27 +477,19 @@ async def process_telethon_auth(
 )
 async def telethon_check_status(
     callback: types.CallbackQuery,
-    telethon_manager: Any,
+    telethon_manager: Any, # Ін'єктується
     state: FSMContext
 ) -> None:
+    """Перевіряє статус підключення Telethon-клієнта."""
     user_id = callback.from_user.id
     logger.info(f"Користувач {user_id} перевіряє статус Telethon.")
-    logger.debug(f"Telethon Manager received in telethon_check_status: {telethon_manager}")
-    
-    # ПРИПУЩЕННЯ: telethon_manager.clients - це словник {phone_number: telethon_client_object}
-    # Для перевірки статусу, нам потрібно знати, який клієнт перевіряти.
-    # Наразі, візьмемо перший доступний клієнт або за номером телефону, якщо він відомий.
-    
-    # Припустимо, що у вас є єдиний активний клієнт, або ви хочете перевірити перший, що знайдеться
-    first_client_phone = next(iter(telethon_manager.clients), None)
-    
-    if first_client_phone and telethon_manager.clients[first_client_phone].is_connected():
-        msg = f"✅ Telethon клієнт ({first_client_phone}) підключено."
-    else:
-        msg = "❌ Telethon клієнт не підключено або не знайдено активних клієнтів."
 
+    active_client = await _get_active_telethon_client(telethon_manager, callback)
+    if not active_client:
+        return # _get_active_telethon_client вже відправив попередження
+
+    msg = ADMIN_TELETHON_CHECK_STATUS_CONNECTED.format(phone_number=active_client.phone)
     await callback.answer(msg, show_alert=True)
-    await state.set_state(AdminStates.telethon_management)
 
 @router.callback_query(
     AdminCallback.filter(F.action == "telethon_start_auth"),
@@ -449,27 +497,20 @@ async def telethon_check_status(
 )
 async def telethon_start_auth(
     callback: types.CallbackQuery,
-    telethon_manager: Any,
+    telethon_manager: Any, # Ін'єктується
     state: FSMContext
 ) -> None:
+    """Ініціює процес авторизації нового Telethon-клієнта."""
     logger.info(f"Користувач {callback.from_user.id} ініціює авторизацію Telethon.")
 
-    # Перевіряємо, чи клієнт вже підключений
-    # Потрібно пройтися по всіх клієнтах, або перевірити конкретний, якщо його ідентифіковано
-    is_any_client_connected = False
-    for phone_number, client_obj in telethon_manager.clients.items():
-        if client_obj.is_connected():
-            is_any_client_connected = True
-            break
-
-    if is_any_client_connected:
-        await callback.answer("Принаймні один клієнт Telethon вже підключено. Якщо потрібно переавторизувати, спочатку відключіть.", show_alert=True)
+    if await _get_active_telethon_client(telethon_manager):
+        await callback.answer(ADMIN_TELETHON_ALREADY_CONNECTED, show_alert=True)
         return
 
-    await callback.answer("Початок авторизації Telethon...", show_alert=True)
+    await callback.answer(ADMIN_TELETHON_AUTH_START, show_alert=True)
 
     await callback.message.edit_text(
-        "Будь ласка, введіть номер телефону для авторизації Telethon (у форматі +380XXXXXXXXX):",
+        ADMIN_TELETHON_ENTER_PHONE,
         reply_markup=get_telethon_actions_keyboard()
     )
     await state.set_state(AdminStates.waiting_for_telethon_input)
@@ -477,7 +518,12 @@ async def telethon_start_auth(
 
 
 @router.message(StateFilter(AdminStates.waiting_for_telethon_input))
-async def handle_telethon_input(message: types.Message, state: FSMContext, telethon_manager: Any):
+async def handle_telethon_input(
+    message: types.Message,
+    state: FSMContext,
+    telethon_manager: Any # Ін'єктується
+):
+    """Обробляє вхідні дані для авторизації Telethon (номер телефону, код)."""
     user_id = message.from_user.id
     state_data = await state.get_data()
     auth_step = state_data.get("telethon_auth_step")
@@ -486,50 +532,35 @@ async def handle_telethon_input(message: types.Message, state: FSMContext, telet
     if auth_step == "phone_number":
         phone_number = user_input
         if not phone_number or not phone_number.startswith('+') or not phone_number[1:].isdigit():
-            await message.answer("Будь ласка, введіть коректний номер телефону у форматі +380XXXXXXXXX.")
+            await message.answer(ADMIN_TELETHON_INVALID_PHONE)
             return
 
         logger.info(f"Отримано номер телефону для Telethon від {user_id}: {phone_number}")
-        try:
-            # Припускаємо, що telethon_manager має метод send_code, який приймає номер телефону
-            # І що він повертає об'єкт TelethonClient для подальшої роботи
-            # Або що send_code вже інтегрує його в telethon_manager.clients
-            await telethon_manager.send_code(phone_number) # Цей метод має додати клієнта до telethon_manager.clients
-            await message.answer(f"Відправлено код підтвердження на номер {phone_number}. Будь ласка, введіть його:")
-            await state.update_data(telethon_auth_step="auth_code", telethon_phone_number=phone_number)
-        except Exception as e:
-            logger.error(f"Помилка при відправці коду Telethon для {phone_number}: {e}")
-            await message.answer(
-                f"Не вдалося відправити код: {e}. Спробуйте ще раз або перевірте номер.",
-                reply_markup=get_telethon_actions_keyboard()
-            )
-            await state.set_state(AdminStates.telethon_management)
-
+        # Глобальний обробник винятків перехопить помилки send_code
+        await telethon_manager.send_code(phone_number)
+        await message.answer(ADMIN_TELETHON_CODE_SENT.format(phone_number=phone_number))
+        await state.update_data(telethon_auth_step="auth_code", telethon_phone_number=phone_number)
 
     elif auth_step == "auth_code":
         auth_code = user_input
         if not auth_code or not auth_code.isdigit():
-            await message.answer("Будь ласка, введіть коректний цифровий код підтвердження.")
+            await message.answer(ADMIN_TELETHON_ENTER_CODE)
             return
 
         logger.info(f"Отримано код авторизації для Telethon від {user_id}: {auth_code}")
         phone_number = state_data.get("telethon_phone_number")
 
         if not phone_number:
-            await message.answer("Помилка: номер телефону не знайдено. Спробуйте почати авторизацію знову.")
+            await message.answer(ADMIN_TELETHON_NO_PHONE_IN_STATE)
             await state.set_state(AdminStates.telethon_management)
             return
 
-        try:
-            # Припускаємо, що telethon_manager має метод sign_in, який приймає номер телефону та код
-            await telethon_manager.sign_in(phone_number, auth_code)
-            auth_status_msg = "Авторизація Telethon успішно завершена."
-            logger.info(f"Клієнт {phone_number} успішно авторизований через Telethon.")
-        except Exception as e:
-            auth_status_msg = f"Помилка авторизації Telethon: {e}. Спробуйте ще раз."
-            logger.error(f"Помилка авторизації Telethon для {phone_number}: {e}")
+        await message.answer(ADMIN_TELETHON_CHECKING_CODE)
+        # Глобальний обробник винятків перехопить помилки sign_in
+        await telethon_manager.sign_in(phone_number, auth_code)
+        auth_status_msg = ADMIN_TELETHON_AUTH_SUCCESS
+        logger.info(f"Клієнт {phone_number} успішно авторизований через Telethon.")
 
-        await message.answer("Перевірка коду...")
         await state.set_state(AdminStates.telethon_management)
         await state.update_data(telethon_auth_step=None, telethon_phone_number=None)
         await message.answer(
@@ -541,27 +572,17 @@ async def handle_telethon_input(message: types.Message, state: FSMContext, telet
         channel_link_or_username = user_input.strip()
         logger.info(f"Користувач {user_id} надіслав посилання/username для приєднання Telethon: {channel_link_or_username}")
 
-        active_client = None
-        if telethon_manager and telethon_manager.clients:
-            first_phone = next(iter(telethon_manager.clients), None)
-            if first_phone:
-                active_client = telethon_manager.clients[first_phone]
-        
-        if not active_client or not active_client.is_connected():
-            await message.answer("Клієнт Telethon не підключено. Будь ласка, авторизуйтесь спочатку.", reply_markup=get_telethon_actions_keyboard())
+        active_client = await _get_active_telethon_client(telethon_manager)
+        if not active_client:
+            await message.answer(ADMIN_TELETHON_CLIENT_NOT_CONNECTED, reply_markup=get_telethon_actions_keyboard())
             await state.set_state(AdminStates.telethon_management)
             return
 
-        try:
-            # Припускаємо, що telethon_manager або active_client має метод join_channel
-            # Telethon клієнт має метод .join_chat()
-            await active_client.join_chat(channel_link_or_username)
-            join_status_msg = f"✅ Успішно приєднано до каналу/чату: <code>{channel_link_or_username}</code>"
-            logger.info(f"Telethon клієнт успішно приєднався до {channel_link_or_username}.")
-        except Exception as e:
-            join_status_msg = f"❌ Не вдалося приєднатися до каналу/чату <code>{channel_link_or_username}</code>: {e}"
-            logger.error(f"Помилка при приєднанні Telethon до {channel_link_or_username}: {e}", exc_info=True)
-        
+        # Глобальний обробник винятків перехопить помилки join_chat
+        await active_client.join_chat(channel_link_or_username)
+        join_status_msg = ADMIN_TELETHON_JOIN_CHANNEL_SUCCESS.format(channel_link_or_username=channel_link_or_username)
+        logger.info(f"Telethon клієнт успішно приєднався до {channel_link_or_username}.")
+
         await message.answer(
             join_status_msg,
             reply_markup=get_telethon_actions_keyboard(),
@@ -570,7 +591,7 @@ async def handle_telethon_input(message: types.Message, state: FSMContext, telet
         await state.set_state(AdminStates.telethon_management)
         await state.update_data(telethon_auth_step=None)
     else:
-        await message.answer("Невідомий крок авторизації. Будь ласка, спробуйте знову.")
+        await message.answer(ADMIN_ERROR_UNKNOWN_STEP)
         await state.set_state(AdminStates.telethon_management)
 
 @router.callback_query(
@@ -579,41 +600,28 @@ async def handle_telethon_input(message: types.Message, state: FSMContext, telet
 )
 async def telethon_get_user_info(
     callback: types.CallbackQuery,
-    telethon_manager: Any,
+    telethon_manager: Any, # Ін'єктується
     state: FSMContext
 ) -> None:
+    """Отримує та відображає інформацію про поточного Telethon-користувача."""
     logger.info(f"Користувач {callback.from_user.id} запросив інформацію про Telethon користувача.")
 
-    # Отримуємо активний клієнт. Припускаємо, що зараз ми працюємо з одним клієнтом,
-    # і що його можна отримати за ключем з `clients`
-    # Можливо, вам знадобиться механізм вибору клієнта, якщо їх буде багато
-    active_client = None
-    if telethon_manager and telethon_manager.clients:
-        # Візьмемо перший клієнт, або той, що був останній авторизований/використовуваний
-        # У цьому випадку візьмемо перший ключ, якщо є
-        first_phone = next(iter(telethon_manager.clients), None)
-        if first_phone:
-            active_client = telethon_manager.clients[first_phone]
-
-    if not active_client or not active_client.is_connected():
-        await callback.answer("Клієнт Telethon не підключено. Будь ласка, авторизуйтесь спочатку.", show_alert=True)
+    active_client = await _get_active_telethon_client(telethon_manager, callback)
+    if not active_client:
         return
 
-    await callback.answer("Отримання інформації про користувача Telethon...", show_alert=True)
+    await callback.answer(ADMIN_TELETHON_GET_INFO_PROMPT, show_alert=True)
 
-    try:
-        me = await active_client.get_me() # Використовуємо active_client
-        user_info_text = (
-            f"<b>Інформація про поточного Telethon користувача:</b>\n"
-            f"  <b>ID:</b> <code>{me.id}</code>\n"
-            f"  <b>Ім'я:</b> {me.first_name if me.first_name else 'Не вказано'}\n"
-            f"  <b>Прізвище:</b> {me.last_name if me.last_name else 'Не вказано'}\n"
-            f"  <b>Username:</b> @{me.username if me.username else 'Не вказано'}\n"
-            f"  <b>Телефон:</b> {me.phone if me.phone else 'Не вказано'}\n"
-        )
-    except Exception as e:
-        user_info_text = f"Помилка при отриманні інформації про користувача Telethon: {e}"
-        logger.error(f"Помилка при отриманні інформації про користувача Telethon: {e}", exc_info=True) # Додано exc_info=True
+    # Глобальний обробник винятків перехопить помилки get_me
+    me = await active_client.get_me()
+    user_info_text = (
+        f"<b>Інформація про поточного Telethon користувача:</b>\n"
+        f"  <b>ID:</b> <code>{me.id}</code>\n"
+        f"  <b>Ім'я:</b> {me.first_name if me.first_name else 'Не вказано'}\n"
+        f"  <b>Прізвище:</b> {me.last_name if me.last_name else 'Не вказано'}\n"
+        f"  <b>Username:</b> @{me.username if me.username else 'Не вказано'}\n"
+        f"  <b>Телефон:</b> {me.phone if me.phone else 'Не вказано'}\n"
+    )
 
     await callback.message.edit_text(
         user_info_text,
@@ -629,25 +637,19 @@ async def telethon_get_user_info(
 )
 async def telethon_join_channel(
     callback: types.CallbackQuery,
-    telethon_manager: Any,
+    telethon_manager: Any, # Ін'єктується
     state: FSMContext
 ) -> None:
+    """Запитує посилання/username для приєднання Telethon-клієнта до каналу."""
     logger.info(f"Користувач {callback.from_user.id} запросив приєднання Telethon до каналу.")
 
-    # Знову, отримуємо активний клієнт
-    active_client = None
-    if telethon_manager and telethon_manager.clients:
-        first_phone = next(iter(telethon_manager.clients), None)
-        if first_phone:
-            active_client = telethon_manager.clients[first_phone]
-
-    if not active_client or not active_client.is_connected():
-        await callback.answer("Клієнт Telethon не підключено. Будь ласка, авторизуйтесь спочатку.", show_alert=True)
+    active_client = await _get_active_telethon_client(telethon_manager, callback)
+    if not active_client:
         return
 
-    await callback.answer("Приєднання до каналу Telethon...", show_alert=True)
+    await callback.answer(ADMIN_TELETHON_GET_INFO_PROMPT, show_alert=True)
     await callback.message.edit_text(
-        "Будь ласка, надішліть посилання або username каналу/чату, до якого потрібно приєднатися:",
+        ADMIN_TELETHON_JOIN_CHANNEL_PROMPT,
         reply_markup=get_telethon_actions_keyboard(),
         parse_mode=ParseMode.HTML
     )
@@ -656,81 +658,47 @@ async def telethon_join_channel(
 
 
 @router.callback_query(
-    AdminCallback.filter(F.action == "telethon_chats"), # Додано хендлер для "Чат-матриця"
+    AdminCallback.filter(F.action == "telethon_chats"),
     StateFilter(AdminStates.admin_main, AdminStates.telethon_management)
 )
 async def show_telethon_chats(
     callback: types.CallbackQuery,
-    telethon_manager: Any,
+    telethon_manager: Any, # Ін'єктується
     state: FSMContext
 ) -> None:
+    """Показує список діалогів та каналів Telethon-клієнта."""
     user_id = callback.from_user.id
     logger.info(f"Користувач {user_id} натиснув 'Чат-матриця'.")
-    logger.debug(f"Telethon Manager received in show_telethon_chats: {telethon_manager}")
 
     await state.set_state(AdminStates.telethon_management)
-    await callback.answer("Завантаження чатів. Це може зайняти деякий час...", show_alert=True)
+    await callback.answer(ADMIN_TELETHON_CHATS_LOADING, show_alert=True)
 
-    active_client = None
-    if telethon_manager and telethon_manager.clients:
-        for phone_number, client_obj in telethon_manager.clients.items():
-            if client_obj.is_connected():
-                active_client = client_obj
-                logger.debug(f"Found active Telethon client: {phone_number}")
-                break
-    
+    active_client = await _get_active_telethon_client(telethon_manager, callback)
     if not active_client:
-        logger.warning(f"No active Telethon clients found for user {user_id}. Cannot fetch dialogs.")
-        await callback.message.edit_text(
-            "❌ Telethon клієнт не підключено. Будь ласка, авторизуйтесь спочатку.",
-            reply_markup=get_telethon_actions_keyboard(),
-            parse_mode=ParseMode.HTML
-        )
-        await callback.answer()
         return
 
     dialogs_info = "<b>💬 Активні чати та канали:</b>\n\n"
-    try:
-        logger.debug(f"Calling get_dialogs() on active_client: {active_client}")
-        dialogs: List[Dialog] = await active_client.get_dialogs()
-        logger.debug(f"Successfully received {len(dialogs)} dialogs.")
-        
-        if not dialogs:
-            dialogs_info += "Не знайдено жодного чату або каналу."
-        else:
-            # Сортуємо діалоги: спочатку канали, потім групи, потім особисті чати
-            # Також можна сортувати за датою останнього повідомлення, але для простоти за типом
-            
-            # Обмежуємо кількість діалогів, щоб уникнути занадто довгого повідомлення
-            max_dialogs_to_show = 30 
-            
-            for i, d in enumerate(dialogs[:max_dialogs_to_show]):
-                if d.is_channel:
-                    entity_type = "Канал 📣"
-                elif d.is_group:
-                    entity_type = "Група 👥"
-                elif d.is_user:
-                    entity_type = "Приватний чат 👤"
-                else:
-                    entity_type = "Невідомий тип"
+    # Глобальний обробник винятків перехопить помилки get_dialogs
+    dialogs: List[Any] = await active_client.get_dialogs()
+    logger.debug(f"Successfully received {len(dialogs)} dialogs.")
 
-                title = d.title if d.title else "Без назви"
-                username = f"@{d.entity.username}" if hasattr(d.entity, 'username') and d.entity.username else ""
-                
-                dialogs_info += (
-                    f"<b>{i+1}. {title}</b>\n"
-                    f"  <i>Тип:</i> {entity_type}\n"
-                    f"  <i>ID:</i> <code>{d.id}</code>\n"
-                    f"  <i>Username:</i> {username if username else 'Немає'}\n"
-                    f"  <i>Останнє повідомлення:</i> {d.date.strftime('%Y-%m-%d %H:%M:%S') if d.date else 'Невідомо'}\n\n"
-                )
+    if not dialogs:
+        dialogs_info += ADMIN_TELETHON_NO_CHATS_FOUND
+    else:
+        for i, d in enumerate(dialogs[:MAX_DIALOGS_TO_SHOW]):
+            entity_type = ""
+            if d.is_user:
+                entity_type = "👤 Користувач"
+            elif d.is_channel:
+                entity_type = "📢 Канал"
+            elif d.is_group:
+                entity_type = "👥 Група"
             
-            if len(dialogs) > max_dialogs_to_show:
-                dialogs_info += f"Показано перші {max_dialogs_to_show} з {len(dialogs)} чатів. Для повного списку використовуйте інший інструмент."
-
-    except Exception as e:
-        logger.error(f"Помилка при отриманні діалогів Telethon: {e}", exc_info=True) # Додано exc_info=True
-        dialogs_info += f"Помилка при завантаженні діалогів: {e}"
+            title = d.title if d.title else "Без назви"
+            dialogs_info += f"• {entity_type}: <b>{title}</b> (ID: <code>{d.id}</code>)\n"
+            
+        if len(dialogs) > MAX_DIALOGS_TO_SHOW:
+            dialogs_info += ADMIN_TELETHON_PARTIAL_CHATS_INFO.format(count=MAX_DIALOGS_TO_SHOW, total=len(dialogs))
 
     await callback.message.edit_text(
         dialogs_info,
@@ -738,29 +706,3 @@ async def show_telethon_chats(
         parse_mode=ParseMode.HTML
     )
     await callback.answer()
-
-
-# --- ВИПРАВЛЕНО: Хендлер для кнопки "📡 ReLink · Статус каналу зв'язку" ---
-@router.callback_query(
-    AdminCallback.filter(F.action == "connection_status"), # Це callback для кнопки "📡 ReLink · Статус каналу зв'язку"
-    StateFilter(AdminStates.admin_main, AdminStates.telethon_management)
-)
-async def telethon_connection_status(
-    callback: types.CallbackQuery,
-    telethon_manager: Any # telethon_manager має бути переданий через Middleware
-) -> None:
-    user_id = callback.from_user.id
-    logger.info(f"Користувач {user_id} перевіряє статус з'єднання.")
-    logger.debug(f"Telethon Manager received in telethon_connection_status: {telethon_manager}")
-    
-    status_message = "❌ Telethon API: не підключено або немає активних клієнтів."
-
-    # Перевіряємо, чи є активні клієнти в менеджері
-    if telethon_manager and telethon_manager.clients:
-        # Проходимося по всіх зареєстрованих клієнтах
-        for phone_number, client_obj in telethon_manager.clients.items():
-            if client_obj.is_connected():
-                status_message = f"✅ Telethon API: підключено (через {phone_number})"
-                break # Знайшли підключений клієнт, можна виходити
-
-    await callback.answer(status_message, show_alert=True)

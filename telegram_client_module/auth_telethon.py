@@ -1,176 +1,289 @@
 # telegram_client_module/auth_telethon.py
-import asyncio
+
 import logging
+import asyncio
+import sys
+import os
+import inspect
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, project_root)
+
 from telethon import TelegramClient
-from telethon.sessions import MemorySession
-from telethon.errors import SessionPasswordNeededError
-from io import BytesIO
-from telethon.crypto import AuthKey # Важливо: явно імпортуємо AuthKey для коректного типу
+from telethon.sessions import StringSession
+from telethon.errors import SessionPasswordNeededError, PhoneCodeExpiredError, PhoneCodeEmptyError, PhoneCodeInvalidError, FloodWaitError, RPCError
+from config import config
 
-from config import API_ID, API_HASH, TELEGRAM_PHONE, DATABASE_URL
-from database.db_pool_manager import create_db_pool, get_db_pool, close_db_pool
-from database.telethon_sessions_db import save_telethon_session, get_telethon_session
+from database.telethon_sessions_db import save_telethon_session, get_telethon_session, delete_telethon_session
+from database.db_pool_manager import get_db_pool, create_db_pool, close_db_pool, init_db_tables
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-logger.info("Починається виконання auth_telethon.py")
+try:
+    string_session_source = inspect.getsourcefile(StringSession)
+    print(f"DEBUG: telethon.sessions.StringSession loaded from: {string_session_source}")
+except TypeError:
+    print("DEBUG: Could not determine source file for StringSession (might be built-in or dynamically generated).")
+except Exception as e:
+    print(f"DEBUG: Error getting source for StringSession: {e}")
 
-class TempDBSession(MemorySession):
-    def __init__(self, session_id=None, db_pool_instance=None):
+
+class CustomDBSessionString(StringSession):
+    def __init__(self, session_id=None, db_pool_instance=None, api_id=None, api_hash=None):
+        print(f"DEBUG: Initializing CustomDBSessionString for session_id: {session_id}")
         super().__init__()
         self.session_id = session_id
         self.db_pool = db_pool_instance
-        self._loop = None # Посилання на asyncio event loop
+        self.api_id = api_id
+        self.api_hash = api_hash
+        self._loop = None
 
     async def load(self):
+        print(f"DEBUG: Loading session '{self.session_id}' from DB.")
         if not self.db_pool:
-            logger.warning("DB pool not set for TempDBSession. Cannot load session.")
+            logger.warning("DB pool not set for CustomDBSessionString. Cannot load session.")
             return
 
-        session_data = await get_telethon_session(self.db_pool, self.session_id)
-        if session_data:
-            with BytesIO(session_data) as f:
-                dc_id_bytes = f.read(1)
-                if not dc_id_bytes:
-                    logger.warning(f"Empty or incomplete session data for '{self.session_id}'. Not loading.")
-                    return
-                self._dc_id = int.from_bytes(dc_id_bytes, 'big')
-
-                address_len_bytes = f.read(1)
-                if not address_len_bytes:
-                    logger.warning(f"Incomplete session data (address_len) for '{self.session_id}'. Not loading.")
-                    return
-                address_len = address_len_bytes[0]
-                self._server_address = f.read(address_len).decode('utf-8')
-
-                port_bytes = f.read(2)
-                if not port_bytes:
-                    logger.warning(f"Incomplete session data (port) for '{self.session_id}'. Not loading.")
-                    return
-                self._port = int.from_bytes(port_bytes, 'big')
-
-                auth_key_bytes = f.read(256)
-                if not auth_key_bytes or len(auth_key_bytes) != 256:
-                    logger.warning(f"Incomplete auth_key data for '{self.session_id}'. Not loading.")
-                    return
-                self._auth_key = AuthKey(auth_key_bytes) # Перетворюємо байти на об'єкт AuthKey
-
-                time_offset_bytes = f.read(4)
-                if not time_offset_bytes:
-                    logger.warning(f"Incomplete time_offset data for '{self.session_id}'. Not loading.")
-                    return
-                self._time_offset = int.from_bytes(time_offset_bytes, 'big', signed=True)
+        session_string_bytes = await get_telethon_session(self.db_pool, self.session_id)
+        if session_string_bytes:
+            try:
+                self.set_string(session_string_bytes.decode('utf-8'))
+                logger.info(f"Сесія '{self.session_id}' успішно завантажена з БД.")
+            except Exception as e:
+                logger.error(f"Помилка при завантаженні сесії '{self.session_id}' з БД: {e}", exc_info=True)
         else:
             logger.info(f"Сесія '{self.session_id}' не знайдена в БД. Буде створена нова.")
-            self._dc_id = 1
-            self._server_address = ""
-            self._port = 443
-            self._auth_key = AuthKey(b'\x00' * 256) # Новий AuthKey об'єкт
-            self._time_offset = 0
 
-    # ЗМІНЕНО: save() тепер синхронний
     def save(self):
+        print(f"\nDEBUG: Entering CustomDBSessionString.save() for session '{self.session_id}'.")
+        print(f"DEBUG: Type of 'self' is: {type(self)}")
+        print(f"DEBUG: Is 'self' an instance of telethon.sessions.StringSession? {isinstance(self, StringSession)}")
+        # Ці рядки вже неактуальні, але можуть бути залишені для історії дебагу
+        print(f"DEBUG: Attributes of 'self' before get_string() (now calling super().save()): {dir(self)}")
+        print(f"DEBUG: Does 'self' (the instance) have 'get_string' directly? {hasattr(self, 'get_string')}")
+        print(f"DEBUG: Does 'StringSession' (the base class) have 'get_string' directly? {hasattr(StringSession, 'get_string')}")
+
         if not self.db_pool:
-            logger.warning("DB pool not set for TempDBSession. Cannot save session.")
+            logger.warning("DB pool not set for CustomDBSessionString. Cannot save session.")
             return
 
-        # Важливо: встановлюємо _loop тут, оскільки auth_telethon.py запускається без aiogram
         if self._loop is None:
             try:
                 self._loop = asyncio.get_event_loop()
             except RuntimeError:
-                logger.error("No running event loop found during TempDBSession.save. Cannot save session asynchronously.")
+                logger.error("No running event loop found during CustomDBSessionString.save. Cannot save session asynchronously.")
                 return
 
-        # Перевірка, чи всі необхідні атрибути встановлені перед збереженням
-        if not all([isinstance(self._dc_id, int),
-                    isinstance(self._server_address, str),
-                    isinstance(self._port, int),
-                    isinstance(self._auth_key, AuthKey) and len(self._auth_key.key) == 256,
-                    isinstance(self._time_offset, int)]):
-             logger.warning(f"Skipping save for session '{self.session_id}': Incomplete session attributes.")
-             return
-
-        with BytesIO() as f:
-            f.write(self._dc_id.to_bytes(1, 'big'))
-            address_bytes = self._server_address.encode('utf-8')
-            f.write(len(address_bytes).to_bytes(1, 'big'))
-            f.write(address_bytes)
-            f.write(self._port.to_bytes(2, 'big'))
-            f.write(self._auth_key.key) # Використовуємо .key для отримання байтів з об'єкта AuthKey
-            f.write(self._time_offset.to_bytes(4, 'big', signed=True))
-            session_data = f.getvalue()
-
-        # Запускаємо асинхронну операцію збереження у фоновому режимі
-        # Використовуємо asyncio.create_task, оскільки auth_telethon.py має працюючий loop
-        if self._loop and self._loop.is_running():
-            asyncio.create_task(save_telethon_session(self.db_pool, self.session_id, session_data))
-        else:
-            logger.error(f"Cannot save session '{self.session_id}': No running event loop to schedule task.")
-
-
-async def run_auth():
-    logger.info("Виконується функція run_auth().")
-    client = None # Ініціалізуємо client перед try блоком
-    db_pool = None # Ініціалізуємо db_pool перед try блоком
-    try:
-        await create_db_pool()
-        db_pool = await get_db_pool()
-        session_name = 'refridex_main'
-
-        session = TempDBSession(session_name, db_pool)
-        # Встановлюємо db_pool для сесії, що також встановлює loop
-        # Це потрібно викликати тут, бо db_pool стає доступним лише після create_db_pool
-        session.db_pool = db_pool
         try:
-            session._loop = asyncio.get_event_loop()
-        except RuntimeError:
-            logger.warning("No running event loop found when setting _loop in auth_telethon. Will rely on client.connect to start it.")
-            # Це нормально, якщо loop ще не запущений, Telethon Client сам його запустить
+            # ЗМІНЕНО: Викликаємо метод save() базового класу StringSession
+            session_string_bytes = super().save().encode('utf-8')
+            print("DEBUG: Successfully called super().save().")
+        except AttributeError as e:
+            # Цей блок більше не повинен викликатися, але залишаємо для безпеки
+            print(f"CRITICAL DEBUG: AttributeError caught while calling super().save(): {e}")
+            raise
 
-        await session.load() # Тепер з await
+        if self.api_id is None or self.api_hash is None:
+            logger.error(f"Cannot save session '{self.session_id}': API ID or API Hash not set for CustomDBSessionString. Session will not be saved.")
+            return
 
-        client = TelegramClient(
-            session=session,
-            api_id=API_ID,
-            api_hash=API_HASH,
-            system_version="4.16.30-arm64-v8a",
-            device_model="Xiaomi Redmi Note 13 Pro+",
-            app_version="Refridex Bot 1.0"
+        if self._loop and self._loop.is_running():
+            asyncio.create_task(save_telethon_session(
+                self.db_pool,
+                self.session_id,
+                session_string_bytes,
+                self.api_id,
+                self.api_hash
+            ))
+            logger.debug(f"Заплановано збереження сесії '{self.session_id}' в БД.")
+        else:
+            logger.error(f"Cannot save session '{self.session_id}': No running event loop to schedule task. Session will not be saved.")
+
+
+async def start_telethon_auth_process(callback, state, telethon_manager, get_admin_main_keyboard_func, get_cancel_auth_keyboard_func):
+    user_id = callback.from_user.id
+    logger.info(f"Запуск логіки авторизації Telethon для користувача {user_id}.")
+
+    await callback.answer("Починаємо авторизацію Telethon...", show_alert=False)
+
+    if telethon_manager.is_main_client_authorized():
+        await callback.message.answer(
+            "Telethon клієнт вже авторизований. Якщо хочете перевидати сесію, спочатку відключіться.",
+            reply_markup=get_admin_main_keyboard_func()
         )
+        await state.clear()
+        try:
+            await callback.message.edit_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        return
 
-        logger.info("Telethon клієнт ініціалізовано. Спроба підключення...")
+    db_pool = await get_db_pool()
+    session_name_placeholder = 'refridex_main_phone_placeholder'
+
+    session = CustomDBSessionString(session_name_placeholder, db_pool, config.api_id, config.api_hash)
+    await session.load()
+
+    temp_client = TelegramClient(
+        session=session,
+        api_id=config.api_id,
+        api_hash=config.api_hash,
+        system_version="4.16.30-arm64-v8a",
+        device_model="Refridex Aiogram Bot",
+        app_version="Refridex Bot 1.0"
+    )
+
+    try:
+        await temp_client.connect()
+
+        if await temp_client.is_user_authorized():
+            user_info = await temp_client.get_me()
+            temp_client.session.session_id = user_info.phone
+            logger.info("Telethon клієнт вже авторизований за збереженою сесією.")
+            await telethon_manager.set_main_client(temp_client)
+            await callback.message.answer(
+                "Telethon клієнт успішно авторизований за збереженою сесією!",
+                reply_markup=get_admin_main_keyboard_func()
+            )
+            await state.clear()
+            try:
+                await callback.message.edit_reply_markup(reply_markup=None)
+            except Exception:
+                pass
+            return
+
+        await state.update_data(telethon_temp_client=temp_client, db_pool=db_pool)
+        await state.set_state('TelethonAuthStates:waiting_for_phone')
+        await callback.message.answer(
+            "Будь ласка, надішліть номер телефону для авторизації Telethon у форматі `+380XXXXXXXXX` (без пробілів):",
+            reply_markup=get_cancel_auth_keyboard_func()
+        )
+        logger.info(f"Користувач {user_id} переведений у стан очікування номера телефону.")
+
+    except Exception as e:
+        logger.error(f"Помилка ініціалізації Telethon клієнта: {e}", exc_info=True)
+        await callback.message.answer(
+            f"Помилка ініціалізації Telethon: {e}. Спробуйте знову.",
+            reply_markup=get_admin_main_keyboard_func()
+        )
+        await state.clear()
+        if temp_client.is_connected():
+            await temp_client.disconnect()
+        logger.info(f"Користувачу {user_id} надіслано повідомлення про помилку ініціалізації Telethon.")
+
+
+async def cli_telethon_auth_process():
+    print("--- Авторизація Telethon сесії через командний рядок (з БД) ---")
+    print("Цей режим призначений для первинної авторизації або перевипуску сесії.")
+    print("Після успішної авторизації сесія буде збережена в базі даних.")
+
+    print("Ініціалізація пулу підключень до БД...")
+    logging.getLogger().setLevel(logging.WARNING)
+
+    await create_db_pool()
+    db_pool = await get_db_pool()
+    if not db_pool:
+        print("Помилка: Не вдалося ініціалізувати пул підключень до бази даних.")
+        sys.exit(1)
+
+    print("Перевірка/створення таблиць бази даних...")
+    await init_db_tables()
+
+    api_id = config.api_id
+    api_hash = config.api_hash
+
+    if not api_id or not api_hash:
+        print("Помилка: API_ID або API_HASH не завантажено з config.py. Перевірте ваш .env та config.py.")
+        print("Будь ласка, введіть їх вручну:")
+        try:
+            api_id = int(input("Ваш API ID: "))
+            api_hash = input("Ваш API Hash: ")
+        except ValueError:
+            print("Некоректний API ID. Це має бути число.")
+            await close_db_pool()
+            sys.exit(1)
+
+    temp_session_id = 'cli_temp_session_placeholder'
+
+    session = CustomDBSessionString(temp_session_id, db_pool, api_id, api_hash)
+    await session.load()
+
+    client = TelegramClient(
+        session=session,
+        api_id=api_id,
+        api_hash=api_hash,
+        system_version="4.16.30-arm64-v8a",
+        device_model="Refridex CLI Auth Tool",
+        app_version="Refridex CLI Auth 1.0"
+    )
+
+    print("Підключаємося до Telegram...")
+    try:
         await client.connect()
 
-        if not await client.is_user_authorized():
-            logger.info(f"Спроба авторизації для {TELEGRAM_PHONE}...")
+        if await client.is_user_authorized():
+            user_info = await client.get_me()
+            client.session.session_id = user_info.phone
+            print(f"✅ Telethon клієнт вже авторизований як: {user_info.first_name} {user_info.last_name or ''} (@{user_info.username}) ID: {user_info.id}")
+            print(f"Сесія для {user_info.phone} знайдена та успішно завантажена з бази даних.")
+        else:
+            print("Потрібна авторизація. Будь ласка, введіть дані:")
+            phone_number = input("Номер телефону (у форматі +380XXXXXXXXX): ").strip()
+            if not phone_number.startswith('+') or not phone_number[1:].isdigit():
+                print("Некоректний формат номера телефону. Він має починатися з '+' та містити лише цифри.")
+                await client.disconnect()
+                await close_db_pool()
+                sys.exit(1)
+
+            client.session.session_id = phone_number
+
             try:
-                await client.send_code_request(TELEGRAM_PHONE)
-                code = input('Введіть код з Telegram: ')
-                await client.sign_in(TELEGRAM_PHONE, code)
+                print(f"Надсилаємо код підтвердження на {phone_number}...")
+                sent_code = await client.send_code_request(phone_number)
+                print("Код відправлено. Перевірте Telegram (офіційний додаток або СМС).")
+
+                phone_code = input("Введіть отриманий код: ").strip()
+
+                print("Намагаємося увійти з кодом...")
+                await client.sign_in(phone=phone_number, code=phone_code, phone_code_hash=sent_code.phone_code_hash)
+                user_info = await client.get_me()
+                print(f"✅ Успішна авторизація! Ви увійшли як: {user_info.first_name} {user_info.last_name or ''} (@{user_info.username}) ID: {user_info.id}")
+                print(f"Сесія для {user_info.phone} успішно збережена в базі даних.")
+
             except SessionPasswordNeededError:
-                password = input('Введіть пароль двофакторної аутентифікації: ')
-                await client.sign_in(password=password)
+                print("Потрібен 2FA пароль (хмарний пароль).")
+                password = input("Введіть ваш 2FA пароль: ").strip()
+                try:
+                    await client.sign_in(password=password)
+                    user_info = await client.get_me()
+                    print(f"✅ Успішна авторизація з 2FA! Ви увійшли як: {user_info.first_name} {user_info.last_name or ''} (@{user_info.username}) ID: {user_info.id}")
+                    print(f"Сесія для {user_info.phone} успішно збережена в базі даних.")
+                except Exception as e:
+                    print(f"❌ Помилка авторизації з паролем: {e}")
+            except PhoneCodeExpiredError:
+                print("❌ Термін дії коду минув. Будь ласка, спробуйте знову, ввівши код швидше.")
+            except PhoneCodeInvalidError:
+                print("❌ Неправильний код. Будь ласка, перевірте і спробуйте знову.")
+            except PhoneCodeEmptyError:
+                print("❌ Ви ввели порожній код. Будь ласка, спробуйте знову.")
+            except FloodWaitError as e:
+                print(f"❌ Забагато спроб. Будь ласка, спробуйте через {e.seconds} секунд.")
+            except RPCError as e:
+                print(f"❌ Помилка Telegram API: {e} (Code: {e.code})")
             except Exception as e:
-                logger.error(f"Помилка авторизації: {e}", exc_info=True)
-                return # Завершуємо функцію при помилці авторизації
+                print(f"❌ Неочікувана помилка під час авторизації: {e}")
 
-        me = await client.get_me()
-        logger.info(f"Авторизація успішна! Користувач: {me.username or me.first_name}")
-
-    except Exception as e:
-        logger.error(f"Критична помилка під час виконання run_auth(): {e}", exc_info=True)
     finally:
-        if client and client.is_connected():
-            await client.disconnect() # При відключенні Telethon клієнт викликає session.save()
-        if db_pool: # Закриваємо пул тільки якщо він був успішно створений
-            await close_db_pool()
-        logger.info("Telethon авторизаційний скрипт завершено.")
+        if client.is_connected():
+            await client.disconnect()
+        await close_db_pool()
+        print("\nКлієнт Telethon відключено, пул БД закрито.")
 
-if __name__ == '__main__':
-    logger.info("Блок if __name__ == '__main__': виконується.")
+if __name__ == "__main__":
     try:
-        asyncio.run(run_auth())
+        asyncio.run(cli_telethon_auth_process())
+    except KeyboardInterrupt:
+        print("\nОперація скасована користувачем.")
     except Exception as e:
-        logger.critical(f"Критична помилка при запуску asyncio.run: {e}", exc_info=True)
+        print(f"\nКритична помилка виконання: {e}")
+        sys.exit(1)

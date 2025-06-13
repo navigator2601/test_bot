@@ -1,5 +1,3 @@
-# keyboards/admin_keyboard.py
-
 import math
 from typing import Optional
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -153,24 +151,17 @@ def get_access_level_keyboard(user_id_to_manage: int) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def get_telethon_actions_keyboard() -> InlineKeyboardMarkup:
-    """Повертає клавіатуру для дій Telethon."""
+    """Повертає клавіатуру для дій Telethon (БЕЗ авторизації, приєднання до каналу та видалення сесії)."""
     buttons = [
         [InlineKeyboardButton(
             text="Перевірити статус Telethon 👁️",
             callback_data=AdminCallback(action="telethon_check_status").pack()
         )],
         [InlineKeyboardButton(
-            text="Авторизувати Telethon 🔑",
-            callback_data=AdminCallback(action="telethon_start_auth").pack()
-        )],
-        [InlineKeyboardButton(
             text="Отримати інфо про користувача 🆔",
             callback_data=AdminCallback(action="telethon_get_user_info").pack()
         )],
-        [InlineKeyboardButton(
-            text="Приєднатися до каналу ➕",
-            callback_data=AdminCallback(action="telethon_join_channel").pack()
-        )],
+        # Кнопки "Авторизувати Telethon 🔑", "Приєднатися до каналу ➕" та "Видалити сесію 🗑️" ВИДАЛЕНО
         [InlineKeyboardButton(
             text="⬅️ Назад до адмін-меню",
             callback_data=AdminCallback(action="cancel_admin_action").pack()
@@ -178,8 +169,33 @@ def get_telethon_actions_keyboard() -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
+def get_telethon_code_retry_keyboard() -> InlineKeyboardMarkup:
+    """
+    Повертає інлайн-клавіатуру для повторного введення або запиту нового коду
+    в процесі авторизації Telethon.
+    """
+    # Ця функція може бути не потрібна, якщо авторизація видалена з handler'ів
+    builder = InlineKeyboardBuilder()
+    builder.row(InlineKeyboardButton(
+        text="🔄 Запитати новий код",
+        callback_data=AdminCallback(action="telethon_resend_code").pack()
+    ))
+    builder.row(InlineKeyboardButton(
+        text="❌ Скасувати авторизацію",
+        callback_data=AdminCallback(action="telethon_cancel_auth").pack()
+    ))
+    return builder.as_markup()
 
-# НОВА ФУНКЦІЯ: Клавіатура для "Чат-матриця"
+def get_cancel_keyboard() -> InlineKeyboardMarkup:
+    """Повертає інлайн-клавіатуру з однією кнопкою 'Скасувати', призначена для адмін-меню."""
+    buttons = [
+        [InlineKeyboardButton(
+            text="❌ Скасувати",
+            callback_data=AdminCallback(action="cancel_admin_action").pack()
+        )]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
 def get_chat_matrix_keyboard() -> InlineKeyboardMarkup:
     """
     Повертає інлайн-клавіатуру для управління чат-матрицею.

@@ -1,5 +1,4 @@
 # main.py
-
 import asyncio
 import logging
 from typing import Any
@@ -17,6 +16,9 @@ from utils.logger import setup_logging
 # Імпорти для БД та Мідлвари
 from database.db_pool_manager import create_db_pool, close_db_pool, init_db_tables, get_db_pool
 from middlewares.db_middleware import DbSessionMiddleware
+# --- НОВИЙ ІМПОРТ ДЛЯ ОБРОБНИКА ВИКЛЮЧЕНЬ ---
+from middlewares.exception_middleware import ExceptionHandlingMiddleware
+# --------------------------------------------
 
 # --- НОВІ ІМПОРТИ для Telethon ---
 from telegram_client_module.telethon_client import TelethonClientManager
@@ -40,9 +42,8 @@ from handlers.echo_handler import router as echo_router
 setup_logging()
 logger = logging.getLogger(__name__)
 
-# Глобальний екземпляр TelethonManager - ТЕПЕР ІНІЦІАЛІЗУЄМО БЕЗ API_ID/HASH ТУТ.
-# ЇХ БУДЕ ПЕРЕДАНО В main() ПІСЛЯ ЗАВАНТАЖЕННЯ З CONFIG.
-telethon_manager: TelethonClientManager = None # Змінено на None, буде ініціалізовано пізніше
+# Глобальний екземпляр TelethonManager
+telethon_manager: TelethonClientManager = None
 
 
 async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
@@ -71,14 +72,11 @@ async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
         logger.error(f"Помилка ініціалізації таблиць БД: {e}", exc_info=True)
 
     # --- ЛОГІКА TELETHON: ІНІЦІАЛІЗАЦІЯ та ЗАПУСК ---
-    # Global telethon_manager вже ініціалізовано в main(), але тут ми запускаємо його
-    # Його потрібно передати в initialize
-    # if 'telethon_manager' in dispatcher.workflow_data: # Додано перевірку
-    global telethon_manager # Отримуємо доступ до глобальної змінної
-    # Передача db_pool_instance до initialize
+    global telethon_manager
+
     if telethon_manager and config.telethon_client_enabled:
         logger.info("Ініціалізація TelethonClientManager.")
-        await telethon_manager.initialize(db_pool_instance) # <--- ВИПРАВЛЕНО: передаємо db_pool_instance
+        await telethon_manager.initialize(db_pool_instance)
         logger.info("TelethonClientManager ініціалізовано.")
         logger.info("Telethon клієнти налаштовано та, якщо потрібно, запущені (через initialize()).")
     else:
@@ -87,6 +85,7 @@ async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
 
     logger.info("Завершення on_startup.")
 
+
 async def on_bot_shutdown(bot: Bot, dispatcher: Dispatcher) -> None:
     """
     Функція, що виконується при завершенні роботи бота.
@@ -94,17 +93,17 @@ async def on_bot_shutdown(bot: Bot, dispatcher: Dispatcher) -> None:
     """
     logger.info("Початок завершення роботи бота. Зареєстровані shutdown-хуки виконуються.")
 
-    global telethon_manager # Отримуємо доступ до глобальної змінної
+    global telethon_manager
     if telethon_manager and config.telethon_client_enabled:
         logger.info("Спроба відключити Telethon клієнтів.")
         try:
-            await telethon_manager.shutdown_all_clients() # <--- ВИПРАВЛЕНО: shutdown_all_clients
+            await telethon_manager.shutdown_all_clients()
             logger.info("Telethon клієнти відключено.")
         except Exception as e:
             logger.error(f"Помилка відключення Telethon клієнтів: {e}", exc_info=True)
     elif config.telethon_client_enabled:
         logger.warning("TelethonClientManager не був ініціалізований або доступний під час завершення роботи.")
-    
+
     logger.info("Спроба закрити пул підключень до бази даних.")
     try:
         await close_db_pool()
@@ -116,10 +115,11 @@ async def on_bot_shutdown(bot: Bot, dispatcher: Dispatcher) -> None:
     await bot.session.close()
     logger.info("Сесію бота закрито.")
 
+
 async def main():
     logger.info("Початок виконання головної асинхронної функції 'main'.")
 
-    bot_token_value = config.bot_token 
+    bot_token_value = config.bot_token
 
     if not bot_token_value:
         logger.critical("BOT_TOKEN не встановлено у файлі конфігурації. Будь ласка, перевірте .env та config.py.")
@@ -140,7 +140,7 @@ async def main():
     logger.info("DbSessionMiddleware зареєстровано глобально.")
 
     # --- РЕЄСТРАЦІЯ TELETHON МІДЛВАРИ ТА ІНІЦІАЛІЗАЦІЯ TELETHON_MANAGER ---
-    global telethon_manager # Отримуємо доступ до глобальної змінної
+    global telethon_manager
 
     if config.telethon_client_enabled:
         logger.info("Ініціалізація глобального TelethonClientManager.")
@@ -148,31 +148,33 @@ async def main():
             api_id=config.api_id,
             api_hash=config.api_hash
         )
-        # Зберігаємо TelethonClientManager у workflow_data Dispatcher'а
-        # Мідлвара буде отримувати його звідси
         dp.workflow_data['telethon_manager'] = telethon_manager
         logger.info("TelethonClientManager додано до dispatcher.workflow_data.")
 
-        logger.info("Реєстрація TelethonClientMiddleware (без прямого передавання менеджера).")
-        dp.update.outer_middleware.register(TelethonClientMiddleware()) # <--- ВИПРАВЛЕНО: БЕЗ telethon_manager=...
+        logger.info("Реєстрація TelethonClientMiddleware.")
+        dp.update.outer_middleware.register(TelethonClientMiddleware())
         logger.info("TelethonClientMiddleware зареєстровано глобально.")
     else:
         logger.warning("TelethonClientMiddleware не реєструється (вимкнено через конфігурацію).")
     # ------------------------------------
-    
+
+    # --- РЕЄСТРАЦІЯ MIDDLEWARE ДЛЯ ОБРОБКИ ВИКЛЮЧЕНЬ (ОСТАННІЙ OUTER MIDDLEWARE) ---
+    logger.info("Реєстрація ExceptionHandlingMiddleware (для централізованої обробки помилок).")
+    dp.update.outer_middleware.register(ExceptionHandlingMiddleware())
+    logger.info("ExceptionHandlingMiddleware зареєстровано глобально.")
+    # -----------------------------------------------------------------------------
+
     # Реєстрація роутерів
     logger.info("Реєстрація роутера 'start_handler'.")
     dp.include_router(start_router)
-    
+
     logger.info("Реєстрація роутера 'menu_handler'.")
     dp.include_router(menu_router)
 
-    # <--- ДОДАНО ЦЕЙ БЛОК ДЛЯ НОВИХ ADMIN_ROUTERS --->
     logger.info("Реєстрація роутерів адмін-панелі.")
     dp.include_router(admin_main_menu_router)
     dp.include_router(user_management_router)
     dp.include_router(telethon_operations_router)
-    # <----------------------------------------------->
 
     # echo_router для обробки некомандних повідомлень (завжди останнім!)
     logger.info("Реєстрація роутера 'echo_handler' (для невідомих кнопок та повідомлень).")

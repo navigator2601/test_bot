@@ -14,7 +14,7 @@ async def create_db_pool():
     if _db_pool is None:
         try:
             # Використовуємо config.database_url для підключення
-            _db_pool = await asyncpg.create_pool(config.database_url) 
+            _db_pool = await asyncpg.create_pool(config.database_url)
             logger.info("Пул з'єднань до бази даних створено успішно.")
         except Exception as e:
             logger.critical(f"Не вдалося створити пул з'єднань до БД: {e}", exc_info=True)
@@ -64,7 +64,7 @@ async def init_db_tables():
                     session_string TEXT NOT NULL,         -- Сесія Telethon (рядок)
                     api_id INTEGER NOT NULL,              -- API ID, використаний для сесії
                     api_hash VARCHAR(255) NOT NULL,       -- API Hash, використаний для сесії
-                    last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Час останнього входу/оновлення
+                    last_login TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP -- ЗМІНА ТУТ
                 );
             """)
             logger.info("Таблиця 'telethon_sessions' перевірена/створена.")
