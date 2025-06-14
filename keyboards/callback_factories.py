@@ -1,3 +1,5 @@
+# keyboards/callback_factories.py
+
 from aiogram.filters.callback_data import CallbackData
 from typing import Optional
 
@@ -52,6 +54,8 @@ class ChatListCallback(CallbackData, prefix="chat_list"):
     action: str  # 'view_chat_details' (для перегляду деталей чату), 'paginate' (для пагінації)
     chat_id: Optional[int] = None # ID чату, якщо action='view_chat_details'
     page: Optional[int] = None # Номер сторінки, якщо action='paginate'
+    # ДОДАЙТЕ ЦЕЙ РЯДОК:
+    from_search: Optional[bool] = False # Ознака, чи був запит з контексту пошуку
 
 
 # --- CallbackData для детальної інформації про чат та дій над ним ---
@@ -63,3 +67,5 @@ class ChatInfoCallback(CallbackData, prefix="chat_info"):
     action: str # 'add_member', 'delete_chat', 'back_to_list', 'confirm_delete_chat'
     chat_id: int # ID чату, з яким виконується дія
     page: Optional[int] = None # Для повернення на правильну сторінку списку чатів (якщо потрібно)
+    # МОЖЛИВО, ТАКОЖ ДОДАЙТЕ СЮДИ, ЯКЩО chat_info кнопки також можуть бути з контексту пошуку:
+    # from_search: Optional[bool] = False
