@@ -1,3 +1,4 @@
+# database/telethon_chats_db.py
 import asyncpg
 import logging
 from typing import Optional
@@ -60,6 +61,24 @@ async def get_all_telethon_allowed_chats(pool: asyncpg.Pool) -> list[dict]:
     except Exception as e:
         logger.error(f"Помилка при отриманні дозволених чатів з БД: {e}", exc_info=True)
         return []
+
+# --- НОВА ФУНКЦІЯ: get_telethon_allowed_chat_by_id ---
+async def get_telethon_allowed_chat_by_id(pool: asyncpg.Pool, chat_id: int) -> Optional[dict]:
+    """
+    Отримує інформацію про дозволений чат з БД за його chat_id.
+    Повертає словник з даними чату або None, якщо чат не знайдено.
+    """
+    try:
+        record = await pool.fetchrow(
+            "SELECT chat_id, chat_title, chat_type, username, added_by_user_id, added_at FROM telethon_allowed_chats WHERE chat_id = $1",
+            chat_id
+        )
+        if record:
+            return dict(record)
+        return None
+    except Exception as e:
+        logger.error(f"Помилка при отриманні дозволеного чату з ID {chat_id} з БД: {e}", exc_info=True)
+        return None
 
 async def delete_telethon_allowed_chat(pool: asyncpg.Pool, chat_id: int) -> bool:
     """Видаляє дозволений чат з БД за chat_id."""

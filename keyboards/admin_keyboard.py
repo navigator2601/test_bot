@@ -1,222 +1,338 @@
-import math
-from typing import Optional
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from typing import Optional # Імпорт Optional для типізації
 
-from common.constants import ACCESS_LEVEL_BUTTONS
-from keyboards.callback_factories import AdminCallback, UserActionCallback, AccessLevelCallback
+from keyboards.callback_factories import (
+    AdminCallback,
+    ChatListCallback,
+    ChatInfoCallback
+    # Додайте інші CallbackFactory, якщо вони потрібні для user_actions або загальних підтверджень
+    # UserCallback # Наприклад, якщо у вас є окремий колбек для користувачів
+    # ConfirmActionCallback # Якщо ви створюєте окремий колбек для підтверджень
+)
+
+# -----------------------------------------------------------
+# Main Admin Keyboard
+# -----------------------------------------------------------
 
 def get_admin_main_keyboard() -> InlineKeyboardMarkup:
-    """Повертає головну клавіатуру адміністратора з оновленими кнопками."""
-    buttons = [
-        [InlineKeyboardButton(
-            text="👥 Юзер-матриця · Редактор доступу",
-            callback_data=AdminCallback(action="show_users").pack()
-        )],
-        # Кнопка "📡 ReLink · Статус каналу зв'язку" видалена
-        [InlineKeyboardButton(
-            text="🔐 TeleKey · Авторизація API-зв’язку",
-            callback_data=AdminCallback(action="telethon_auth").pack()
-        )],
-        [InlineKeyboardButton(
-            text="💬 Чат-матриця · Перегляд активних зон",
-            callback_data=AdminCallback(action="chat_matrix").pack()
-        )],
-        [InlineKeyboardButton(
-            text="🏁 Завершити командування",
-            callback_data=AdminCallback(action="close_admin_panel").pack()
-        )]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-def get_users_list_keyboard(users: list, current_page: int, users_per_page: int) -> InlineKeyboardMarkup:
-    """Генерує клавіатуру зі списком користувачів для вибору та пагінації."""
-    keyboard = []
-
-    start_index = current_page * users_per_page
-    end_index = start_index + users_per_page
-    users_on_page = users[start_index:end_index]
-
-    for user in users_on_page:
-        user_id = user.get('id')
-        if user_id is not None:
-            first_name = user.get('first_name', '')
-            last_name = user.get('last_name', '')
-            username = user.get('username', '')
-            access_level = user.get('access_level', 0)
-            display_name = f"{first_name} {last_name}".strip()
-            if not display_name:
-                display_name = username or f"ID: {user_id}"
-            button_text = f"{display_name} (Рівень: {access_level})"
-            # Кнопка користувача через AdminCallback
-            keyboard.append([InlineKeyboardButton(
-                text=button_text,
-                callback_data=AdminCallback(action="select_user", user_id=user_id).pack()
-            )])
-
-    total_pages = math.ceil(len(users) / users_per_page) if len(users) > 0 else 1
-
-    # Додаємо кнопки пагінації
-    pagination_buttons = []
-    if current_page > 0:
-        pagination_buttons.append(
-            InlineKeyboardButton(
-                text="⬅️",
-                callback_data=AdminCallback(action="show_users", page=current_page - 1).pack()
-            )
-        )
-    pagination_buttons.append(
-        InlineKeyboardButton(
-            text=f"{current_page + 1}/{total_pages}",
-            callback_data="users_current_page_info" # Цю кнопку не потрібно обробляти як CallbackData, вона просто відображає інфо
-        )
-    )
-    if current_page < total_pages - 1:
-        pagination_buttons.append(
-            InlineKeyboardButton(
-                text="➡️",
-                callback_data=AdminCallback(action="show_users", page=current_page + 1).pack()
-            )
-        )
-    keyboard.append(pagination_buttons)
-    keyboard.append([
-        InlineKeyboardButton(
-            text="⬅️ Назад до адмін-меню",
-            callback_data=AdminCallback(action="cancel_admin_action").pack()
-        )
-    ])
-    return InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-def get_user_actions_keyboard(is_authorized: bool, current_access_level: int, user_id_to_manage: int) -> InlineKeyboardMarkup:
-    """Повертає клавіатуру для дій з конкретним користувачем."""
-    buttons = []
-    if is_authorized:
-        buttons.append([InlineKeyboardButton(
-            text="Деавторизувати ❌",
-            callback_data=UserActionCallback(action="unauthorize", target_user_id=user_id_to_manage).pack()
-        )])
-    else:
-        buttons.append([InlineKeyboardButton(
-            text="Авторизувати ✅",
-            callback_data=UserActionCallback(action="authorize", target_user_id=user_id_to_manage).pack()
-        )])
-    buttons.append([InlineKeyboardButton(
-        text=f"Змінити рівень доступу ({current_access_level}) ⬆️",
-        callback_data=AdminCallback(action="change_access_level", user_id=user_id_to_manage).pack()
-    )])
-    buttons.append([InlineKeyboardButton(
-        text="⬅️ Назад до списку користувачів",
-        callback_data=AdminCallback(action="show_users").pack()
-    )])
-    buttons.append([InlineKeyboardButton(
-        text="⬅️ Назад до адмін-меню",
-        callback_data=AdminCallback(action="cancel_admin_action").pack()
-    )])
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-def get_confirm_action_keyboard(action: str, user_id: int, level: Optional[int] = None) -> InlineKeyboardMarkup:
-    """
-    Повертає клавіатуру підтвердження дії.
-    action: тип дії (наприклад, "authorize", "unauthorize", "set_level")
-    user_id: ID користувача, якого стосується дія
-    level: новий рівень доступу, якщо дія "set_level"
-    """
-    buttons = [
-        [InlineKeyboardButton(
-            text="Підтвердити ✅",
-            callback_data=UserActionCallback(action=f"confirm_{action}", target_user_id=user_id, level=level).pack()
-        )],
-        [InlineKeyboardButton(
-            text="Скасувати ❌",
-            callback_data=AdminCallback(action="cancel_action").pack()
-        )]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-def get_access_level_keyboard(user_id_to_manage: int) -> InlineKeyboardMarkup:
-    """Генерує клавіатуру з кнопками для вибору рівня доступу."""
     builder = InlineKeyboardBuilder()
-    for level, name in ACCESS_LEVEL_BUTTONS:
-        builder.button(
-            text=f"{name}",
-            callback_data=AccessLevelCallback(action="set_level", level=level, target_user_id=user_id_to_manage).pack()
-        )
-    builder.adjust(1) # Розміщуємо по 2 кнопки в рядку
     builder.row(
         InlineKeyboardButton(
-            text="Скасувати ❌",
-            callback_data=AdminCallback(action="select_user", user_id=user_id_to_manage).pack()
+            text="👤 Управління користувачами",
+            callback_data=AdminCallback(action="manage_users").pack()
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="💬 Чат-матриця · Перегляд активних зон",
+            callback_data=AdminCallback(action="chat_matrix").pack()
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🤖 Керування сесіями Telethon",
+            callback_data=AdminCallback(action="manage_telethon_sessions").pack()
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="📊 Статистика",
+            callback_data=AdminCallback(action="view_stats").pack()
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Назад до головного меню",
+            callback_data=AdminCallback(action="back_to_main_menu").pack()
         )
     )
     return builder.as_markup()
 
-def get_telethon_actions_keyboard() -> InlineKeyboardMarkup:
-    """Повертає клавіатуру для дій Telethon (БЕЗ авторизації, приєднання до каналу та видалення сесії)."""
-    buttons = [
-        [InlineKeyboardButton(
-            text="Перевірити статус Telethon 👁️",
-            callback_data=AdminCallback(action="telethon_check_status").pack()
-        )],
-        [InlineKeyboardButton(
-            text="Отримати інфо про користувача 🆔",
-            callback_data=AdminCallback(action="telethon_get_user_info").pack()
-        )],
-        # Кнопки "Авторизувати Telethon 🔑", "Приєднатися до каналу ➕" та "Видалити сесію 🗑️" ВИДАЛЕНО
-        [InlineKeyboardButton(
-            text="⬅️ Назад до адмін-меню",
-            callback_data=AdminCallback(action="cancel_admin_action").pack()
-        )]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
-
-def get_telethon_code_retry_keyboard() -> InlineKeyboardMarkup:
-    """
-    Повертає інлайн-клавіатуру для повторного введення або запиту нового коду
-    в процесі авторизації Telethon.
-    """
-    # Ця функція може бути не потрібна, якщо авторизація видалена з handler'ів
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(
-        text="🔄 Запитати новий код",
-        callback_data=AdminCallback(action="telethon_resend_code").pack()
-    ))
-    builder.row(InlineKeyboardButton(
-        text="❌ Скасувати авторизацію",
-        callback_data=AdminCallback(action="telethon_cancel_auth").pack()
-    ))
-    return builder.as_markup()
-
-def get_cancel_keyboard() -> InlineKeyboardMarkup:
-    """Повертає інлайн-клавіатуру з однією кнопкою 'Скасувати', призначена для адмін-меню."""
-    buttons = [
-        [InlineKeyboardButton(
-            text="❌ Скасувати",
-            callback_data=AdminCallback(action="cancel_admin_action").pack()
-        )]
-    ]
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
+# -----------------------------------------------------------
+# Chat Matrix Keyboard
+# -----------------------------------------------------------
 
 def get_chat_matrix_keyboard() -> InlineKeyboardMarkup:
-    """
-    Повертає інлайн-клавіатуру для управління чат-матрицею.
-    """
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(
             text="📜 Список підключених чатів",
-            callback_data=AdminCallback(action="list_connected_chats").pack()
+            callback_data=AdminCallback(action="view_allowed_chats").pack()
         )
     )
     builder.row(
         InlineKeyboardButton(
             text="🔍 Пошук чатів",
-            callback_data=AdminCallback(action="search_chats").pack()
+            callback_data=AdminCallback(action="search_chats_admin").pack()
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Назад до адмін-меню",
+            callback_data=AdminCallback(action="back_to_admin_main_menu_from_chat_matrix").pack()
+        )
+    )
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# Search Results Keyboard
+# -----------------------------------------------------------
+
+def get_search_results_keyboard(chats: list) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for chat in chats:
+        status_emoji = "✅" if chat['is_added'] else "➕"
+        button_text = f"{status_emoji} {chat['chat_title']}"
+        # При натисканні на кнопку переходимо до деталей чату
+        builder.row(InlineKeyboardButton(
+            text=button_text,
+            callback_data=ChatListCallback(action="view_chat_details", chat_id=chat['chat_id']).pack()
+        ))
+    
+    # Кнопка повернення до пошуку
+    builder.row(InlineKeyboardButton(
+        text="⬅️ Назад до пошуку",
+        callback_data=AdminCallback(action="search_chats_admin").pack() # Повертаємось до початкового запиту пошуку
+    ))
+    # Кнопка повернення до головного меню Чат-матриці
+    builder.row(InlineKeyboardButton(
+        text="🔙 В головне меню Чат-матриці",
+        callback_data=AdminCallback(action="chat_matrix_menu").pack()
+    ))
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# Allowed Chats List Keyboard
+# -----------------------------------------------------------
+
+def get_allowed_chats_list_keyboard(allowed_chats: list, current_page: int, chats_per_page: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+
+    total_chats = len(allowed_chats)
+    start_index = current_page * chats_per_page
+    end_index = min(start_index + chats_per_page, total_chats)
+    
+    chats_on_page = allowed_chats[start_index:end_index]
+
+    # Якщо на поточній сторінці немає чатів, але це не перша, повертаємося на першу
+    if not chats_on_page and current_page > 0 and total_chats > 0:
+        current_page = 0 
+        start_index = 0
+        end_index = min(chats_per_page, total_chats)
+        chats_on_page = allowed_chats[start_index:end_index]
+
+
+    for chat in chats_on_page:
+        # Створюємо кнопку для кожного чату
+        builder.row(InlineKeyboardButton(
+            text=chat['chat_title'],
+            callback_data=ChatListCallback(action="view_chat_details", chat_id=chat['chat_id'], page=current_page).pack()
+        ))
+
+    # Додаємо кнопки пагінації
+    navigation_buttons = []
+    if current_page > 0:
+        navigation_buttons.append(
+            InlineKeyboardButton(text="⬅️ Попередня", callback_data=ChatListCallback(action="paginate_allowed_chats", page=current_page - 1).pack())
+        )
+    if end_index < total_chats:
+        navigation_buttons.append(
+            InlineKeyboardButton(text="Наступна ➡️", callback_data=ChatListCallback(action="paginate_allowed_chats", page=current_page + 1).pack())
+        )
+    
+    if navigation_buttons:
+        builder.row(*navigation_buttons)
+
+    # Кнопка "Назад до меню Чат-матриці"
+    builder.row(InlineKeyboardButton(
+        text="🔙 Назад до меню",
+        callback_data=AdminCallback(action="chat_matrix_menu").pack() # Використовуємо AdminCallback для повернення
+    ))
+
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# Chat Info Keyboard (For details, add/remove)
+# -----------------------------------------------------------
+
+def get_chat_info_keyboard(chat_id: int, is_added: bool, current_page: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    if not is_added:
+        builder.row(InlineKeyboardButton(text="Додати до дозволених",
+                                         callback_data=ChatInfoCallback(action="add_allowed_chat_from_details", chat_id=chat_id, page=current_page).pack()))
+    else:
+        builder.row(InlineKeyboardButton(text="🗑️ Видалити чат",
+                                         callback_data=ChatInfoCallback(action="delete_allowed_chat", chat_id=chat_id, page=current_page).pack()))
+    
+    builder.row(InlineKeyboardButton(text="🔙 Повернутися до списку",
+                                     callback_data=ChatListCallback(action="paginate_allowed_chats", page=current_page).pack()))
+    
+    return builder.as_markup()
+
+
+# -----------------------------------------------------------
+# Confirmation Keyboard for Deletion
+# -----------------------------------------------------------
+
+def get_confirm_delete_chat_keyboard(chat_id: int, current_page: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="✅ Підтвердити видалення",
+                             callback_data=ChatInfoCallback(action="confirm_delete_allowed_chat", chat_id=chat_id, page=current_page).pack())
+    )
+    builder.row(
+        InlineKeyboardButton(text="❌ Скасувати",
+                             callback_data=ChatInfoCallback(action="back_to_chat_info", chat_id=chat_id, page=current_page).pack())
+    )
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# Users List Keyboard (Placeholder for 'manage_users' section)
+# -----------------------------------------------------------
+
+def get_users_list_keyboard() -> InlineKeyboardMarkup:
+    """
+    Клавіатура для меню "Управління користувачами".
+    Ця функція є заглушкою і має бути розширена для відображення списку користувачів
+    та надання функцій їх адміністрування (наприклад, додати/видалити адміна).
+    """
+    builder = InlineKeyboardBuilder()
+    # Приклад: Кнопка "Додати нового користувача", якщо це доречно
+    # builder.row(InlineKeyboardButton(text="➕ Додати користувача", callback_data=AdminCallback(action="add_user").pack()))
+    # builder.row(InlineKeyboardButton(text="Список користувачів", callback_data=AdminCallback(action="view_users").pack()))
+
+    # Обов'язкова кнопка для повернення
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Назад до адмін-меню",
+            callback_data=AdminCallback(action="back_to_admin_main_menu").pack()
+        )
+    )
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# User Actions Keyboard (Placeholder for 'get_user_actions_keyboard')
+# -----------------------------------------------------------
+
+def get_user_actions_keyboard(user_id: int, is_admin: bool) -> InlineKeyboardMarkup:
+    """
+    Клавіатура для дій над конкретним користувачем.
+    Ця функція є заглушкою і має бути розширена для реальних дій,
+    таких як "Зробити адміном", "Видалити адміна", "Заблокувати користувача" тощо.
+    """
+    builder = InlineKeyboardBuilder()
+
+    # Приклад кнопки, яку ви б використовували:
+    # if is_admin:
+    #     builder.row(InlineKeyboardButton(text="Зняти права адміна", callback_data=AdminCallback(action=f"remove_admin_{user_id}").pack()))
+    # else:
+    #     builder.row(InlineKeyboardButton(text="Призначити адміном", callback_data=AdminCallback(action=f"make_admin_{user_id}").pack()))
+
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Назад до списку користувачів",
+            callback_data=AdminCallback(action="manage_users").pack() # Повернення до списку користувачів
         )
     )
     builder.row(
         InlineKeyboardButton(
             text="🔙 Назад до адмін-меню",
-            callback_data=AdminCallback(action="cancel_admin_action").pack()
+            callback_data=AdminCallback(action="back_to_admin_main_menu").pack()
+        )
+    )
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# General Confirmation Keyboard (Placeholder for 'get_confirm_action_keyboard')
+# -----------------------------------------------------------
+
+def get_confirm_action_keyboard(callback_data_on_confirm: str, callback_data_on_cancel: str, message_id: Optional[int] = None) -> InlineKeyboardMarkup:
+    """
+    Універсальна клавіатура для підтвердження дії.
+    Приймає callback_data для кнопки "Так" і "Ні".
+    Може також приймати message_id, якщо потрібно передати його далі.
+    """
+    builder = InlineKeyboardBuilder()
+    
+    confirm_data_packed = callback_data_on_confirm
+    cancel_data_packed = callback_data_on_cancel
+
+    # Якщо у вас є ConfirmActionCallback, ви можете використовувати його так:
+    # confirm_data_packed = ConfirmActionCallback(action="confirm", original_action=callback_data_on_confirm, message_id=message_id).pack()
+    # cancel_data_packed = ConfirmActionCallback(action="cancel", original_action=callback_data_on_cancel, message_id=message_id).pack()
+
+
+    builder.row(
+        InlineKeyboardButton(text="✅ Так, підтвердити", callback_data=confirm_data_packed),
+        InlineKeyboardButton(text="❌ Скасувати", callback_data=cancel_data_packed)
+    )
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# Access Level Keyboard (Placeholder for 'get_access_level_keyboard')
+# -----------------------------------------------------------
+
+def get_access_level_keyboard(user_id: int, current_level: str) -> InlineKeyboardMarkup:
+    """
+    Клавіатура для вибору рівня доступу користувача.
+    Це заглушка, яку потрібно буде розширити для реальних рівнів доступу.
+    """
+    builder = InlineKeyboardBuilder()
+
+    # Приклади кнопок:
+    # builder.row(InlineKeyboardButton(text="Звичайний користувач", callback_data=f"set_access_level_{user_id}_user"))
+    # builder.row(InlineKeyboardButton(text="Модератор", callback_data=f"set_access_level_{user_id}_moderator"))
+    # builder.row(InlineKeyboardButton(text="Адміністратор", callback_data=f"set_access_level_{user_id}_admin"))
+
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Назад до дій над користувачем",
+            callback_data=AdminCallback(action="view_user_details", user_id=user_id).pack() # Повернення до деталей користувача
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
+            text="🔙 Назад до адмін-меню",
+            callback_data=AdminCallback(action="back_to_admin_main_menu").pack()
+        )
+    )
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# Telethon Actions Keyboard (New placeholder for 'get_telethon_actions_keyboard')
+# -----------------------------------------------------------
+
+def get_telethon_actions_keyboard() -> InlineKeyboardMarkup:
+    """
+    Клавіатура для керування сесіями Telethon.
+    Це заглушка, яку потрібно буде розширити для реальних дій,
+    таких як "Додати сесію", "Видалити сесію", "Переглянути статус" тощо.
+    """
+    builder = InlineKeyboardBuilder()
+    
+    # Приклади кнопок:
+    # builder.row(InlineKeyboardButton(text="➕ Додати сесію", callback_data=AdminCallback(action="add_telethon_session").pack()))
+    # builder.row(InlineKeyboardButton(text="🗑️ Видалити сесію", callback_data=AdminCallback(action="delete_telethon_session").pack()))
+    # builder.row(InlineKeyboardButton(text="🔄 Переглянути статус сесій", callback_data=AdminCallback(action="view_telethon_sessions_status").pack()))
+
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Назад до адмін-меню",
+            callback_data=AdminCallback(action="back_to_admin_main_menu").pack()
+        )
+    )
+    return builder.as_markup()
+
+# -----------------------------------------------------------
+# Example of a generic back button (can be removed if not used)
+# -----------------------------------------------------------
+def get_back_button(callback_data_value: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="⬅️ Назад",
+            callback_data=callback_data_value
         )
     )
     return builder.as_markup()
