@@ -1,22 +1,27 @@
-# common/states.py
+# Файл: common/states.py
+# Призначення: Визначення FSM-станів для різних частин бота.
+# Стани дозволяють боту "пам'ятати" поточний етап взаємодії з користувачем.
+
 from aiogram.fsm.state import State, StatesGroup
 
 class MenuStates(StatesGroup):
     """FSM-стани для головного меню."""
     main_menu = State()
-    any = State() # Залишаємо, припускаючи, що ви його використовуєте для загальної обробки
+    any = State()
+    
+    # Стан, коли бот очікує вводу для пошуку
+    find = State() 
 
 class AdminStates(StatesGroup):
     """FSM-стани для адмін-панелі та її підрозділів."""
-    admin_main = State()                # Головне адмін-меню
-    user_management = State()           # Управління користувачами (список, дії)
-    confirm_action = State()            # Підтвердження дії (авторизація/рівень доступу)
-    set_access_level = State()          # Встановлення рівня доступу
-
-    # Telethon управління
-    telethon_management = State()       # Загальне управління Telethon
-    waiting_for_telethon_input = State() # Очікування загального введення даних для Telethon операцій
-
-    chat_matrix_management = State()    # Стан для управління чат-матрицею
-    waiting_for_chat_search_query = State() # <--- НОВИЙ СТАН: Очікування вводу для пошуку чатів
-    waiting_for_chat_member_id = State() # <--- НОВИЙ СТАН: Очікування ID користувача для додавання в чат
+    admin_main = State()
+    user_management = State()
+    confirm_action = State()
+    set_access_level = State()
+    
+    telethon_management = State()
+    waiting_for_telethon_input = State()
+    
+    chat_matrix_management = State()
+    waiting_for_chat_search_query = State()
+    waiting_for_chat_member_id = State()

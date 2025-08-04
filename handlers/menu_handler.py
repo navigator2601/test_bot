@@ -1,4 +1,7 @@
-# handlers/menu_handler.py
+# Файл: handlers/menu_handler.py
+# Призначення: Обробка натискань кнопок головного меню та команд.
+# Містить логіку навігації, переходу до адмін-панелі та новий функціонал пошуку.
+
 import logging
 import math
 
@@ -9,16 +12,18 @@ from aiogram.enums import ParseMode
 
 import asyncpg
 
-from keyboards.reply_keyboard import get_main_menu_keyboard, get_main_menu_pages_info
+from keyboards.reply_keyboard import get_main_menu_keyboard, get_main_menu_pages_info, get_cancel_keyboard
 from keyboards.admin_keyboard import get_admin_main_keyboard
 from database.users_db import get_user_access_level
-# Оновлюємо імпорти, щоб включити нові константи
+from database.db_search_functions import find_in_database, format_search_results
 from common.messages import (
     get_access_level_description,
     get_random_admin_welcome_message,
-    HELP_MESSAGE_TEXT, # Додано
-    INFO_MESSAGE_TEXT, # Додано
-    FIND_MESSAGE_TEXT  # Додано
+    HELP_MESSAGE_TEXT,
+    INFO_MESSAGE_TEXT,
+    FIND_MESSAGE_TEXT,
+    SEARCH_PROMPT,
+    SEARCH_NO_RESULTS
 )
 from common.constants import BUTTONS_PER_PAGE, ALL_MENU_BUTTONS, ACCESS_LEVEL_BUTTONS
 
@@ -89,6 +94,47 @@ async def show_main_menu_handler(
     await message.answer(menu_message_text, reply_markup=keyboard, parse_mode=ParseMode.HTML)
 
 
+# НОВИЙ ОБРОБНИК: Обробляє натискання кнопки "Пошук"
+@router.message(F.text == "🕵️ Пошук", MenuStates.main_menu)
+async def open_search_menu_handler(message: types.Message, state: FSMContext) -> None:
+    """Переводить користувача в режим пошуку."""
+    logger.info(f"Користувач {message.from_user.id} перейшов у режим пошуку.")
+    await state.set_state(MenuStates.find)
+    await message.answer(SEARCH_PROMPT, reply_markup=get_cancel_keyboard(), parse_mode=ParseMode.MARKDOWN)
+
+# НОВИЙ ОБРОБНИК: Обробляє текстовий запит у стані пошуку
+@router.message(F.text, MenuStates.find)
+async def handle_search_query(message: types.Message, db_pool: asyncpg.Pool, state: FSMContext) -> None:
+    """Отримує пошуковий запит, шукає в БД і виводить результат."""
+    user_query = message.text
+    user_id = message.from_user.id
+    
+    # Якщо користувач вирішив скасувати пошук
+    if user_query.lower() == "скасувати":
+        await state.set_state(MenuStates.main_menu)
+        keyboard = await get_main_menu_keyboard(db_pool, user_id)
+        await message.answer("Пошук скасовано. Ви повернулись в головне меню.", reply_markup=keyboard)
+        return
+
+    logger.info(f"Користувач {user_id} надіслав пошуковий запит: '{user_query}'.")
+
+    # Тут ми викликаємо вашу функцію для пошуку в базі даних
+    search_results = await find_in_database(db_pool, user_query)
+    
+    if search_results:
+        # Ваш приклад з таблицею
+        # Виводимо результати як добре відформатовану таблицю або список
+        formatted_results = format_search_results(search_results)
+        await message.answer(
+            f"**Знайдено {len(search_results)} результатів:**\n\n"
+            f"{formatted_results}",
+            reply_markup=get_cancel_keyboard(),
+            parse_mode=ParseMode.MARKDOWN
+        )
+    else:
+        await message.answer(SEARCH_NO_RESULTS, reply_markup=get_cancel_keyboard())
+
+
 @router.message(F.text == "⚙️ Адміністрування", MenuStates.main_menu)
 async def handle_admin_button(
     message: types.Message,
@@ -134,7 +180,6 @@ async def command_help_handler(message: types.Message) -> None:
     user_id = message.from_user.id
     user_name = message.from_user.full_name
     logger.info(f"Користувач {user_name} (ID: {user_id}) виконав команду /help.")
-    # Використовуємо константу
     await message.answer(HELP_MESSAGE_TEXT, parse_mode=ParseMode.HTML)
 
 @router.message(Command("info"))
@@ -142,7 +187,6 @@ async def command_info_handler(message: types.Message) -> None:
     user_id = message.from_user.id
     user_name = message.from_user.full_name
     logger.info(f"Користувач {user_name} (ID: {user_id}) виконав команду /info.")
-    # Використовуємо константу
     await message.answer(INFO_MESSAGE_TEXT, parse_mode=ParseMode.HTML)
 
 @router.message(Command("find"))
@@ -150,5 +194,4 @@ async def command_find_handler(message: types.Message) -> None:
     user_id = message.from_user.id
     user_name = message.from_user.full_name
     logger.info(f"Користувач {user_name} (ID: {user_id}) виконав команду /find.")
-    # Використовуємо константу
     await message.answer(FIND_MESSAGE_TEXT, parse_mode=ParseMode.HTML)
