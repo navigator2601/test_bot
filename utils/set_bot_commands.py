@@ -13,7 +13,6 @@ async def set_default_commands(bot: Bot):
         types.BotCommand(command="help", description="Допомога по використанню бота"),
         types.BotCommand(command="info", description="Отримати інформацію про бота"),
         types.BotCommand(command="find", description="Пошук інформації"),
-        types.BotCommand(command="test", description="Кнопка для тесту чи правильний бот "),
     ]
     try:
         await bot.set_my_commands(commands)
