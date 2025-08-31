@@ -1,8 +1,4 @@
-# Файл: main.py
-# Призначення: Головний файл запуску бота.
-# Містить ініціалізацію об'єктів Bot та Dispatcher, реєстрацію роутерів,
-# middleware, а також функції для запуску та зупинки бота.
-
+# main.py
 import asyncio
 import logging
 from typing import Any
@@ -32,9 +28,6 @@ from middlewares.telethon_middleware import TelethonClientMiddleware
 # Імпорти для роутерів
 from handlers.start_handler import router as start_router
 from handlers.menu_handler import router as menu_router
-# --- НОВИЙ ІМПОРТ ДЛЯ РОУТЕРА КАТАЛОГУ ---
-from handlers.catalog_handler import router as catalog_router
-# -----------------------------------------
 
 # <--- НОВІ ІМПОРТИ ДЛЯ РОУТЕРІВ АДМІН-ПАНЕЛІ --->
 from handlers.admin.main_menu import router as admin_main_menu_router
@@ -178,11 +171,6 @@ async def main():
 
     logger.info("Реєстрація роутера 'menu_handler'.")
     dp.include_router(menu_router)
-    
-    # --- НОВА РЕЄСТРАЦІЯ РОУТЕРА КАТАЛОГУ ---
-    logger.info("Реєстрація роутера 'catalog_handler'.")
-    dp.include_router(catalog_router)
-    # -----------------------------------------
 
     logger.info("Реєстрація роутерів адмін-панелі.")
     dp.include_router(admin_main_menu_router)

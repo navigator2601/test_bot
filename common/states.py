@@ -10,7 +10,14 @@ class MenuStates(StatesGroup):
     any = State()
     
     # Стан, коли бот очікує вводу для пошуку
-    find = State() 
+    find = State()
+
+class CatalogStates(StatesGroup):
+    """Стани для роботи з каталогом кондиціонерів."""
+    search = State()
+    brand_selection = State()
+    model_selection = State()
+    model_info = State()
 
 class AdminStates(StatesGroup):
     """FSM-стани для адмін-панелі та її підрозділів."""
@@ -25,12 +32,3 @@ class AdminStates(StatesGroup):
     chat_matrix_management = State()
     waiting_for_chat_search_query = State()
     waiting_for_chat_member_id = State()
-
-# ДОДАНО: СТАНИ ДЛЯ КАТАЛОГУ
-class CatalogStates(StatesGroup):
-    """
-    Стани для модуля каталогу.
-    Цей стан використовується для зберігання інформації про модель,
-    щоб уникнути повторних запитів до БД.
-    """
-    viewing_model_info = State()
