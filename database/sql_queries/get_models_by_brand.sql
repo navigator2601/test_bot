@@ -1,7 +1,7 @@
 SELECT
     cm.model_id,
-    b.brand_name,
-    CONCAT_WS(' ', b.brand_name, s.series_name_ukr, br.btu_rating_value ) AS "Модель"
+    CONCAT_WS(' ', b.brand_name, s.series_name_ukr, br.btu_rating_value) AS "Модель",
+    s.series_name_ukr
 FROM
     conditioners.conditioner_models AS cm
 LEFT JOIN
@@ -11,6 +11,6 @@ LEFT JOIN
 LEFT JOIN
     conditioners.btu_ratings AS br ON cm.btu_rating_id = br.btu_rating_id
 WHERE
-    b.brand_name = $1
+    cm.brand_id = $1
 ORDER BY
     "Модель";
