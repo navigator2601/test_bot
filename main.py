@@ -28,13 +28,12 @@ from middlewares.telethon_middleware import TelethonClientMiddleware
 # Імпорти для роутерів
 from handlers.start_handler import router as start_router
 from handlers.menu_handler import router as menu_router
-from handlers.catalog_handler import router as catalog_router # <-- ДОДАНО: Імпорт роутера для каталогу
 
 # <--- НОВІ ІМПОРТИ ДЛЯ РОУТЕРІВ АДМІН-ПАНЕЛІ --->
 from handlers.admin.main_menu import router as admin_main_menu_router
 from handlers.admin.user_management import router as user_management_router
 from handlers.admin.telethon_operations import router as telethon_operations_router
-from handlers.admin.chat_matrix_handlers import router as chat_matrix_router
+from handlers.admin.chat_matrix_handlers import router as chat_matrix_router # <--- ДОДАНО: Імпорт роутера для Чат-матриці
 # <------------------------------------------------->
 
 # Підключення ехо для обробки некомандних повідомлень
@@ -173,15 +172,11 @@ async def main():
     logger.info("Реєстрація роутера 'menu_handler'.")
     dp.include_router(menu_router)
 
-    # Реєстрація роутера для каталогу
-    logger.info("Реєстрація роутера 'catalog_handler'.")
-    dp.include_router(catalog_router) # <-- ДОДАНО: Підключення роутера для каталогу
-
     logger.info("Реєстрація роутерів адмін-панелі.")
     dp.include_router(admin_main_menu_router)
     dp.include_router(user_management_router)
     dp.include_router(telethon_operations_router)
-    dp.include_router(chat_matrix_router)
+    dp.include_router(chat_matrix_router) # <--- ДОДАНО: Включення роутера Чат-матриці
 
     # echo_router для обробки некомандних повідомлень (завжди останнім!)
     logger.info("Реєстрація роутера 'echo_handler' (для невідомих кнопок та повідомлень).")

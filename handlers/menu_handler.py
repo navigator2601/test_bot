@@ -1,4 +1,6 @@
 # Файл: handlers/menu_handler.py
+# Призначення: Обробка натискань кнопок головного меню та команд.
+# Містить логіку навігації, переходу до адмін-панелі та новий функціонал пошуку.
 
 import logging
 import math
@@ -110,9 +112,7 @@ async def handle_search_query(message: types.Message, db_pool: asyncpg.Pool, sta
     # Якщо користувач вирішив скасувати пошук
     if user_query.lower() == "скасувати":
         await state.set_state(MenuStates.main_menu)
-        # Отримуємо рівень доступу для створення клавіатури
-        access_level = await get_user_access_level(db_pool, user_id)
-        keyboard = await get_main_menu_keyboard(access_level, 0)
+        keyboard = await get_main_menu_keyboard(db_pool, user_id)
         await message.answer("Пошук скасовано. Ви повернулись в головне меню.", reply_markup=keyboard)
         return
 
