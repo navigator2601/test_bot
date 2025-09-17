@@ -15,7 +15,7 @@ import asyncpg
 from keyboards.reply_keyboard import get_main_menu_keyboard, get_main_menu_pages_info, get_cancel_keyboard
 from keyboards.admin_keyboard import get_admin_main_keyboard
 from database.users_db import get_user_access_level
-from database.db_search_functions import find_in_database, format_search_results
+#from database.db_search_functions import find_in_database, format_search_results
 from common.messages import (
     get_access_level_description,
     get_random_admin_welcome_message,
@@ -32,6 +32,17 @@ from common.states import AdminStates, MenuStates
 logger = logging.getLogger(__name__)
 
 router = Router()
+
+# ЦЕЙ ОБРОБНИК МАЄ БУТИ ПЕРШИМ!
+# Він буде спрацьовувати для ручного введення "каталог"
+@router.message(F.text.lower() == "каталог")
+async def show_catalog_from_text_handler(message: types.Message, db_pool: asyncpg.Pool, state: FSMContext):
+    """
+    Обробляє запит на показ каталогу, введений вручну.
+    """
+    await show_catalog_handler(message, db_pool, state)
+
+
 
 @router.message(F.text == "⬅️ Назад", MenuStates.main_menu)
 @router.message(F.text == "➡️ Іще", MenuStates.main_menu)

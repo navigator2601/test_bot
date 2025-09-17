@@ -46,7 +46,6 @@ logger = logging.getLogger(__name__)
 # Глобальний екземпляр TelethonManager
 telethon_manager: TelethonClientManager = None
 
-
 async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
     """
     Функція, що виконується при запуску бота.
@@ -86,7 +85,6 @@ async def on_bot_startup(bot: Bot, dispatcher: Dispatcher) -> None:
 
     logger.info("Завершення on_startup.")
 
-
 async def on_bot_shutdown(bot: Bot, dispatcher: Dispatcher) -> None:
     """
     Функція, що виконується при завершенні роботи бота.
@@ -116,10 +114,10 @@ async def on_bot_shutdown(bot: Bot, dispatcher: Dispatcher) -> None:
     await bot.session.close()
     logger.info("Сесію бота закрито.")
 
-
 async def main():
     logger.info("Початок виконання головної асинхронної функції 'main'.")
 
+    # ВИПРАВЛЕННЯ: Тепер config.bot_token є звичайним рядком
     bot_token_value = config.bot_token
 
     if not bot_token_value:
@@ -172,6 +170,11 @@ async def main():
     logger.info("Реєстрація роутера 'menu_handler'.")
     dp.include_router(menu_router)
 
+    # ДОДАЄМО РОУТЕР КАТАЛОГУ
+    from handlers.catalog_handler import router as catalog_router
+    logger.info("Реєстрація роутера 'catalog_handler'.")
+    dp.include_router(catalog_router)
+
     logger.info("Реєстрація роутерів адмін-панелі.")
     dp.include_router(admin_main_menu_router)
     dp.include_router(user_management_router)
@@ -193,7 +196,6 @@ async def main():
         logger.critical(f"Критична помилка під час polling: {e}", exc_info=True)
 
     logger.info("dp.start_polling завершив роботу.")
-
 
 if __name__ == "__main__":
     logger.info("Ядро ініціалізовано: активація блоку `if __name__ == '__main__'` розпочата...")
