@@ -4,6 +4,9 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from typing import List, Dict
 
+# Імпортуємо нову функцію
+from services.message_formatter import get_model_word_form
+
 async def get_brands_inline_keyboard(brands: List[Dict]) -> InlineKeyboardMarkup:
     """
     Створює інлайн-клавіатуру з кнопками для кожного бренду.
@@ -13,26 +16,27 @@ async def get_brands_inline_keyboard(brands: List[Dict]) -> InlineKeyboardMarkup
     current_row = []
     
     # Створення кнопок для кожного бренду.
-    # Додаємо по дві кнопки в ряду для компактності.
     for brand in brands:
         brand_name = brand['Бренд']
         model_count = brand['Кількість моделей']
-        button_text = f"{brand_name} ({model_count})"
+        
+        # Використовуємо функцію для відмінювання слова 'модель'
+        word_form = get_model_word_form(model_count)
+        
+        # Виправлено: прибрано HTML-теги з тексту кнопки, оскільки Telegram не підтримує їх
+        # та використано функцію відмінювання.
+        button_text = f"{brand_name} ({model_count} {word_form})"
         callback_data = f"brand_{brand_name}"
         
         current_row.append(InlineKeyboardButton(text=button_text, callback_data=callback_data))
         
-        # Перевіряємо, чи поточний рядок має 2 кнопки. Якщо так - додаємо його до загального списку
-        # та очищаємо для наступних кнопок.
         if len(current_row) == 2:
             keyboard_buttons.append(current_row)
             current_row = []
 
-    # Якщо після циклу в current_row залишилася одна кнопка, додаємо її до загального списку.
     if current_row:
         keyboard_buttons.append(current_row)
 
-    # Додаємо кнопку "В головне меню" в кінець, на весь рядок
     keyboard_buttons.append(
         [InlineKeyboardButton(text="⬅️ В головне меню", callback_data="back_to_main_menu")]
     )
@@ -65,9 +69,37 @@ async def get_models_inline_keyboard(models: List[Dict]) -> InlineKeyboardMarkup
     if current_row:
         keyboard_buttons.append(current_row)
 
-    # Додаємо кнопку "В головне меню" в кінець
+    # Додано кнопку "Назад до брендів"
+    keyboard_buttons.append(
+        [InlineKeyboardButton(text="⬅️ Назад до брендів", callback_data="back_to_brands")]
+    )
+
+    # Додаємо кнопку "В головне меню"
     keyboard_buttons.append(
         [InlineKeyboardButton(text="⬅️ В головне меню", callback_data="back_to_main_menu")]
+    )
+    
+    return InlineKeyboardMarkup(inline_keyboard=keyboard_buttons)
+
+
+async def get_model_details_menu_keyboard(model_id: int, brand_name: str) -> InlineKeyboardMarkup:
+    """
+    Створює інлайн-клавіатуру для детальної інформації про модель.
+    
+    :param model_id: ID моделі.
+    :param brand_name: Назва бренду.
+    :return: Об'єкт InlineKeyboardMarkup з кнопками.
+    """
+    keyboard_buttons = [
+        [InlineKeyboardButton(text="Опис", callback_data=f"model_details_desc_{model_id}")],
+        [InlineKeyboardButton(text="Загальні характеристики", callback_data=f"model_details_general_{model_id}")],
+        [InlineKeyboardButton(text="Функції", callback_data=f"model_details_functions_{model_id}")],
+        [InlineKeyboardButton(text="Технічні параметри", callback_data=f"model_details_technical_{model_id}")],
+        [InlineKeyboardButton(text="Монтажні параметри", callback_data=f"model_details_installation_{model_id}")]
+    ]
+    
+    keyboard_buttons.append(
+        [InlineKeyboardButton(text="⬅️ Назад до моделей", callback_data=f"back_to_models_{brand_name}")]
     )
     
     return InlineKeyboardMarkup(inline_keyboard=keyboard_buttons)

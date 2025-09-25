@@ -18,7 +18,8 @@ from services.message_formatter import format_model_details_message
 router = Router()
 logger = logging.getLogger(__name__)
 
-CATALOG_ACTIVATED_MESSAGE = "⚡ Каталог активовано! \\nКристали даних виявили бренди:"
+# Виправлено: прибрано зайвий слеш для коректного відображення в HTML
+CATALOG_ACTIVATED_MESSAGE = "⚡ Каталог активовано! \nКристали даних виявили бренди:"
 
 @router.message(F.text == "📚 Каталог")
 async def show_catalog_handler_message(message: Message, db_pool: Pool):
@@ -31,7 +32,6 @@ async def show_catalog_handler_message(message: Message, db_pool: Pool):
     user_name = message.from_user.full_name
     logger.info(f"Користувач {user_name} (ID: {user_id}) натиснув кнопку '📚 Каталог'.")
     
-    # Відправляємо тимчасове повідомлення, щоб приховати реплі-клавіатуру
     sent_temp_message = await message.answer(
         "Завантаження...",
         reply_markup=ReplyKeyboardRemove()
@@ -78,6 +78,27 @@ async def back_to_main_menu_handler(callback_query: CallbackQuery, db_pool: Pool
     )
     await callback_query.answer()
 
+@router.callback_query(F.data == "back_to_brands")
+async def back_to_brands_handler(callback_query: CallbackQuery, db_pool: Pool):
+    """
+    Обробляє натискання кнопки "Назад до брендів".
+    Повертає користувача до списку брендів.
+    """
+    user_id = callback_query.from_user.id
+    user_fullname = callback_query.from_user.full_name
+    logger.info(f"Користувач {user_fullname} (ID: {user_id}) повернувся до списку брендів.")
+
+    brands = await get_all_brands_with_count(db_pool)
+    keyboard = await get_brands_inline_keyboard(brands)
+    
+    await callback_query.message.edit_text(
+        CATALOG_ACTIVATED_MESSAGE,
+        reply_markup=keyboard,
+        parse_mode=ParseMode.HTML
+    )
+    
+    await callback_query.answer()
+
 @router.callback_query(F.data.startswith("brand_"))
 async def show_models_handler(callback_query: CallbackQuery, db_pool: Pool):
     """
@@ -93,9 +114,9 @@ async def show_models_handler(callback_query: CallbackQuery, db_pool: Pool):
     if models:
         keyboard = await get_models_inline_keyboard(models)
         await callback_query.message.edit_text(
-            f"✅ Ось список моделей для бренду **{brand_name}**:",
+            f"✅ Ось список моделей для бренду <b>{brand_name}</b>:",
             reply_markup=keyboard,
-            parse_mode=ParseMode.MARKDOWN
+            parse_mode=ParseMode.HTML
         )
     else:
         await callback_query.message.edit_text("❌ На жаль, моделі для цього бренду не знайдено.")
@@ -126,7 +147,6 @@ async def show_model_details_handler(callback_query: CallbackQuery, db_pool: Poo
     model_data = await get_model_details_by_id(db_pool, model_id)
     
     if model_data:
-        # Виправлення: прибираємо `await`, оскільки функція синхронна
         formatted_message = format_model_details_message(model_data)
         
         keyboard = await get_back_to_models_keyboard(brand_name_from_callback)
