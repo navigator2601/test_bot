@@ -35,7 +35,9 @@ from handlers.admin.user_management import router as user_management_router
 from handlers.admin.telethon_operations import router as telethon_operations_router
 from handlers.admin.chat_matrix_handlers import router as chat_matrix_router # <--- ДОДАНО: Імпорт роутера для Чат-матриці
 # <------------------------------------------------->
-
+# <--- ДОДАНО НОВИЙ ІМПОРТ ДЛЯ АБО РЕДАГУВАННЯ ДОДАВАННЯ ДАНИХ ДО БД--->
+from handlers.admin.db_operations import router as db_operations_router 
+# ----------------------------
 # Підключення ехо для обробки некомандних повідомлень
 from handlers.echo_handler import router as echo_router
 
@@ -180,6 +182,11 @@ async def main():
     dp.include_router(user_management_router)
     dp.include_router(telethon_operations_router)
     dp.include_router(chat_matrix_router) # <--- ДОДАНО: Включення роутера Чат-матриці
+    
+    # <--- ДОДАНО НОВИЙ РОУТЕР ДЛЯ ДОДАВАННЯ ЧИ РЕДАГУВАННЯ ДАНИХ В БД--->
+    logger.info("Реєстрація роутера 'db_operations_handler'.")
+    dp.include_router(db_operations_router)
+    # ----------------------------
 
     # echo_router для обробки некомандних повідомлень (завжди останнім!)
     logger.info("Реєстрація роутера 'echo_handler' (для невідомих кнопок та повідомлень).")

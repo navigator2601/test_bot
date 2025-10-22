@@ -30,7 +30,7 @@ async def get_brands_inline_keyboard(brands: List[Dict]) -> InlineKeyboardMarkup
         
         current_row.append(InlineKeyboardButton(text=button_text, callback_data=callback_data))
         
-        if len(current_row) == 2:
+        if len(current_row) == 1:
             keyboard_buttons.append(current_row)
             current_row = []
 
@@ -62,7 +62,7 @@ async def get_models_inline_keyboard(models: List[Dict]) -> InlineKeyboardMarkup
         
         current_row.append(InlineKeyboardButton(text=model_name, callback_data=callback_data))
 
-        if len(current_row) == 2:
+        if len(current_row) == 1:
             keyboard_buttons.append(current_row)
             current_row = []
     
@@ -101,6 +101,7 @@ async def get_model_details_menu_keyboard(model_id: int, brand_name: str) -> Inl
     keyboard_buttons.append(
         [InlineKeyboardButton(text="⬅️ Назад до моделей", callback_data=f"back_to_models_{brand_name}")]
     )
+    
     
     return InlineKeyboardMarkup(inline_keyboard=keyboard_buttons)
 

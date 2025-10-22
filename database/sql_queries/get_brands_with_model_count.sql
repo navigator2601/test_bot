@@ -1,4 +1,5 @@
 SELECT
+    b.brand_id,               -- Додаємо brand_id
     b.brand_name AS "Бренд",
     COUNT(cm.model_id) AS "Кількість моделей"
 FROM

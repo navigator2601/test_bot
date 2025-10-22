@@ -32,3 +32,19 @@ class AdminStates(StatesGroup):
     chat_matrix_management = State()
     waiting_for_chat_search_query = State()
     waiting_for_chat_member_id = State()
+    
+# 🔥 НОВИЙ КЛАС ДЛЯ DB-ОПЕРАЦІЙ 🔥
+class DbOperationStates(StatesGroup):
+    """Стани для покрокової операції додавання/редагування даних."""
+        # Стан 1: Вхід у модуль (Вибір Додати/Редагувати)
+    db_operation_start = State() 
+    
+    # Стан 2: Вибір об'єкта для редагування
+    choosing_edit_category = State() # <--- Стан, який викликав поточну помилку
+    
+    # Стан 3: Вибір об'єкта для додавання
+    choosing_add_category = State()
+    
+    # Стан 4: Робочі стани для редагування
+    editing_brands = State()
+    editing_models = State()

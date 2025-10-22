@@ -12,5 +12,4 @@ LEFT JOIN
     conditioners.btu_ratings AS br ON cm.btu_rating_id = br.btu_rating_id
 WHERE
     b.brand_name = $1
-ORDER BY
-    "Модель";
+ORDER BY s.series_name_ukr;
