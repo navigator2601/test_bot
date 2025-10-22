@@ -1,2 +1,4 @@
 [Refridex OS • ПОМИЛКА • 2025-10-23 00:09:56.148] ❌ Помилка: aiogram.dispatcher • Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
 [Refridex OS • УВАГА • 2025-10-23 00:09:56.149] ⚠️ Попередження: aiogram.dispatcher • Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8157903938)
+[Refridex OS • ПОМИЛКА • 2025-10-23 00:23:56.166] ❌ Помилка: aiogram.dispatcher • Failed to fetch updates - TelegramNetworkError: HTTP Client says - Request timeout error
+[Refridex OS • УВАГА • 2025-10-23 00:23:56.169] ⚠️ Попередження: aiogram.dispatcher • Sleep for 1.000000 seconds and try again... (tryings = 0, bot id = 8157903938)
