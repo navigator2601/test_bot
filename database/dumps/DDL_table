@@ -1759,3 +1759,4 @@ ALTER TABLE product_meta.product_lookup ADD CONSTRAINT product_lookup_business_l
 ALTER TABLE product_meta.product_lookup ADD CONSTRAINT product_lookup_importer_id_fkey FOREIGN KEY (importer_id) REFERENCES core.legal_entities(entity_id);
 ALTER TABLE product_meta.product_lookup ADD CONSTRAINT product_lookup_manufacturer_id_fkey FOREIGN KEY (manufacturer_id) REFERENCES core.legal_entities(entity_id);
 ALTER TABLE product_meta.product_lookup ADD CONSTRAINT product_lookup_series_id_fkey FOREIGN KEY (series_id) REFERENCES product_meta.series(series_id);
+

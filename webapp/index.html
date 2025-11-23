@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Refridex OS – Панель монтажника</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="logo">
+          <div class="logo-mark"></div>
+          <div>
+            <div class="logo-text-main">REFRIDEX OS</div>
+            <div class="logo-text-sub">Панель монтажника · Конди-Ленд</div>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div><span class="status-dot"></span><span id="status-text">Онлайн · базу підключено</span></div>
+        <div id="session-label">Сесія: RFX-WEBCORE v1.0</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Ліва панель: магазини + K1–K5 -->
+      <section class="panel" id="stores-panel">
+        <div class="panel-header">
+          <div class="panel-title">Маршрут / магазини</div>
+          <div class="panel-badge">Кристал: Конди-Ленд</div>
+        </div>
+
+        <div class="store-grid" id="store-grid">
+          <!-- Приклад стартових магазинів -->
+          <button class="store-chip active" data-store="A3175" data-city="Київ">
+            <span>A3175</span> Київ
+          </button>
+          <button class="store-chip" data-store="A3146" data-city="Гатне">
+            <span>A3146</span> Гатне
+          </button>
+          <button class="store-chip" data-store="A3174" data-city="Київ">
+            <span>A3174</span> Київ
+          </button>
+          <button class="store-chip" data-store="A3091" data-city="Буча">
+            <span>A3091</span> Буча
+          </button>
+          <button class="store-chip" data-store="A3140" data-city="Київ">
+            <span>A3140</span> Київ
+          </button>
+        </div>
+
+        <div class="store-note">
+          Обери код магазину, щоб активувати вузли К1–К5 для заповнення.
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="panel-header units-header">
+          <div class="panel-title">Вузли кондиціонерів</div>
+          <div class="panel-badge" id="units-summary">A3175 · 4×24Н · 1×12Н</div>
+        </div>
+
+        <div class="units-grid" id="units-grid">
+          <!-- K1–K5 заповнюються/оновлюються через JS -->
+          <button class="unit-card active" data-unit="K1" data-type="24Н">
+            <div class="unit-header">
+              <div>
+                <div class="unit-name">K1</div>
+                <div class="unit-type">24Н</div>
+              </div>
+              <div class="unit-status">
+                <span class="status-pill partial"></span>
+                <span>частково</span>
+              </div>
+            </div>
+            <div class="unit-meta">
+              Траса: 3.3 м · Насос: 1
+            </div>
+          </button>
+
+          <button class="unit-card" data-unit="K2" data-type="24Н">
+            <div class="unit-header">
+              <div>
+                <div class="unit-name">K2</div>
+                <div class="unit-type">24Н</div>
+              </div>
+              <div class="unit-status">
+                <span class="status-pill"></span>
+                <span>не заповнено</span>
+              </div>
+            </div>
+            <div class="unit-meta">
+              Траса: — · Насос: —
+            </div>
+          </button>
+
+          <button class="unit-card" data-unit="K3" data-type="24Н">
+            <div class="unit-header">
+              <div>
+                <div class="unit-name">K3</div>
+                <div class="unit-type">24Н</div>
+              </div>
+              <div class="unit-status">
+                <span class="status-pill ready"></span>
+                <span>готово</span>
+              </div>
+            </div>
+            <div class="unit-meta">
+              Траса: 4.8 м · Насос: 1
+            </div>
+          </button>
+
+          <button class="unit-card" data-unit="K4" data-type="24Н">
+            <div class="unit-header">
+              <div>
+                <div class="unit-name">K4</div>
+                <div class="unit-type">24Н</div>
+              </div>
+              <div class="unit-status">
+                <span class="status-pill"></span>
+                <span>не заповнено</span>
+              </div>
+            </div>
+            <div class="unit-meta">
+              Траса: — · Насос: —
+            </div>
+          </button>
+
+          <button class="unit-card" data-unit="K5" data-type="12Н">
+            <div class="unit-header">
+              <div>
+                <div class="unit-name">K5</div>
+                <div class="unit-type">12Н</div>
+              </div>
+              <div class="unit-status">
+                <span class="status-pill partial"></span>
+                <span>частково</span>
+              </div>
+            </div>
+            <div class="unit-meta">
+              Траса: 1.1 м · Насос: 1
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- Права панель: форма -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Форма монтажу</div>
+          <div class="panel-badge" id="form-context">A3175 · K1 (24Н)</div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-row">
+            <div class="field-label">Довжина траси</div>
+            <div class="field-shell">
+              <div class="field-icon">📏</div>
+              <div class="field-main">
+                <input id="line-length-input" type="number" step="0.01" placeholder="3300">
+                <div class="field-suffix">мм</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-label">Дренажний насос</div>
+            <div class="field-shell">
+              <div class="field-icon">💧</div>
+              <div class="field-main">
+                <div class="field-counter">
+                  <button class="field-btn" data-target="pump" data-op="dec">−</button>
+                  <span id="pump-count">1</span>
+                  <button class="field-btn" data-target="pump" data-op="inc">+</button>
+                </div>
+                <div class="field-suffix">шт</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field-label">Пайка</div>
+            <div class="field-shell">
+              <div class="field-icon">🔥</div>
+              <div class="field-main">
+                <div class="field-counter">
+                  <button class="field-btn" data-target="solder" data-op="dec">−</button>
+                  <span id="solder-count">2</span>
+                  <button class="field-btn" data-target="solder" data-op="inc">+</button>
+                </div>
+                <div class="field-suffix">точки</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analytics-card" id="analytics-card">
+            <span><span>Стандартна траса:</span><strong id="std-length">7.0 м</strong></span>
+            <span><span>Фактична траса:</span><strong id="fact-length">4.5 м</strong></span>
+            <span><span>Перевищення:</span><strong id="over-length">0.0 м</strong></span>
+            <span><span>Дозаправка R32:</span><strong id="charge-r32">0 г</strong></span>
+          </div>
+
+          <button class="primary-btn" id="submit-btn">
+            ▶ ЗАПИСАТИ МОНТАЖ
+          </button>
+
+          <div class="hint">
+            Після запису дані підуть у кристал Refridex і з’являться в зведеній таблиці монтажів.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
