@@ -17,13 +17,13 @@ let currentStore = "A3175";
 let currentUnit = "K1";
 let currentUnitType = "24Н";
 
-// Стандартні довжини, м (можеш підлаштувати)
+// Стандартні довжини, м
 const STANDARD_LENGTH_M = {
   "24Н": 7,
   "12Н": 3
 };
 
-// Елементи
+// Елементи DOM
 const storeGrid = document.getElementById("store-grid");
 const unitsGrid = document.getElementById("units-grid");
 const formContext = document.getElementById("form-context");
@@ -138,8 +138,7 @@ submitBtn.addEventListener("click", () => {
 
   if (tg) {
     tg.sendData(JSON.stringify(payload));
-    // Можна одразу закрити WebApp, якщо хочеш:
-    // tg.close();
+    // tg.close(); // якщо захочеш закривати після відправки
   } else {
     // Для тесту в браузері без Telegram
     console.log("DEBUG payload:", payload);
@@ -150,4 +149,22 @@ submitBtn.addEventListener("click", () => {
 // Стартові значення
 updateFormContext();
 updateAnalytics();
+
+if (tg) {
+  tg.ready();
+}
+
+/* ════════════════════════════════════
+   КЕРУВАННЯ SPLASH SCREEN
+   ════════════════════════════════════ */
+
+const splash = document.getElementById("splash");
+
+// після 5 секунд splash починає fade-out через CSS,
+// а через ~5.6с ми прибираємо його з DOM
+setTimeout(() => {
+  if (splash) {
+    splash.remove();
+  }
+}, 5600);
 

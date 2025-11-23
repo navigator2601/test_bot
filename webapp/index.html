@@ -11,6 +11,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <!-- Splash-прелоадер -->
+  <div id="splash" class="splash-screen">
+    <div class="splash-inner">
+      <img src="images/logo_boot.gif" class="splash-logo" alt="Loading Refridex OS">
+      <div class="splash-title">REFRIDEX OS</div>
+      <div class="splash-sub">ініціалізація ядра Конди-Ленду…</div>
+    </div>
+  </div>
+
+  <!-- Основний додаток -->
   <div class="app">
     <header class="topbar">
       <div class="topbar-left">
@@ -67,7 +78,7 @@
         </div>
 
         <div class="units-grid" id="units-grid">
-          <!-- K1–K5 заповнюються/оновлюються через JS -->
+          <!-- K1–K5 -->
           <button class="unit-card active" data-unit="K1" data-type="24Н">
             <div class="unit-header">
               <div>
