@@ -2,231 +2,166 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Refridex OS – Панель монтажника</title>
+  <title>Refridex OS · Центр керування</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Telegram WebApp SDK -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-  <!-- Splash-прелоадер -->
+  <!-- Splash при запуску -->
   <div id="splash" class="splash-screen">
     <div class="splash-inner">
-      <img src="images/logo_boot.gif" class="splash-logo" alt="Loading Refridex OS">
+      <img src="images/logo_boot.gif" class="splash-logo" alt="Refridex OS boot">
       <div class="splash-title">REFRIDEX OS</div>
       <div class="splash-sub">ініціалізація ядра Конди-Ленду…</div>
     </div>
   </div>
 
-  <!-- Основний додаток -->
   <div class="app">
-    <header class="topbar">
-      <div class="topbar-left">
-        <div class="logo">
-          <div class="logo-mark"></div>
-          <div>
-            <div class="logo-text-main">REFRIDEX OS</div>
-            <div class="logo-text-sub">Панель монтажника · Конди-Ленд</div>
+
+    <!-- Поточна дата / час -->
+    <div class="top-date-bar" id="datetime"></div>
+
+    <!-- МОДУЛЬ 1: Довідкові -->
+    <section class="rx-module-group">
+      <div class="rx-module" data-group="reference">
+        <div class="rx-header">
+          <div class="rx-icon-cube"></div>
+          <div class="rx-header-text">
+            <div class="rx-title">РЕФРІДЕКС</div>
+            <div class="rx-subtitle">ДОВІДКОВІ МОДУЛІ</div>
+          </div>
+        </div>
+
+        <div class="rx-divider"></div>
+
+        <div class="rx-status-line">
+          <span class="rx-status-dot"></span>
+          <span>Блок знань · Доступ відкрито для всіх користувачів.</span>
+        </div>
+        <div class="rx-status-desc">Каталоги, довідники, коди помилок, інструкції — ядро знань монтажника.</div>
+
+        <div class="rx-block" data-action="catalog">
+          <div class="rx-block-icon folder"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">КАТАЛОГ</div>
+            <div class="rx-block-desc">Бренди, моделі, серії — швидкий доступ до всієї техніки.</div>
+          </div>
+        </div>
+
+        <div class="rx-block" data-action="refs">
+          <div class="rx-block-icon docs"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">ДОВІДНИКИ</div>
+            <div class="rx-block-desc">Таблиці труб, траси, кабелі, допуски, стандартні довжини.</div>
+          </div>
+        </div>
+
+        <div class="rx-block" data-action="errors">
+          <div class="rx-block-icon warning"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">КОДИ ПОМИЛОК</div>
+            <div class="rx-block-desc">Розшифровка аварій інверторів та стандартних моделей.</div>
+          </div>
+        </div>
+
+        <div class="rx-block" data-action="manuals">
+          <div class="rx-block-icon manual"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">ІНСТРУКЦІЇ</div>
+            <div class="rx-block-desc">Покрокові гіди, чек-листи, протоколи запуску й обслуговування.</div>
           </div>
         </div>
       </div>
-      <div class="topbar-right">
-        <div><span class="status-dot"></span><span id="status-text">Онлайн · базу підключено</span></div>
-        <div id="session-label">Сесія: RFX-WEBCORE v1.0</div>
+    </section>
+
+    <!-- МОДУЛЬ 2: Робочі (видно при доступі) -->
+    <section class="rx-module-group hidden" id="work-module-group">
+      <div class="rx-module" data-group="work">
+        <div class="rx-header">
+          <div class="rx-icon-cube small"></div>
+          <div class="rx-header-text">
+            <div class="rx-title">РЕФРІДЕКС</div>
+            <div class="rx-subtitle">РОБОЧІ МОДУЛІ</div>
+          </div>
+        </div>
+
+        <div class="rx-divider"></div>
+
+        <div class="rx-status-line">
+          <span class="rx-status-dot online"></span>
+          <span>Робоча зона · Доступ за розширеними правами.</span>
+        </div>
+        <div class="rx-status-desc">Маршрути, задачі, чернетки монтажів та пошук торгових точок.</div>
+
+        <div class="rx-block" data-action="shop-search">
+          <div class="rx-block-icon search"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">ПОШУК МАГАЗИНІВ</div>
+            <div class="rx-block-desc">Знайди ТТ за кодом, адресою або містом.</div>
+          </div>
+        </div>
+
+        <div class="rx-block" data-action="tt-list">
+          <div class="rx-block-icon route"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">СПИСОК ТТ / МАРШРУТИ</div>
+            <div class="rx-block-desc">Отримай список торгових точок для побудови маршруту та чернеток.</div>
+          </div>
+        </div>
+
+        <div class="rx-block" data-action="tasks">
+          <div class="rx-block-icon tasks"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">ЗАВДАННЯ В РОБОТІ</div>
+            <div class="rx-block-desc">Активні задачі монтажу, статуси, прогрес та історія виконання.</div>
+          </div>
+        </div>
       </div>
-    </header>
+    </section>
 
-    <main class="content">
-      <!-- Ліва панель: магазини + K1–K5 -->
-      <section class="panel" id="stores-panel">
-        <div class="panel-header">
-          <div class="panel-title">Маршрут / магазини</div>
-          <div class="panel-badge">Кристал: Конди-Ленд</div>
-        </div>
-
-        <div class="store-grid" id="store-grid">
-          <!-- Приклад стартових магазинів -->
-          <button class="store-chip active" data-store="A3175" data-city="Київ">
-            <span>A3175</span> Київ
-          </button>
-          <button class="store-chip" data-store="A3146" data-city="Гатне">
-            <span>A3146</span> Гатне
-          </button>
-          <button class="store-chip" data-store="A3174" data-city="Київ">
-            <span>A3174</span> Київ
-          </button>
-          <button class="store-chip" data-store="A3091" data-city="Буча">
-            <span>A3091</span> Буча
-          </button>
-          <button class="store-chip" data-store="A3140" data-city="Київ">
-            <span>A3140</span> Київ
-          </button>
-        </div>
-
-        <div class="store-note">
-          Обери код магазину, щоб активувати вузли К1–К5 для заповнення.
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="panel-header units-header">
-          <div class="panel-title">Вузли кондиціонерів</div>
-          <div class="panel-badge" id="units-summary">A3175 · 4×24Н · 1×12Н</div>
-        </div>
-
-        <div class="units-grid" id="units-grid">
-          <!-- K1–K5 -->
-          <button class="unit-card active" data-unit="K1" data-type="24Н">
-            <div class="unit-header">
-              <div>
-                <div class="unit-name">K1</div>
-                <div class="unit-type">24Н</div>
-              </div>
-              <div class="unit-status">
-                <span class="status-pill partial"></span>
-                <span>частково</span>
-              </div>
-            </div>
-            <div class="unit-meta">
-              Траса: 3.3 м · Насос: 1
-            </div>
-          </button>
-
-          <button class="unit-card" data-unit="K2" data-type="24Н">
-            <div class="unit-header">
-              <div>
-                <div class="unit-name">K2</div>
-                <div class="unit-type">24Н</div>
-              </div>
-              <div class="unit-status">
-                <span class="status-pill"></span>
-                <span>не заповнено</span>
-              </div>
-            </div>
-            <div class="unit-meta">
-              Траса: — · Насос: —
-            </div>
-          </button>
-
-          <button class="unit-card" data-unit="K3" data-type="24Н">
-            <div class="unit-header">
-              <div>
-                <div class="unit-name">K3</div>
-                <div class="unit-type">24Н</div>
-              </div>
-              <div class="unit-status">
-                <span class="status-pill ready"></span>
-                <span>готово</span>
-              </div>
-            </div>
-            <div class="unit-meta">
-              Траса: 4.8 м · Насос: 1
-            </div>
-          </button>
-
-          <button class="unit-card" data-unit="K4" data-type="24Н">
-            <div class="unit-header">
-              <div>
-                <div class="unit-name">K4</div>
-                <div class="unit-type">24Н</div>
-              </div>
-              <div class="unit-status">
-                <span class="status-pill"></span>
-                <span>не заповнено</span>
-              </div>
-            </div>
-            <div class="unit-meta">
-              Траса: — · Насос: —
-            </div>
-          </button>
-
-          <button class="unit-card" data-unit="K5" data-type="12Н">
-            <div class="unit-header">
-              <div>
-                <div class="unit-name">K5</div>
-                <div class="unit-type">12Н</div>
-              </div>
-              <div class="unit-status">
-                <span class="status-pill partial"></span>
-                <span>частково</span>
-              </div>
-            </div>
-            <div class="unit-meta">
-              Траса: 1.1 м · Насос: 1
-            </div>
-          </button>
-        </div>
-      </section>
-
-      <!-- Права панель: форма -->
-      <section class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Форма монтажу</div>
-          <div class="panel-badge" id="form-context">A3175 · K1 (24Н)</div>
-        </div>
-
-        <div class="form-section">
-          <div class="form-row">
-            <div class="field-label">Довжина траси</div>
-            <div class="field-shell">
-              <div class="field-icon">📏</div>
-              <div class="field-main">
-                <input id="line-length-input" type="number" step="0.01" placeholder="3300">
-                <div class="field-suffix">мм</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="field-label">Дренажний насос</div>
-            <div class="field-shell">
-              <div class="field-icon">💧</div>
-              <div class="field-main">
-                <div class="field-counter">
-                  <button class="field-btn" data-target="pump" data-op="dec">−</button>
-                  <span id="pump-count">1</span>
-                  <button class="field-btn" data-target="pump" data-op="inc">+</button>
-                </div>
-                <div class="field-suffix">шт</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="field-label">Пайка</div>
-            <div class="field-shell">
-              <div class="field-icon">🔥</div>
-              <div class="field-main">
-                <div class="field-counter">
-                  <button class="field-btn" data-target="solder" data-op="dec">−</button>
-                  <span id="solder-count">2</span>
-                  <button class="field-btn" data-target="solder" data-op="inc">+</button>
-                </div>
-                <div class="field-suffix">точки</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="analytics-card" id="analytics-card">
-            <span><span>Стандартна траса:</span><strong id="std-length">7.0 м</strong></span>
-            <span><span>Фактична траса:</span><strong id="fact-length">4.5 м</strong></span>
-            <span><span>Перевищення:</span><strong id="over-length">0.0 м</strong></span>
-            <span><span>Дозаправка R32:</span><strong id="charge-r32">0 г</strong></span>
-          </div>
-
-          <button class="primary-btn" id="submit-btn">
-            ▶ ЗАПИСАТИ МОНТАЖ
-          </button>
-
-          <div class="hint">
-            Після запису дані підуть у кристал Refridex і з’являться в зведеній таблиці монтажів.
+    <!-- МОДУЛЬ 3: Адміністрування (адміни) -->
+    <section class="rx-module-group hidden" id="admin-module-group">
+      <div class="rx-module admin" data-group="admin">
+        <div class="rx-header">
+          <div class="rx-icon-cube admin"></div>
+          <div class="rx-header-text">
+            <div class="rx-title">РЕФРІДЕКС</div>
+            <div class="rx-subtitle">АДМІНІСТРУВАННЯ</div>
           </div>
         </div>
-      </section>
-    </main>
+
+        <div class="rx-divider"></div>
+
+        <div class="rx-status-line admin">
+          <span class="rx-status-dot danger"></span>
+          <span>Адмін-зона · лише для операторів ядра.</span>
+        </div>
+        <div class="rx-status-desc">
+          Керування користувачами, доступами, сесіями Telethon та системними довідниками.
+        </div>
+
+        <div class="rx-block" data-action="admin-panel">
+          <div class="rx-block-icon shield"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">АДМІН ПАНЕЛЬ</div>
+            <div class="rx-block-desc">Моніторинг, журнали, статус Telethon, керування командами.</div>
+          </div>
+        </div>
+
+        <div class="rx-block" data-action="db-edit">
+          <div class="rx-block-icon db"></div>
+          <div class="rx-block-main">
+            <div class="rx-block-title">РЕДАГУВАННЯ БД</div>
+            <div class="rx-block-desc">Додавання моделей, оновлення параметрів, корекція довідників.</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </div>
 
   <script src="script.js"></script>
